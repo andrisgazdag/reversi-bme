@@ -48,14 +48,6 @@ public class Controller {
             gt = new GameTypeView();
             gt.createAndShowGUI();
             g=new GamePlayView(8);
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-            
-            g.invalidate();
             
             
             System.out.println("What would you like to start? (0=server; 1=client)");

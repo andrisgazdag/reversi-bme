@@ -7,10 +7,16 @@ package Reversi;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 /**
@@ -34,9 +40,8 @@ public class GamePlayView extends JFrame {
     GamePlayView(int size) {
         super(/*"Reversi"*/);
         //ctrl = c;
-        if (size == 8 || size == 10 || size == 12) {
+        if(size==8 || size==10 || size== 12)
             setTableSize(size);
-        }
         width = tableSize * cellSize + 2 * BORDER_SIZE;//+2*BORDER_SIZE;
         height = width;
 
@@ -46,29 +51,29 @@ public class GamePlayView extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);
 
-        /*JMenuBar menuBar = new JMenuBar();
+        JMenuBar menuBar = new JMenuBar();
 
-         JMenu menu = new JMenu("Start");
+        JMenu menu = new JMenu("Save Game");
 
-         JMenuItem menuItem = new JMenuItem("Client");
-         menuItem.addActionListener(new MenuListener());
-         menu.add(menuItem);
+        JMenuItem menuItem = new JMenuItem("Client");
+        menuItem.addActionListener(new MenuListener());
+        menu.add(menuItem);
 
-         menuItem = new JMenuItem("Server");
-         menuItem.addActionListener(new MenuListener());
-         menu.add(menuItem);
+        menuItem = new JMenuItem("Server");
+        menuItem.addActionListener(new MenuListener());
+        menu.add(menuItem);
 
-         menuBar.add(menu);
+        menuBar.add(menu);
 
-         menuItem = new JMenuItem("Clear");
-         menuItem.addActionListener(new MenuListener());
-         menuBar.add(menuItem);
+        menuItem = new JMenuItem("Load");
+        menuItem.addActionListener(new MenuListener());
+        menuBar.add(menuItem);
 
-         menuItem = new JMenuItem("Exit");
-         menuItem.addActionListener(new MenuListener());
-         menuBar.add(menuItem);
+        menuItem = new JMenuItem("Exit");
+        menuItem.addActionListener(new MenuListener());
+        menuBar.add(menuItem);
 
-         setJMenuBar(menuBar);*/
+        setJMenuBar(menuBar);
 
         add(inputPanel);
         drawPanel.setBounds(offsetX, offsetY, width, height);//(30, 30, 600, 600);//(230, 30, 200, 200);
@@ -81,38 +86,64 @@ public class GamePlayView extends JFrame {
             @Override
             public void mousePressed(MouseEvent e) {
                 System.out.println("X:" + e.getX() + " Y:" + e.getY());
-                // ctrl.sendClick(new Point(e.getX(), e.getY()));
+               // ctrl.sendClick(new Point(e.getX(), e.getY()));
                 //itt meghatározzuk, hogy mely négyzetrácsba kattintottunk majd
                 //enenk megfelelően rakjuk be a pontokat tároló listába a pontot
                 int Y = ((e.getY() - BORDER_SIZE) / cellSize);
                 int X = ((e.getX() - BORDER_SIZE) / cellSize);
                 //le kell csekkolni, hogy a keretre kattintást ne érzékelje
-                if (X < tableSize && Y < tableSize && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
-                    addPoint(new Point(X * cellSize + BORDER_SIZE, Y * cellSize + BORDER_SIZE));
+//                if (X < tableSize && Y < tableSize && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
+//                    addPoint(new Point(X * cellSize + BORDER_SIZE, Y * cellSize + BORDER_SIZE),  1);
+//                }
+                if(e.isMetaDown()) //jobb egér klikk
+                {
+                    if (X < tableSize && Y < tableSize && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
+                    addPoint(new Point(X * cellSize + BORDER_SIZE, Y * cellSize + BORDER_SIZE),  1);
+                }
+                }
+                else  //bal egér klikk
+                {
+                    if (X < tableSize && Y < tableSize && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
+                    addPoint(new Point(X * cellSize + BORDER_SIZE, Y * cellSize + BORDER_SIZE),  0);
+                }
                 }
             }
         });
-        drawPanel.repaint();  //nem mukodik
+        
         setVisible(true);
+        drawPanel.repaint();  //nem mukodik
+        for(int i=0;i<8;++i)
+        {
+            addPoint(new Point(i * cellSize + BORDER_SIZE, i * cellSize + BORDER_SIZE), i%2);
+        }
+            
     }
 
-    public void setController(Controller c) {
+ public void setController(Controller c)
+    {
         ctrl = c;
     }
-
-    void setTableSize(int t) {
-        tableSize = t;
-    }
-
-    void addPoint(Point p) {
-        drawPanel.points.add(p);
+void setTableSize(int t)
+{
+    tableSize=t;
+}
+    void addPoint(Point p, int Color) {
+        if(Color==1)
+        {
+            drawPanel.pointsBlue.add(p);
+        }
+        else 
+        {
+            drawPanel.pointsRed.add(p);
+        }
         drawPanel.repaint();
     }
 
     private class DrawPanel extends JPanel {
 
         private static final long serialVersionUID = 1L;
-        ArrayList<Point> points = new ArrayList<Point>();
+        ArrayList<Point> pointsBlue = new ArrayList<Point>();
+        ArrayList<Point> pointsRed = new ArrayList<Point>();
 
         @Override
         protected void paintComponent(Graphics g) {
@@ -150,27 +181,33 @@ public class GamePlayView extends JFrame {
 
             //pöttyök kirajzolása
             g.setColor(Color.red);
-            for (Point p : points) {
+            for (Point p : pointsRed) {
+                g.fillOval(p.x, p.y, CircleSize, CircleSize);
+            }
+            
+            g.setColor(Color.blue);
+            for (Point p : pointsBlue) {
                 g.fillOval(p.x, p.y, CircleSize, CircleSize);
             }
         }
     }
-//    private class MenuListener implements ActionListener {
-//
-//        public void actionPerformed(ActionEvent e) {
-//           /* if (e.getActionCommand().equals("Clear")) {
-//                drawPanel.points.clear();
-//                drawPanel.repaint();
-//            }
-//            if (e.getActionCommand().equals("Exit")) {
-//                System.exit(0);
-//            }
-//            if (e.getActionCommand().equals("Server")) {
-//               // ctrl.startServer();
-//            }
-//            if (e.getActionCommand().equals("Client")) {
-//                //ctrl.startClient();
-//            }*/
-//        }
-//    }
+
+    private class MenuListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+           /* if (e.getActionCommand().equals("Clear")) {
+                drawPanel.points.clear();
+                drawPanel.repaint();
+            }
+            if (e.getActionCommand().equals("Exit")) {
+                System.exit(0);
+            }
+            if (e.getActionCommand().equals("Server")) {
+               // ctrl.startServer();
+            }
+            if (e.getActionCommand().equals("Client")) {
+                //ctrl.startClient();
+            }*/
+        }
+    }
 }

@@ -136,12 +136,7 @@ public class GameTypeView extends JPanel
         tablePanel.add(tableSizeButton8);
         tablePanel.add(tableSizeButton10);
         tablePanel.add(tableSizeButton12);
-        //tablePanel.setBackground(Color.LIGHT_GRAY);
-        //  mainPanel.add(radioPanel3);
 
-
-        //add(radioPanel, FlowLayout.CENTER);
-        // add(picture, Bo1rderLayout.CENTER);
         userNameInputPanel = new JPanel();
         nameField = new TextField(20);
         nameField.setText("Béla");
@@ -189,9 +184,7 @@ public class GameTypeView extends JPanel
         startButton.addActionListener(this);
         startButton.setToolTipText("Let the game begin!");
 
-        //startButton.setAlignmentY(0);
-        //serverNameInputPanel.add(startButton);
-        //serverNameInputPanel.setBackground(Color.red);
+       
         mainPanel.add(serverNameInputPanel, BorderLayout.AFTER_LAST_LINE);
         add(mainPanel, BorderLayout.CENTER);
         add(startButton, BorderLayout.SOUTH);
@@ -214,22 +207,19 @@ public class GameTypeView extends JPanel
     }
 
     public void actionPerformed(ActionEvent e) {
-        if ("start".equals(e.getActionCommand())) {
+        if ("start".equals(e.getActionCommand())) {  // ez hívódik meg a startgombra kattintáskor
 
 
-            frame.dispose();
+            frame.dispose();  //jelenlegi ablak becsukása
             //Controller c = new Control();
             //GamePlayView g = new GamePlayView();
             // ctrl.startSinglePlayerGame(tableSize);
-
-
-            //c.setGUI(g);
-        } else if ("Kétszemélyes".equals(e.getActionCommand())) {
+        } else if ("Kétszemélyes".equals(e.getActionCommand())) { // ez hívódik meg ha a kétszemélyes gombra kattintunk
             hardButton.setEnabled(false);
             easyButton.setEnabled(false);
             serverButton.setEnabled(true);
             clientButton.setEnabled(true);
-            if (clientButton.isSelected()) {
+            if (clientButton.isSelected()) { //ha ki van jelölve a kliens gomba kkor a táblaméret inaktív
                 tableSizeButton8.setEnabled(false);
                 tableSizeButton10.setEnabled(false);
                 tableSizeButton12.setEnabled(false);
@@ -265,10 +255,6 @@ public class GameTypeView extends JPanel
             serverNameField.setEnabled(true);
         }
 
-        /* else
-         {
-         startButton.setEnabled(true);
-         }*/
     }
 
     public static void createAndShowGUI() {
