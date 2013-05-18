@@ -48,6 +48,7 @@ public class Controller {
             gt = new GameTypeView();
             gt.createAndShowGUI();
             g=new GamePlayView(8);
+            g.createAndShowGUI(g);
             
             
             System.out.println("What would you like to start? (0=server; 1=client)");
