@@ -1,0 +1,19 @@
+máj. 13, 2013 9:58:15 DU Network.NetworkCommunicator run
+INFO: New server thread is started...
+máj. 13, 2013 9:58:15 DU Network.NetworkCommunicator$GameAdvertiser run
+FINE: New GameAdvertiser started...
+máj. 13, 2013 9:58:15 DU Network.NetworkCommunicator waitForClient
+SEVERE: Server could not be reserved: {0}
+java.net.BindException: Address already in use: JVM_Bind
+	at java.net.DualStackPlainSocketImpl.bind0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketBind(DualStackPlainSocketImpl.java:96)
+	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:376)
+	at java.net.PlainSocketImpl.bind(PlainSocketImpl.java:175)
+	at java.net.ServerSocket.bind(ServerSocket.java:376)
+	at java.net.ServerSocket.<init>(ServerSocket.java:237)
+	at java.net.ServerSocket.<init>(ServerSocket.java:128)
+	at Network.NetworkCommunicator.waitForClient(NetworkCommunicator.java:220)
+	at Network.NetworkCommunicator.run(NetworkCommunicator.java:86)
+
+máj. 13, 2013 9:58:15 DU Network.NetworkCommunicator$GameAdvertiser run
+WARNING: IOException in advertizement: Address already in use: Cannot bind

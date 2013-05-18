@@ -1,0 +1,8 @@
+May 11, 2013 7:18:56 PM Network.NetworkCommunicator run
+INFO: New Client thread is started...
+May 11, 2013 7:18:57 PM Network.NetworkCommunicator searchForGames
+INFO: Adding game to available games: This is a new game at: 1368292731822
+May 11, 2013 7:18:57 PM Network.NetworkCommunicator connectToGame
+FINE: Connecting to game: This is a new game at: 1368292731822
+May 11, 2013 7:18:57 PM Network.NetworkCommunicator stopSearchingForGames
+FINE: Searching for games has stopped.

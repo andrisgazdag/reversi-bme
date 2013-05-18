@@ -1,0 +1,8 @@
+máj. 13, 2013 10:00:29 DU Network.NetworkCommunicator run
+INFO: New Client thread is started...
+máj. 13, 2013 10:00:30 DU Network.NetworkCommunicator searchForGames
+INFO: Adding game to available games: This is a new game at: 1368475217751
+máj. 13, 2013 10:00:30 DU Network.NetworkCommunicator connectToGame
+FINE: Connecting to game: This is a new game at: 1368475217751
+máj. 13, 2013 10:00:30 DU Network.NetworkCommunicator stopSearchingForGames
+FINE: Searching for games has stopped.
