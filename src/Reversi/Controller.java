@@ -19,6 +19,10 @@ public class Controller {
         g = new GamePlayView(8, this);
         
     }
+    
+    public String[] getAvailableServerList() {
+        return null;
+    }
 
     public static void main(String[] args) {
 

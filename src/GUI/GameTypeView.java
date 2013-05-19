@@ -151,7 +151,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
             userNameInputPanel.add(new Label("Név:"));
             userNameInputPanel.add(nameField);
             userNameInputPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
-            add(userNameInputPanel, BorderLayout.NORTH);
+            framePanel.add(userNameInputPanel, BorderLayout.NORTH);
 
             serverNameInputPanel = new JPanel();
             serverNameInputPanel.setLayout(new GridLayout(2, 2));
@@ -181,8 +181,6 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
         serverNameInputPanel.add(new Label("Szerverek:"));
         serverNameInputPanel.add(serverList);
 
-        //this.setVisible(true);
-
         framePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));//az egész ablakon belül 20 pixel keret
 
         {
@@ -207,7 +205,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
         //newContentPane.setOpaque(true); //content panes must be opaque
         setContentPane(framePanel);
 
-        setPreferredSize(new Dimension(400, 300));
+        setPreferredSize(new Dimension(400, 350));
         
         //Display the window.
         pack();
