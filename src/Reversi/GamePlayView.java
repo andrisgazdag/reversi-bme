@@ -59,7 +59,7 @@ public class GamePlayView extends JFrame {
 
         fc = new JFileChooser();  //fájl betöltéshez kell
         //setSize(700, 750);
-        setSize(width + tableSize + 20, height + tableSize + 90);  //az abéak mérete
+        setSize(width + tableSize + 0, height + tableSize + 90);  //az abéak mérete
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -120,10 +120,10 @@ public class GamePlayView extends JFrame {
         //pontszámok kiírása
         ScoreBlue = new JLabel("2");
         ScoreBlue.setForeground(Color.blue);
-        ScoreBlue.setFont(new Font("Dialog", Font.BOLD, 20));
+        ScoreBlue.setFont(new Font("Dialog", Font.BOLD, 30));
         ScoreRed = new JLabel("2");
         ScoreRed.setForeground(Color.red);
-        ScoreRed.setFont(new Font("Dialog", Font.BOLD, 20));
+        ScoreRed.setFont(new Font("Dialog", Font.BOLD, 30));
 
         JPanel status = new JPanel();
         status.setLayout(new BorderLayout());
