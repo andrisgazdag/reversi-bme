@@ -1,46 +1,77 @@
 package Reversi;
 
-import Enums.ReversiType;
 import Enums.GameLevel;
+import Enums.ReversiType;
 import Enums.TableSize;
 import GUI.GamePlayView;
 import GUI.GameTypeView;
+import Network.NetworkCommunicator;
 
 public class Controller {
 
     ReversiType gameMode = null;
-    GameTypeView gt;
-    GamePlayView g;
-    private LocalGame lg = null;
+    GameTypeView gameTypeView;
+    GamePlayView gameView;
+    NetworkCommunicator networkCommunicator = null;
 
     public Controller() {
-
         // beállítások
-        gt = new GameTypeView(this);
+        gameTypeView = new GameTypeView(this);
+    }
 
-        // indul a játék
-        g = new GamePlayView(TableSize.SMALL, this);
-        
-    }
-    
     public String[] getAvailableServerList() {
-        return null;
+
+        if (networkCommunicator == null) {
+            networkCommunicator = new NetworkCommunicator(ReversiType.CLIENT);
+        }
+        return networkCommunicator.getAvailableGames();
+
     }
-    
-    public void startSingleGame(GameLevel level, TableSize size, String name) {
-        
+
+    public void startSingleGame(GameLevel level, TableSize size, String playerName) {
+
+        gameTypeView = null; // release the object
+        gameView = new GamePlayView(size, this); // start new frame
+
     }
-    
-    public void startServerGame() {
-        
+
+    public void startServerGame(TableSize size, String serverName, String playerName) {
+
+        gameTypeView = null; // release the object
+
+        gameView = new GamePlayView(size, this); // start new frame
+
     }
-    
-    public void startClientGame() {
-        
+
+    public void startClientGame(String plyerName, String choosenServer) {
     }
-    
+
+    public void startNetworkCommunicator(ReversiType type, String gameName) {
+
+        if (networkCommunicator != null) {
+            if (type == networkCommunicator.getGameType()) {
+                return;
+            }
+        }
+
+        stopNetworkCommunicator();
+      
+        networkCommunicator = new NetworkCommunicator(type);
+       
+        if (type == ReversiType.SERVER) {
+            networkCommunicator.setGameName(gameName);
+        }
+
+    }
+
+    public void stopNetworkCommunicator() {
+        if (networkCommunicator != null) {
+            networkCommunicator.commitSuicide();
+            networkCommunicator = null;
+        }
+    }
+
     public void loadGame() {
-        
     }
 
     public static void main(String[] args) {
@@ -111,3 +142,5 @@ public class Controller {
          */
     }
 }
+// indul a játék
+//g = new GamePlayView(TableSize.SMALL, this);

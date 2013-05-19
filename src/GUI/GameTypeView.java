@@ -1,5 +1,8 @@
 package GUI;
 
+import Enums.GameLevel;
+import Enums.ReversiType;
+import Enums.TableSize;
 import Reversi.Controller;
 import java.awt.*;
 import java.awt.event.*;
@@ -49,7 +52,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
         this.ctrl = ctrl;
 
         fc = new JFileChooser();  //fájl betöltéshez kell
-        
+
         //Create the radio buttons:
         {
             hardButton = new JRadioButton(hard);
@@ -90,7 +93,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
         {
             hardButton.setToolTipText("Nincs esélyed!");
             easyButton.setToolTipText("Talán van esélyed!");
-            
+
         }
 
         //Group the radio buttons. Only one button is selectable in each group.
@@ -200,20 +203,20 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
             startButton.setToolTipText("Let the game begin!");
         }
 
-            loadGameButton = new JButton("Betöltés");
-           loadGameButton.setVerticalTextPosition(AbstractButton.CENTER);
-            loadGameButton.setHorizontalTextPosition(AbstractButton.LEADING); 
-           // loadGameButton.setActionCommand("start");
-            loadGameButton.addActionListener(this);
-            loadGameButton.setToolTipText("Mentett játék folytatása.");
-            //loadGameButton.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
-           
+        loadGameButton = new JButton("Betöltés");
+        loadGameButton.setVerticalTextPosition(AbstractButton.CENTER);
+        loadGameButton.setHorizontalTextPosition(AbstractButton.LEADING);
+        // loadGameButton.setActionCommand("start");
+        loadGameButton.addActionListener(this);
+        loadGameButton.setToolTipText("Mentett játék folytatása.");
+        //loadGameButton.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
+
         mainPanel.add(serverNameInputPanel, BorderLayout.AFTER_LAST_LINE);
-        
-        gameButtonsPanel = new JPanel(new BorderLayout(0,5));
-        gameButtonsPanel.add(startButton,BorderLayout.NORTH);
+
+        gameButtonsPanel = new JPanel(new BorderLayout(0, 5));
+        gameButtonsPanel.add(startButton, BorderLayout.NORTH);
         gameButtonsPanel.add(loadGameButton, BorderLayout.SOUTH);
-                
+
         framePanel.add(mainPanel, BorderLayout.CENTER);
         framePanel.add(gameButtonsPanel, BorderLayout.SOUTH);
         //startButton.setSize(5, 5);
@@ -226,7 +229,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
         setContentPane(framePanel);
 
         setPreferredSize(new Dimension(400, 390));
-        
+
         //Display the window.
         pack();
         setVisible(true);
@@ -249,8 +252,58 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                 //Controller c = new Control();
                 //GamePlayView g = new GamePlayView();
                 // ctrl.startSinglePlayerGame(tableSize);
-                name=nameField.getText();
+                name = nameField.getText();
+
+                // inditani kell a jatekot a kivalasztott opcioknak megfeleloen
+                if (singlePlayerButton.isSelected()) {
+                    // start single game
+                    GameLevel level = null;
+                    TableSize size = null;
+
+                    // get game level
+                    if (easyButton.isSelected()) {
+                        level = GameLevel.EASY;
+                    } else {
+                        level = GameLevel.HARD;
+                    }
+
+                    // get table size
+                    if (tableSizeButton8.isSelected()) {
+                        size = TableSize.SMALL;
+                    } else if (tableSizeButton10.isSelected()) {
+                        size = TableSize.MEDIUM;
+                    } else {
+                        size = TableSize.BIG;
+                    }
+
+                    ctrl.startSingleGame(level, size, name);
+
+                } else {
+                    // start multiplayer game
+                    TableSize size = null;
+                    // get table size
+                    if (tableSizeButton8.isSelected()) {
+                        size = TableSize.SMALL;
+                    } else if (tableSizeButton10.isSelected()) {
+                        size = TableSize.MEDIUM;
+                    } else {
+                        size = TableSize.BIG;
+                    }
+                    
+                    if (serverButton.isSelected()) {
+                        // start a new server with selected name
+                        String serverName = serverNameField.getText();
+                        ctrl.startServerGame(size, serverName, name);
+                    } else {
+                        // start a new client with choosen server
+                        String choosenServer = serverList.getSelectedItem();
+                        ctrl.startClientGame(name, choosenServer);
+                    }
+                }
+
+
                 break;
+                
             case "Kétszemélyes":
                 // ez hívódik meg ha a kétszemélyes gombra kattintunk
                 hardButton.setEnabled(false);
@@ -268,6 +321,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                     tableSizeButton12.setEnabled(true);
                     serverNameField.setEnabled(true);
                 }
+                ctrl.startNetworkCommunicator(ReversiType.SERVER, "ServerGame");
                 break;
             case "Egyszemélyes":
                 hardButton.setEnabled(true);
@@ -278,6 +332,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                 tableSizeButton10.setEnabled(true);
                 tableSizeButton12.setEnabled(true);
                 serverList.setEnabled(false);
+                ctrl.stopNetworkCommunicator();
                 break;
             case "Kliens":
                 tableSizeButton8.setEnabled(false);
@@ -285,6 +340,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                 tableSizeButton12.setEnabled(false);
                 serverList.setEnabled(true);
                 serverNameField.setEnabled(false);
+                ctrl.startNetworkCommunicator(ReversiType.CLIENT, null);
                 break;
             case "Szerver":
                 tableSizeButton8.setEnabled(true);
@@ -292,6 +348,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                 tableSizeButton12.setEnabled(true);
                 serverList.setEnabled(false);
                 serverNameField.setEnabled(true);
+                ctrl.startNetworkCommunicator(ReversiType.SERVER, "ServerGame");
                 break;
             case "Betöltés":
                 int returnVal = fc.showOpenDialog(GameTypeView.this);
@@ -300,7 +357,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                     System.out.println("Opening: " + file.getName() + ".");
                     dispose();// ablak becsukása
                     //todo: játék betöltése és indítása
-                    
+
                 } else { // Béla mégsem akar betölteni semmit, így visszatérünk az előző ablakhoz
                     System.out.println("Open command cancelled by user.");
                 }
@@ -308,5 +365,4 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
         }
 
     }
-    
 }

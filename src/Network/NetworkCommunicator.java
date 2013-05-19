@@ -45,6 +45,10 @@ public class NetworkCommunicator extends Thread {
     private HashMap<String, DatagramPacket> availableGames = new HashMap<>();
     // in client mode it controlls the the search intervallum
     private boolean needToSearchForGames;
+    // the game advertiser
+    private GameAdvertiser gameAD = null;
+    // game name
+    private String gameName = null;
 
     /**
      * C'tor of the NetworkCommunicator class
@@ -71,6 +75,23 @@ public class NetworkCommunicator extends Thread {
         } catch (IOException e) {
             System.out.println("logger initialisation error: " + e.getLocalizedMessage());
         }
+
+    }
+
+    public void commitSuicide() {
+
+        if (gameAD != null) {
+            gameAD.stopAdvertise();
+        }
+        stopSearchingForGames();
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (IOException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            }
+        }
+        this.interrupt();
     }
 
     @Override
@@ -81,7 +102,7 @@ public class NetworkCommunicator extends Thread {
             LOGGER.log(Level.INFO, "New server thread is started...");
 
             // starting the advertiser thread
-            GameAdvertiser gameAD = new GameAdvertiser();
+            gameAD = new GameAdvertiser();
             gameAD.start();
             waitForClient();
             gameAD.stopAdvertise();
@@ -92,7 +113,6 @@ public class NetworkCommunicator extends Thread {
 
             // search for games
             searchForGames();
-
 
         } else {
 
@@ -112,8 +132,18 @@ public class NetworkCommunicator extends Thread {
 
     }
 
+    public ReversiType getGameType() {
+        return gameType;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+    
     public boolean isConnected() {
+
         return (connection != null) && (out != null) && (in != null);
+
     }
 
     public void send(NetworkPacket packet) {
@@ -129,7 +159,7 @@ public class NetworkCommunicator extends Thread {
     }
 
     public NetworkPacket recive() {
-        
+
         NetworkPacket packet = null;
 
         try {
@@ -143,7 +173,9 @@ public class NetworkCommunicator extends Thread {
     }
 
     public void endCommunications() {
+
         communicatorIsNeeded = false;
+
     }
 
     public String[] getAvailableGames() {
@@ -154,7 +186,7 @@ public class NetworkCommunicator extends Thread {
     }
 
     public boolean connectToGame(String gameName) {
-        
+
         LOGGER.log(Level.FINE, "Connecting to game: {0}", gameName);
 
         if (availableGames.containsKey(gameName)) {
@@ -210,7 +242,7 @@ public class NetworkCommunicator extends Thread {
     private void waitForClient() {
 
         // The IP Address of the communication partner
-        InetAddress partnerAddress = null;
+        // InetAddress partnerAddress = null;
         // The Server TCP communication port
         int port = 60000;
 
@@ -231,6 +263,7 @@ public class NetworkCommunicator extends Thread {
     }
 
     private void connectToServer() {
+
         try {
             // Connect to server at port: 60000
             connection = new Socket(partnerAddress, 60000);
@@ -241,6 +274,7 @@ public class NetworkCommunicator extends Thread {
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Client could not establish socket connection: {0}", ex);
         }
+
     }
 
     private class GameAdvertiser extends Thread {
@@ -264,7 +298,7 @@ public class NetworkCommunicator extends Thread {
                 s = new DatagramSocket(60006);
 
                 //TODO: ezt ki kell cserélni a helyes információra
-                NetworkPacket np = new NetworkPacket("This is a new game at: " + new Date().getTime());
+                NetworkPacket np = new NetworkPacket("Reversi game available at: " + new Date().getTime());
 
                 buf = serialisePacket(np);
 
@@ -313,7 +347,7 @@ public class NetworkCommunicator extends Thread {
         }
     }
 
-    private final NetworkPacket deserialisePacket(byte[] buf) {
+    private NetworkPacket deserialisePacket(byte[] buf) {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(buf);
         ObjectInputStream ois = null;

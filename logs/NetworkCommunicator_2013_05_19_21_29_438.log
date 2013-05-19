@@ -1,0 +1,4 @@
+May 19, 2013 9:29:37 PM Network.NetworkCommunicator stopSearchingForGames
+FINE: Searching for games has stopped.
+May 19, 2013 9:29:37 PM Network.NetworkCommunicator <init>
+INFO: New Networkcommunicator is created in mode: CLIENT

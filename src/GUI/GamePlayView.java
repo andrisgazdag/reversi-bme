@@ -133,7 +133,7 @@ public class GamePlayView extends JFrame {
         add(status, BorderLayout.SOUTH);
         status.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        setLocation(400, 0);
+        //setLocation(400, 0);
 
         setVisible(true);  //ablak megjelenítése
         setResizable(false); // ne akarja senki átméretezni az ablakot!
