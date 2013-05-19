@@ -4,6 +4,7 @@
  */
 package GUI;
 
+import Enums.TableSize;
 import Reversi.Controller;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -39,27 +40,27 @@ public class GamePlayView extends JFrame {
     private int cellSize = 50;
     private int offsetX = 0;
     private int offsetY = 0;
-    private int tableSize = 12;  //a tábla mérete tableSizextableSize
+    private TableSize tableSize;  //a tábla mérete tableSizextableSize
     private int CircleSize = cellSize;
     static JLabel ScoreBlue, ScoreRed;
     int scoreBlue, scoreRed;
     JPanel inputPanel = new JPanel();
     JFileChooser fc;
 
-    public GamePlayView(int size, Controller c) {
+    public GamePlayView(TableSize size, Controller c) {
         super("Reversi");
         scoreBlue = 0;
         scoreRed = 0;
         ctrl = c;
-        if (size == 8 || size == 10 || size == 12) {
-            tableSize = size;
-        }
-        width = tableSize * cellSize + 2 * BORDER_SIZE;//+2*BORDER_SIZE;
+        
+        tableSize = size;
+        
+        width = tableSize.getSize() * cellSize + 2 * BORDER_SIZE;//+2*BORDER_SIZE;
         height = width;
 
         fc = new JFileChooser();  //fájl betöltéshez kell
         //setSize(700, 750);
-        setSize(width + tableSize + 0, height + tableSize + 90);  //az ablak mérete
+        setSize(width + tableSize.getSize() + 0, height + tableSize.getSize() + 90);  //az ablak mérete
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -103,13 +104,13 @@ public class GamePlayView extends JFrame {
 //                }
                 if (e.isMetaDown()) //jobb egér klikk
                 {
-                    if (X < tableSize && Y < tableSize && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
+                    if (X < tableSize.getSize() && Y < tableSize.getSize() && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
                         addPoint(new Point(X * cellSize + BORDER_SIZE, Y * cellSize + BORDER_SIZE), 1);
                     }
                 } else //bal egér klikk
                 {
 
-                    if (X < tableSize && Y < tableSize && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
+                    if (X < tableSize.getSize() && Y < tableSize.getSize() && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
                         addPoint(new Point(X * cellSize + BORDER_SIZE, Y * cellSize + BORDER_SIZE), 0);
                     }
 
@@ -175,21 +176,21 @@ public class GamePlayView extends JFrame {
 
             //háttér  (sakktábla)
             g.setColor(Color.lightGray);
-            for (int i = 0; i < tableSize; i++) {
-                for (int j = 0 + i % 2; j < tableSize; j += 2) {
+            for (int i = 0; i < tableSize.getSize(); i++) {
+                for (int j = 0 + i % 2; j < tableSize.getSize(); j += 2) {
                     g.fillRect(BORDER_SIZE + j * cellSize, BORDER_SIZE + i * cellSize, cellSize, cellSize);
                 }
             }
 
             //négyzetrács  kirajzolása  
             g.setColor(Color.black);
-            for (int i = 1; i < tableSize; ++i)//vízszintes vonalak
+            for (int i = 1; i < tableSize.getSize(); ++i)//vízszintes vonalak
             {
                 g.drawLine(BORDER_SIZE, BORDER_SIZE + i * cellSize,
                         width - BORDER_SIZE, i * cellSize + BORDER_SIZE);
             }
 
-            for (int i = 1; i < tableSize; ++i) //FÜGGŐLEGES VOtableSizeALAK
+            for (int i = 1; i < tableSize.getSize(); ++i) //FÜGGŐLEGES VOtableSizeALAK
             {
                 g.drawLine(BORDER_SIZE + i * cellSize, BORDER_SIZE,
                         BORDER_SIZE + i * cellSize, height - BORDER_SIZE);

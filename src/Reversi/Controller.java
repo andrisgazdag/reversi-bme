@@ -19,7 +19,7 @@ public class Controller {
         gt = new GameTypeView(this);
 
         // indul a játék
-        g = new GamePlayView(8, this);
+        g = new GamePlayView(TableSize.SMALL, this);
         
     }
     
@@ -32,6 +32,10 @@ public class Controller {
     }
     
     public void startServerGame() {
+        
+    }
+    
+    public void startClientGame() {
         
     }
     
