@@ -1,5 +1,8 @@
 package Reversi;
 
+import Enums.ReversiType;
+import Enums.GameLevel;
+import Enums.TableSize;
 import GUI.GamePlayView;
 import GUI.GameTypeView;
 
@@ -22,6 +25,18 @@ public class Controller {
     
     public String[] getAvailableServerList() {
         return null;
+    }
+    
+    public void startSingleGame(GameLevel level, TableSize size, String name) {
+        
+    }
+    
+    public void startServerGame() {
+        
+    }
+    
+    public void loadGame() {
+        
     }
 
     public static void main(String[] args) {
