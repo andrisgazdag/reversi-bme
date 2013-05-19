@@ -1,22 +1,29 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Reversi;
 
-/**
- *
- * @author GAndris
- */
+import Enums.Field;
+import Enums.TableSize;
+
 public abstract class Game {
 
-    /**
-     *
-     */
-    public int tableSize;  //a tábla mérete tableSizextableSize
+    private TableSize tableSize;  // a tábla mérete tableSize x tableSize
+    private Field[][] table = null; // a tabla cellai 
+
+    public Game() {
+    }
+
+    public Game(TableSize tableSize) {
+        this.tableSize = tableSize;
+        table = new Field[tableSize.getSize()][tableSize.getSize()];
+    }
+
+    public Field[][] getTable() {
+        return table;
+    }
     
-    public void setTableSize(int size){
-        tableSize=size;
+    public void setField(int x, int y, Field field) {
+        // ide lehetne vedelmet berakni, hogy csak bizonyos esetekben engedje a 
+        // meg a cella ertekenek az atallitasat
+        table[x][y] = field;
     }
     
 }

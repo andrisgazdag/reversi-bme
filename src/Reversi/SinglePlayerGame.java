@@ -4,16 +4,18 @@
  */
 package Reversi;
 
+import Enums.TableSize;
+
 /**
  *
  * @author Alex
  */
-public class LocalGame extends Game{
-//
+public class SinglePlayerGame extends Game {
 
-    public LocalGame(int size)
+
+    public SinglePlayerGame(TableSize size)
     {
-        setTableSize(size);
+        super(size);
     }
     
 }

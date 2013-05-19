@@ -43,7 +43,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
     JRadioButton multiPlayerButton;
     JButton loadGameButton;
     private Choice serverList;
-    String name, choosedServer;
+    String name, choosenServer;
     private JFileChooser fc;
 
     public GameTypeView(Controller ctrl) {
@@ -239,7 +239,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
     @Override
     public void itemStateChanged(ItemEvent e) {  //a legördülő listában másik elemet választunk ki
         if (e.getSource().equals(serverList)) {
-            choosedServer = serverList.getSelectedItem();
+            choosenServer = serverList.getSelectedItem();
         }
     }
 
@@ -296,7 +296,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                         ctrl.startServerGame(size, serverName, name);
                     } else {
                         // start a new client with choosen server
-                        String choosenServer = serverList.getSelectedItem();
+                        // String choosenServer = serverList.getSelectedItem();
                         ctrl.startClientGame(name, choosenServer);
                     }
                 }
@@ -357,6 +357,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                     System.out.println("Opening: " + file.getName() + ".");
                     dispose();// ablak becsukása
                     //todo: játék betöltése és indítása
+                    ctrl.loadGame(file);
 
                 } else { // Béla mégsem akar betölteni semmit, így visszatérünk az előző ablakhoz
                     System.out.println("Open command cancelled by user.");

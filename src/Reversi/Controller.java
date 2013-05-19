@@ -1,11 +1,13 @@
 package Reversi;
 
+import Enums.Field;
 import Enums.GameLevel;
 import Enums.ReversiType;
 import Enums.TableSize;
 import GUI.GamePlayView;
 import GUI.GameTypeView;
 import Network.NetworkCommunicator;
+import java.io.File;
 
 public class Controller {
 
@@ -13,9 +15,10 @@ public class Controller {
     GameTypeView gameTypeView;
     GamePlayView gameView;
     NetworkCommunicator networkCommunicator = null;
+    Game game = null;
 
     public Controller() {
-        // beállítások
+        // eloszor a jatekvalaszto ablak
         gameTypeView = new GameTypeView(this);
     }
 
@@ -31,6 +34,7 @@ public class Controller {
     public void startSingleGame(GameLevel level, TableSize size, String playerName) {
 
         gameTypeView = null; // release the object
+        game = new SinglePlayerGame(size);
         gameView = new GamePlayView(size, this); // start new frame
 
     }
@@ -38,12 +42,17 @@ public class Controller {
     public void startServerGame(TableSize size, String serverName, String playerName) {
 
         gameTypeView = null; // release the object
-
+        game = new ServerGame(size);
         gameView = new GamePlayView(size, this); // start new frame
 
     }
 
     public void startClientGame(String plyerName, String choosenServer) {
+        
+        gameTypeView = null; // release the object
+        game = new ClientGame();
+        gameView = new GamePlayView(size, this); // start new frame
+        
     }
 
     public void startNetworkCommunicator(ReversiType type, String gameName) {
@@ -55,9 +64,9 @@ public class Controller {
         }
 
         stopNetworkCommunicator();
-      
+
         networkCommunicator = new NetworkCommunicator(type);
-       
+
         if (type == ReversiType.SERVER) {
             networkCommunicator.setGameName(gameName);
         }
@@ -71,7 +80,11 @@ public class Controller {
         }
     }
 
-    public void loadGame() {
+    public void loadGame(File file) {
+    }
+
+    public Field[][] getGameState() {
+        return null;
     }
 
     public static void main(String[] args) {
