@@ -3,6 +3,7 @@ package GUI;
 import Reversi.Controller;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import javax.swing.*;
 
 public class GameTypeView extends JFrame implements ActionListener, ItemListener {
@@ -26,6 +27,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
     private JPanel buttonsPanel;
     private JPanel userNameInputPanel;
     private JPanel serverNameInputPanel;
+    private JPanel gameButtonsPanel;
     protected JButton startButton;
     JRadioButton hardButton;
     JRadioButton easyButton;
@@ -36,14 +38,18 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
     JRadioButton tableSizeButton12;
     JRadioButton singlePlayerButton;
     JRadioButton multiPlayerButton;
+    JButton loadGameButton;
     private Choice serverList;
     String name, choosedServer;
+    private JFileChooser fc;
 
     public GameTypeView(Controller ctrl) {
 
         super("Reversi");
         this.ctrl = ctrl;
 
+        fc = new JFileChooser();  //fájl betöltéshez kell
+        
         //Create the radio buttons:
         {
             hardButton = new JRadioButton(hard);
@@ -84,6 +90,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
         {
             hardButton.setToolTipText("Nincs esélyed!");
             easyButton.setToolTipText("Talán van esélyed!");
+            
         }
 
         //Group the radio buttons. Only one button is selectable in each group.
@@ -186,16 +193,29 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
         {
             startButton = new JButton("Start");
             startButton.setVerticalTextPosition(AbstractButton.CENTER);
-            startButton.setHorizontalTextPosition(AbstractButton.LEADING); //aka LEFT, for left-to-right locales
+            startButton.setHorizontalTextPosition(AbstractButton.LEADING);
             startButton.setMnemonic(KeyEvent.VK_D);
             startButton.setActionCommand("start");
             startButton.addActionListener(this);
             startButton.setToolTipText("Let the game begin!");
         }
 
+            loadGameButton = new JButton("Betöltés");
+           loadGameButton.setVerticalTextPosition(AbstractButton.CENTER);
+            loadGameButton.setHorizontalTextPosition(AbstractButton.LEADING); 
+           // loadGameButton.setActionCommand("start");
+            loadGameButton.addActionListener(this);
+            loadGameButton.setToolTipText("Mentett játék folytatása.");
+            //loadGameButton.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
+           
         mainPanel.add(serverNameInputPanel, BorderLayout.AFTER_LAST_LINE);
+        
+        gameButtonsPanel = new JPanel(new BorderLayout(0,5));
+        gameButtonsPanel.add(startButton,BorderLayout.NORTH);
+        gameButtonsPanel.add(loadGameButton, BorderLayout.SOUTH);
+                
         framePanel.add(mainPanel, BorderLayout.CENTER);
-        framePanel.add(startButton, BorderLayout.SOUTH);
+        framePanel.add(gameButtonsPanel, BorderLayout.SOUTH);
         //startButton.setSize(5, 5);
         serverNameInputPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 15, 0));
 
@@ -205,7 +225,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
         //newContentPane.setOpaque(true); //content panes must be opaque
         setContentPane(framePanel);
 
-        setPreferredSize(new Dimension(400, 350));
+        setPreferredSize(new Dimension(400, 390));
         
         //Display the window.
         pack();
@@ -272,6 +292,18 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                 tableSizeButton12.setEnabled(true);
                 serverList.setEnabled(false);
                 serverNameField.setEnabled(true);
+                break;
+            case "Betöltés":
+                int returnVal = fc.showOpenDialog(GameTypeView.this);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = fc.getSelectedFile();
+                    System.out.println("Opening: " + file.getName() + ".");
+                    dispose();// ablak becsukása
+                    //todo: játék betöltése és indítása
+                    
+                } else { // Béla mégsem akar betölteni semmit, így visszatérünk az előző ablakhoz
+                    System.out.println("Open command cancelled by user.");
+                }
                 break;
         }
 
