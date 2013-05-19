@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package Reversi;
+package GUI;
 
+import Reversi.Controller;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -19,7 +20,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -46,20 +46,20 @@ public class GamePlayView extends JFrame {
     JPanel inputPanel = new JPanel();
     JFileChooser fc;
 
-    GamePlayView(int size) {
-        super(/*"Reversi"*/);
+    public GamePlayView(int size, Controller c) {
+        super("Reversi");
         scoreBlue = 0;
         scoreRed = 0;
-        //ctrl = c;
+        ctrl = c;
         if (size == 8 || size == 10 || size == 12) {
-            setTableSize(size);
+            tableSize = size;
         }
         width = tableSize * cellSize + 2 * BORDER_SIZE;//+2*BORDER_SIZE;
         height = width;
 
         fc = new JFileChooser();  //fájl betöltéshez kell
         //setSize(700, 750);
-        setSize(width + tableSize + 0, height + tableSize + 90);  //az abéak mérete
+        setSize(width + tableSize + 0, height + tableSize + 90);  //az ablak mérete
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -132,25 +132,23 @@ public class GamePlayView extends JFrame {
         add(status, BorderLayout.SOUTH);
         status.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
+        setLocation(400, 0);
 
         setVisible(true);  //ablak megjelenítése
         setResizable(false); // ne akarja senki átméretezni az ablakot!
-        drawPanel.repaint();  //nem mukodik
+
         for (int i = 0; i < 8; ++i) {
             addPoint(new Point(i * cellSize + BORDER_SIZE, i * cellSize + BORDER_SIZE), i % 2);
         }
-
     }
 
-    public void setController(Controller c) {
-        ctrl = c;
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        drawPanel.repaint();
     }
 
-    void setTableSize(int t) {
-        tableSize = t;
-    }
-
-    void addPoint(Point p, int Color) {
+    private void addPoint(Point p, int Color) {
         if (Color == 1) {
             drawPanel.pointsBlue.add(p);
         } else {
@@ -162,8 +160,8 @@ public class GamePlayView extends JFrame {
     private class DrawPanel extends JPanel {
 
         private static final long serialVersionUID = 1L;
-        ArrayList<Point> pointsBlue = new ArrayList<Point>();
-        ArrayList<Point> pointsRed = new ArrayList<Point>();
+        ArrayList<Point> pointsBlue = new ArrayList<>();
+        ArrayList<Point> pointsRed = new ArrayList<>();
 
         @Override
         protected void paintComponent(Graphics g) {
@@ -219,6 +217,7 @@ public class GamePlayView extends JFrame {
 
     private class MenuListener implements ActionListener {
 
+        @Override
         public void actionPerformed(ActionEvent e) {
 
             if (e.getActionCommand().equals("Kilépés")) {
@@ -262,7 +261,7 @@ public class GamePlayView extends JFrame {
         JOptionPane.showMessageDialog(this, "Vesztettél!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public static void createAndShowGUI(GamePlayView g) {
+    public void createAndShowGUI(GamePlayView g) {
         //Create and set up the window.
 //        JFrame frame = new JFrame("Reversi");
 //        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
