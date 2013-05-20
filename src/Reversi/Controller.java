@@ -6,6 +6,7 @@ import Enums.ReversiType;
 import Enums.TableSize;
 import GUI.GamePlayView;
 import GUI.GameTypeView;
+import GUI.ServerListView;
 import Network.NetworkCommunicator;
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +25,7 @@ public class Controller {
     ReversiType gameMode = null;
     GameTypeView gameTypeView;
     GamePlayView gameView;
+    ServerListView serverView;
     NetworkCommunicator networkCommunicator = null;
     Game game = null;
     String gameName = "Skynet";
@@ -111,6 +113,10 @@ public class Controller {
         return null;
     }
 
+    public void showServers()
+    {
+        serverView = new ServerListView(this);
+    }
     public static void main(String[] args) {
 
 
