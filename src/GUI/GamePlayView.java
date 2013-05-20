@@ -33,7 +33,7 @@ public class GamePlayView extends JFrame {
     private int cellSize = 50;
     private int offsetX = 0;
     private int offsetY = 0;
-    private TableSize tableSize;  //a tábla mérete tableSizextableSize
+    private TableSize tableSize;  //a tábla mérete tableSize x tableSize
     private int CircleSize = cellSize;
     static JLabel ScoreBlue, ScoreRed;
     int scoreBlue, scoreRed;
@@ -255,16 +255,4 @@ public class GamePlayView extends JFrame {
         JOptionPane.showMessageDialog(this, "Vesztettél!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public void createAndShowGUI(GamePlayView g) {
-        //Create and set up the window.
-//        JFrame frame = new JFrame("Reversi");
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-// 
-//        //Add content to the window.
-//        //frame.add(g);
-// 
-//        //Display the window.
-//        frame.pack();
-//        frame.setVisible(true);
-    }
 }

@@ -12,15 +12,9 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 /**
  *
@@ -31,7 +25,7 @@ public class NetworkCommunicator extends Thread {
     // Type of the current running version of the program
     public ReversiType gameType = null;
     // The logger object
-    private static final Logger LOGGER = Logger.getLogger(NetworkCommunicator.class.getName());
+    private static final Logger LOGGER = Logger.getLogger("Reversi");
     // The socket object of the communication
     private Socket connection = null;
     // IP Address of the communication partner
@@ -62,19 +56,6 @@ public class NetworkCommunicator extends Thread {
         this.needToSearchForGames = true;
 
         LOGGER.log(Level.INFO, "New Networkcommunicator is created in mode: {0}", gameType);
-
-        //Initializing logger:
-        try {
-            DateFormat df = new SimpleDateFormat("yyyy_MM_dd_HH_mm_SS");
-            String logDate = df.format(new Date().getTime());
-
-            Handler handler = new FileHandler("logs/NetworkCommunicator_" + logDate + ".log"); // logs folder should be created manualy
-            handler.setFormatter(new SimpleFormatter());
-            LOGGER.setLevel(Level.FINE);
-            LOGGER.addHandler(handler);
-        } catch (IOException e) {
-            System.out.println("logger initialisation error: " + e.getLocalizedMessage());
-        }
 
     }
 
@@ -298,7 +279,7 @@ public class NetworkCommunicator extends Thread {
                 s = new DatagramSocket(60006);
 
                 //TODO: ezt ki kell cserélni a helyes információra
-                NetworkPacket np = new NetworkPacket("Reversi game available at: " + new Date().getTime());
+                NetworkPacket np = new NetworkPacket(gameName);
 
                 buf = serialisePacket(np);
 
@@ -309,7 +290,7 @@ public class NetworkCommunicator extends Thread {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, group, groupPort);
 
                 while (needToAdvertise) {
-                    LOGGER.log(Level.FINE, "Sending game info...");
+                    LOGGER.log(Level.FINE, "Sending game info...: {0}", gameName);
                     s.send(packet);
                     try {
                         sleep(1000);

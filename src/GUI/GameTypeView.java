@@ -7,10 +7,13 @@ import Reversi.Controller;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
 public class GameTypeView extends JFrame implements ActionListener, ItemListener {
 
+    private static final Logger LOGGER = Logger.getLogger("Reversi");
     //static JFrame frame = new JFrame("Reversi");
     Controller ctrl = null;
     private JPanel framePanel = new JPanel(new BorderLayout());
@@ -31,7 +34,9 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
     private JPanel userNameInputPanel;
     private JPanel serverNameInputPanel;
     private JPanel gameButtonsPanel;
+    private JPanel functionButtonsPanel;
     protected JButton startButton;
+    protected JButton refreshButton;
     JRadioButton hardButton;
     JRadioButton easyButton;
     JRadioButton serverButton;
@@ -181,10 +186,20 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
         mainPanel.add(buttonsPanel, BorderLayout.NORTH);
 
         serverList = new Choice();
-        serverList.add("List of avaliable servers");
-        for (int i = 1; i < 5; i++) {
-            serverList.add("" + i);
+        //serverList.add("List of avaliable servers");
+
+        LOGGER.log(Level.OFF, "Getting the server list...");
+        String[] availableServers = ctrl.getAvailableServerList();
+        LOGGER.log(Level.OFF, "Server list recived");
+        if (availableServers.length == 0 || availableServers[0] == null) {
+            serverList.add("No available server...");
+        } else {
+            for (String s : availableServers) {
+                LOGGER.log(Level.INFO, "Available server: {0}", s);
+                serverList.add(s);
+            }
         }
+
         serverList.select(0);
         serverList.addItemListener(this);
         serverList.setEnabled(false);
@@ -193,7 +208,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
 
         framePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));//az egész ablakon belül 20 pixel keret
 
-        {
+        {   // start button
             startButton = new JButton("Start");
             startButton.setVerticalTextPosition(AbstractButton.CENTER);
             startButton.setHorizontalTextPosition(AbstractButton.LEADING);
@@ -203,23 +218,47 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
             startButton.setToolTipText("Let the game begin!");
         }
 
-        loadGameButton = new JButton("Betöltés");
-        loadGameButton.setVerticalTextPosition(AbstractButton.CENTER);
-        loadGameButton.setHorizontalTextPosition(AbstractButton.LEADING);
-        // loadGameButton.setActionCommand("start");
-        loadGameButton.addActionListener(this);
-        loadGameButton.setToolTipText("Mentett játék folytatása.");
-        //loadGameButton.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
+        Dimension buttonSize = new Dimension(175, 25);
+
+        {   // refresh button
+            refreshButton = new JButton("Refresh");
+            refreshButton.setVerticalTextPosition(AbstractButton.CENTER);
+            refreshButton.setHorizontalTextPosition(AbstractButton.LEADING);
+            refreshButton.setMnemonic(KeyEvent.VK_D);
+            refreshButton.setActionCommand("refresh");
+            refreshButton.addActionListener(this);
+            refreshButton.setToolTipText("Refresh the server list!");
+            refreshButton.setPreferredSize(buttonSize);
+            refreshButton.setEnabled(false);
+        }
+
+        {   // load game
+            loadGameButton = new JButton("Betöltés");
+            loadGameButton.setVerticalTextPosition(AbstractButton.CENTER);
+            loadGameButton.setHorizontalTextPosition(AbstractButton.LEADING);
+            // loadGameButton.setActionCommand("start");
+            loadGameButton.addActionListener(this);
+            loadGameButton.setToolTipText("Mentett játék folytatása.");
+            //loadGameButton.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
+            loadGameButton.setPreferredSize(buttonSize);
+        }
 
         mainPanel.add(serverNameInputPanel, BorderLayout.AFTER_LAST_LINE);
 
-        gameButtonsPanel = new JPanel(new BorderLayout(0, 5));
-        gameButtonsPanel.add(startButton, BorderLayout.NORTH);
-        gameButtonsPanel.add(loadGameButton, BorderLayout.SOUTH);
+        // create panels for the buttons
+        functionButtonsPanel = new JPanel(new FlowLayout()); // load and refresh buttons
+        gameButtonsPanel = new JPanel(new BorderLayout(0, 5)); // start button
+
+        functionButtonsPanel.add(loadGameButton);
+        functionButtonsPanel.add(refreshButton);
+
+        gameButtonsPanel.add(functionButtonsPanel, BorderLayout.NORTH);
+        gameButtonsPanel.add(startButton, BorderLayout.SOUTH);
 
         framePanel.add(mainPanel, BorderLayout.CENTER);
-        framePanel.add(gameButtonsPanel, BorderLayout.SOUTH);
-        //startButton.setSize(5, 5);
+        framePanel.add(gameButtonsPanel, BorderLayout.SOUTH); // adding buttons to the main panel
+        
+        
         serverNameInputPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 15, 0));
 
         //Create and set up the window.
@@ -289,7 +328,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                     } else {
                         size = TableSize.BIG;
                     }
-                    
+
                     if (serverButton.isSelected()) {
                         // start a new server with selected name
                         String serverName = serverNameField.getText();
@@ -303,7 +342,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
 
 
                 break;
-                
+
             case "Kétszemélyes":
                 // ez hívódik meg ha a kétszemélyes gombra kattintunk
                 hardButton.setEnabled(false);
@@ -321,7 +360,8 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                     tableSizeButton12.setEnabled(true);
                     serverNameField.setEnabled(true);
                 }
-                ctrl.startNetworkCommunicator(ReversiType.SERVER, "ServerGame");
+                ctrl.startNetworkCommunicator(ReversiType.SERVER, serverNameField.getText());
+                refreshButton.setEnabled(false);
                 break;
             case "Egyszemélyes":
                 hardButton.setEnabled(true);
@@ -333,6 +373,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                 tableSizeButton12.setEnabled(true);
                 serverList.setEnabled(false);
                 ctrl.stopNetworkCommunicator();
+                refreshButton.setEnabled(false);
                 break;
             case "Kliens":
                 tableSizeButton8.setEnabled(false);
@@ -341,6 +382,7 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                 serverList.setEnabled(true);
                 serverNameField.setEnabled(false);
                 ctrl.startNetworkCommunicator(ReversiType.CLIENT, null);
+                refreshButton.setEnabled(true);
                 break;
             case "Szerver":
                 tableSizeButton8.setEnabled(true);
@@ -348,7 +390,8 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
                 tableSizeButton12.setEnabled(true);
                 serverList.setEnabled(false);
                 serverNameField.setEnabled(true);
-                ctrl.startNetworkCommunicator(ReversiType.SERVER, "ServerGame");
+                ctrl.startNetworkCommunicator(ReversiType.SERVER, serverNameField.getText());
+                refreshButton.setEnabled(false);
                 break;
             case "Betöltés":
                 int returnVal = fc.showOpenDialog(GameTypeView.this);
@@ -361,6 +404,20 @@ public class GameTypeView extends JFrame implements ActionListener, ItemListener
 
                 } else { // Béla mégsem akar betölteni semmit, így visszatérünk az előző ablakhoz
                     System.out.println("Open command cancelled by user.");
+                }
+                break;
+            case "refresh":
+                serverList.removeAll();
+                LOGGER.log(Level.OFF, "Getting the server list...");
+                String[] availableServers = ctrl.getAvailableServerList();
+                LOGGER.log(Level.OFF, "Server list recived");
+                if (availableServers.length == 0 || availableServers[0] == null) {
+                    serverList.add("No available server...");
+                } else {
+                    for (String s : availableServers) {
+                        LOGGER.log(Level.INFO, "Available server: {0}", s);
+                        serverList.add(s);
+                    }
                 }
                 break;
         }

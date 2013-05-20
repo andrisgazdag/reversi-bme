@@ -8,9 +8,19 @@ import GUI.GamePlayView;
 import GUI.GameTypeView;
 import Network.NetworkCommunicator;
 import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class Controller {
 
+    private static final Logger LOGGER = Logger.getLogger("Reversi");
     ReversiType gameMode = null;
     GameTypeView gameTypeView;
     GamePlayView gameView;
@@ -19,6 +29,7 @@ public class Controller {
 
     public Controller() {
         // eloszor a jatekvalaszto ablak
+        initLogger();
         gameTypeView = new GameTypeView(this);
     }
 
@@ -27,6 +38,7 @@ public class Controller {
         if (networkCommunicator == null) {
             networkCommunicator = new NetworkCommunicator(ReversiType.CLIENT);
         }
+
         return networkCommunicator.getAvailableGames();
 
     }
@@ -48,11 +60,11 @@ public class Controller {
     }
 
     public void startClientGame(String plyerName, String choosenServer) {
-        
+
         gameTypeView = null; // release the object
         game = new ClientGame();
-        gameView = new GamePlayView(size, this); // start new frame
-        
+        gameView = new GamePlayView(game.getTableSize(), this); // start new frame
+
     }
 
     public void startNetworkCommunicator(ReversiType type, String gameName) {
@@ -70,6 +82,8 @@ public class Controller {
         if (type == ReversiType.SERVER) {
             networkCommunicator.setGameName(gameName);
         }
+        
+        networkCommunicator.start();
 
     }
 
@@ -81,9 +95,14 @@ public class Controller {
     }
 
     public void loadGame(File file) {
+        // ide fogalamam sincs, hogy mit kellene irni...
     }
 
     public Field[][] getGameState() {
+
+        if (game != null) {
+            return game.getTable();
+        }
         return null;
     }
 
@@ -153,6 +172,21 @@ public class Controller {
          // stop the networkCommunicator
          nC.endCommunications();
          */
+    }
+
+    private void initLogger() {
+        //Initializing logger:
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy_MM_dd_HH_mm_SS");
+            String logDate = df.format(new Date().getTime());
+
+            Handler handler = new FileHandler("logs/Reversi_" + logDate + ".log"); // logs folder should be created manualy
+            handler.setFormatter(new SimpleFormatter());
+            LOGGER.setLevel(Level.FINE);
+            LOGGER.addHandler(handler);
+        } catch (IOException e) {
+            System.err.println("logger initialisation error: " + e.getLocalizedMessage());
+        }
     }
 }
 // indul a játék
