@@ -1,6 +1,7 @@
 package Network;
 
 import Enums.ReversiType;
+import Reversi.Controller;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,7 +13,10 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,21 +41,24 @@ public class NetworkCommunicator extends Thread {
     private boolean communicatorIsNeeded;
     // available games
     private HashMap<String, DatagramPacket> availableGames = new HashMap<>();
+    // timeout for the games
+    private HashMap<String, Long> timeoutOfTheGames = new HashMap<>();
     // in client mode it controlls the the search intervallum
     private boolean needToSearchForGames;
     // the game advertiser
     private GameAdvertiser gameAD = null;
-    // game name
-    private String gameName = null;
+    // the controller
+    Controller controller = null;
 
     /**
      * C'tor of the NetworkCommunicator class
      *
      * @param gameType The type of the current game (Server/Client)
      */
-    public NetworkCommunicator(ReversiType gameType) {
+    public NetworkCommunicator(ReversiType gameType, Controller controller) {
 
         this.gameType = gameType;
+        this.controller = controller;
         this.communicatorIsNeeded = true;
         this.needToSearchForGames = true;
 
@@ -117,10 +124,6 @@ public class NetworkCommunicator extends Thread {
         return gameType;
     }
 
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
-    }
-    
     public boolean isConnected() {
 
         return (connection != null) && (out != null) && (in != null);
@@ -208,7 +211,17 @@ public class NetworkCommunicator extends Thread {
                 // if a new game is detected, than add to the queue
                 if (!availableGames.containsKey(gameName)) {
                     availableGames.put(gameName, packet);
+                    timeoutOfTheGames.put(gameName, System.currentTimeMillis());
                     LOGGER.log(Level.INFO, "Adding game to available games: {0}", gameName);
+                }
+                Iterator it = timeoutOfTheGames.entrySet().iterator();
+                
+                while (it.hasNext()) {                    
+                    Map.Entry pairs = (Map.Entry)it.next();
+                    if (System.currentTimeMillis() - ((Long)pairs.getValue()).longValue() > 5000) {
+                        availableGames.remove((String)pairs.getKey());
+                        it.remove();
+                    }
                 }
             }
 
@@ -278,19 +291,21 @@ public class NetworkCommunicator extends Thread {
                 // This port will be used, to send the advertise messages
                 s = new DatagramSocket(60006);
 
-                //TODO: ezt ki kell cserélni a helyes információra
-                NetworkPacket np = new NetworkPacket(gameName);
-
-                buf = serialisePacket(np);
-
-                // Destination address and port
-                InetAddress group = InetAddress.getByName("225.0.0.1");
-                int groupPort = 60005;
-
-                DatagramPacket packet = new DatagramPacket(buf, buf.length, group, groupPort);
-
                 while (needToAdvertise) {
-                    LOGGER.log(Level.FINE, "Sending game info...: {0}", gameName);
+
+                    //gameName = 
+                    
+                    NetworkPacket np = new NetworkPacket(controller.getGameName());
+
+                    buf = serialisePacket(np);
+
+                    // Destination address and port
+                    InetAddress group = InetAddress.getByName("225.0.0.1");
+                    int groupPort = 60005;
+
+                    DatagramPacket packet = new DatagramPacket(buf, buf.length, group, groupPort);
+
+                    LOGGER.log(Level.FINE, "Sending game info...: {0}", controller.getGameName());
                     s.send(packet);
                     try {
                         sleep(1000);

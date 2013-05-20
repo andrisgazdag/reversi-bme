@@ -26,6 +26,7 @@ public class Controller {
     GamePlayView gameView;
     NetworkCommunicator networkCommunicator = null;
     Game game = null;
+    String gameName = "Skynet";
 
     public Controller() {
         // eloszor a jatekvalaszto ablak
@@ -36,7 +37,7 @@ public class Controller {
     public String[] getAvailableServerList() {
 
         if (networkCommunicator == null) {
-            networkCommunicator = new NetworkCommunicator(ReversiType.CLIENT);
+            networkCommunicator = new NetworkCommunicator(ReversiType.CLIENT, this);
         }
 
         return networkCommunicator.getAvailableGames();
@@ -67,7 +68,7 @@ public class Controller {
 
     }
 
-    public void startNetworkCommunicator(ReversiType type, String gameName) {
+    public void startNetworkCommunicator(ReversiType type) {
 
         if (networkCommunicator != null) {
             if (type == networkCommunicator.getGameType()) {
@@ -77,12 +78,8 @@ public class Controller {
 
         stopNetworkCommunicator();
 
-        networkCommunicator = new NetworkCommunicator(type);
+        networkCommunicator = new NetworkCommunicator(type, this);
 
-        if (type == ReversiType.SERVER) {
-            networkCommunicator.setGameName(gameName);
-        }
-        
         networkCommunicator.start();
 
     }
@@ -96,6 +93,14 @@ public class Controller {
 
     public void loadGame(File file) {
         // ide fogalamam sincs, hogy mit kellene irni...
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
     }
 
     public Field[][] getGameState() {
