@@ -46,7 +46,14 @@ public class GamePlayView extends JFrame {
         scoreRed = 0;
         ctrl = c;
         
-        tableSize = size;
+        if(size == null)
+        {
+            tableSize = TableSize.BIG;
+        }
+        else
+        {
+            tableSize = size;
+        }
         
         width = tableSize.getSize() * cellSize + 2 * BORDER_SIZE;//+2*BORDER_SIZE;
         height = width;

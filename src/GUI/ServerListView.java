@@ -58,6 +58,7 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
                 serverList.add(s);
             }
         }
+        serverList.addItemListener(this);
 
         serverNameInputPanel = new JPanel();
         serverNameInputPanel.setLayout(new GridLayout(2, 1));
@@ -128,12 +129,13 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
                         serverList.add(s);
                     }
                 }
+                choosenServer = serverList.getSelectedItem(); //ez azért kell, mert különben csak akkor állítódik be a kiválasztott szerver, hogy ha rákattint Béla
                 break;
             case "start":
-
                 if (choosenServer == null) {
                     JOptionPane.showMessageDialog(this, "Nincs szerver kiválasztva!", "Reversi", JOptionPane.ERROR_MESSAGE);
                 } else {
+                    dispose();
                     ctrl.startClientGame(name, choosenServer);
                 }
                 break;
