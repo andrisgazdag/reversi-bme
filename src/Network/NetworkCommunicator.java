@@ -13,7 +13,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Date;
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,13 +34,15 @@ public class NetworkCommunicator extends Thread {
     private Socket connection = null;
     // IP Address of the communication partner
     private InetAddress partnerAddress = null;
+    // Port number of the communication partner
+    private int partnerPort;
     // Streams for communication
     private ObjectOutputStream out;
     private ObjectInputStream in;
     // flag to stop networkCommunicator
     private boolean communicatorIsNeeded;
     // available games
-    private HashMap<String, DatagramPacket> availableGames = new HashMap<>();
+    private HashMap<String, GameInfo> availableGames = new HashMap<>();
     // timeout for the games
     private HashMap<String, Long> timeoutOfTheGames = new HashMap<>();
     // in client mode it controlls the the search intervallum
@@ -49,6 +51,10 @@ public class NetworkCommunicator extends Thread {
     private GameAdvertiser gameAD = null;
     // the controller
     Controller controller = null;
+    // the server socket
+    ServerSocket waitingServerSocket = null;
+    // server port number
+    int port = 60000;
 
     /**
      * C'tor of the NetworkCommunicator class
@@ -66,19 +72,29 @@ public class NetworkCommunicator extends Thread {
 
     }
 
-    public void commitSuicide() {
+    public void selfDestruction() {
+
+        LOGGER.log(Level.INFO, "NetworkCommunicator initiaing self destruction...");
 
         if (gameAD != null) {
             gameAD.stopAdvertise();
         }
         stopSearchingForGames();
+        if (waitingServerSocket != null) {
+            try {
+                waitingServerSocket.close();
+            } catch (IOException ex) {
+                LOGGER.log(Level.SEVERE, "Server socket could not be closed: {0}", ex);
+            }
+        }
         if (connection != null) {
             try {
                 connection.close();
             } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, "Clinet connection socket could not be closed: {0}", ex);
             }
         }
+        LOGGER.log(Level.INFO, "Destruction done. Continuing with thred interruption...");
         this.interrupt();
     }
 
@@ -91,8 +107,9 @@ public class NetworkCommunicator extends Thread {
 
             // starting the advertiser thread
             gameAD = new GameAdvertiser();
+            startListening(); // start listening end get a port, which is free
             gameAD.start();
-            waitForClient();
+            waitForClient(); // wait for client to connect
             gameAD.stopAdvertise();
 
         } else if (gameType == ReversiType.CLIENT) {
@@ -114,7 +131,7 @@ public class NetworkCommunicator extends Thread {
             try {
                 sleep(1000);
             } catch (InterruptedException ex) {
-                LOGGER.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.WARNING, "Sleep interrupted: {0}", ex);
             }
         }
 
@@ -178,7 +195,9 @@ public class NetworkCommunicator extends Thread {
             // finish the search
             stopSearchingForGames();
             // get the server address
-            partnerAddress = availableGames.get(gameName).getAddress();
+            partnerAddress = availableGames.get(gameName).getServerIPAddress();
+            // get the server port
+            partnerPort = availableGames.get(gameName).getServerPortNumber();
             // connect to game
             connectToServer();
         }
@@ -193,9 +212,12 @@ public class NetworkCommunicator extends Thread {
     }
 
     private void searchForGames() {
+
+        MulticastSocket ms = null;
+        InetAddress group = null;
         try {
-            MulticastSocket ms = new MulticastSocket(60005);
-            InetAddress group = InetAddress.getByName("225.0.0.1");
+            ms = new MulticastSocket(60005);
+            group = InetAddress.getByName("225.0.0.1");
             ms.joinGroup(group);
 
             DatagramPacket packet;
@@ -206,31 +228,55 @@ public class NetworkCommunicator extends Thread {
             while (needToSearchForGames) {
                 ms.receive(packet);
                 NetworkPacket recivedPacket = deserialisePacket(buf);
-                String gameName = recivedPacket.getGameName();
+                String gameName = ((GameInfo) recivedPacket.getInfo()).getGameName();
 
                 // if a new game is detected, than add to the queue
                 if (!availableGames.containsKey(gameName)) {
-                    availableGames.put(gameName, packet);
+                    GameInfo gameInfo = (GameInfo) recivedPacket.getInfo();
+                    gameInfo.setServerIPAddress(packet.getAddress());
+                    availableGames.put(gameName, gameInfo);
                     timeoutOfTheGames.put(gameName, System.currentTimeMillis());
-                    LOGGER.log(Level.INFO, "Adding game to available games: {0}", gameName);
+                    LOGGER.log(Level.INFO, "Adding game to available games: {0} with address: {1} and port: {2}",
+                            new Object[]{gameInfo.getGameName(), gameInfo.getServerIPAddress(), gameInfo.getServerPortNumber()});
+                } else {
+                    timeoutOfTheGames.put(gameName, new Long(System.currentTimeMillis()));
+                    LOGGER.log(Level.FINEST, "Timeout time updated for game: {0}", gameName);
                 }
                 Iterator it = timeoutOfTheGames.entrySet().iterator();
-                
-                while (it.hasNext()) {                    
-                    Map.Entry pairs = (Map.Entry)it.next();
-                    if (System.currentTimeMillis() - ((Long)pairs.getValue()).longValue() > 5000) {
-                        availableGames.remove((String)pairs.getKey());
+
+                while (it.hasNext()) {
+                    Map.Entry pairs = (Map.Entry) it.next();
+                    if (System.currentTimeMillis() - ((Long) pairs.getValue()).longValue() > 5000) {
+                        availableGames.remove((String) pairs.getKey());
                         it.remove();
                     }
                 }
             }
 
             ms.leaveGroup(group);
-            ms.close();
         } catch (IOException e) {
             System.out.println(e.getLocalizedMessage());
             e.printStackTrace();
+        } finally {
+            ms.close();
         }
+    }
+
+    private void startListening() {
+
+        // Create server socket, and wait for incoming connection
+        for (; port < 61000; port++) {
+            try {
+                waitingServerSocket = new ServerSocket(port);
+                LOGGER.log(Level.INFO, "Server is waiting for client on port: {0}", port);
+                break;
+            } catch (IOException ex) {
+                LOGGER.log(Level.FINEST, "Port is closed: {0} : {1}", new Object[]{port, ex.getLocalizedMessage()});
+                continue;
+            }
+
+        }
+
     }
 
     private void waitForClient() {
@@ -238,20 +284,25 @@ public class NetworkCommunicator extends Thread {
         // The IP Address of the communication partner
         // InetAddress partnerAddress = null;
         // The Server TCP communication port
-        int port = 60000;
+        //int port = 60000; // ezt jo lenne randomizalni...
 
         try {
 
-            // Create server socket, and wait for incoming connection
-            ServerSocket waitingServerSocket = new ServerSocket(port);
             connection = waitingServerSocket.accept();
             // Get the input and output streams
             out = new ObjectOutputStream(connection.getOutputStream());
             out.flush();
             in = new ObjectInputStream(connection.getInputStream());
-
+        } catch (SocketException se) {
+            LOGGER.log(Level.WARNING, "Socket Exception!: {0}", se);
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, "Server could not be reserved: {0}", ex);
+            LOGGER.log(Level.WARNING, "Saiting on port exception: {0}", ex);
+        } finally {
+            try {
+                waitingServerSocket.close();
+            } catch (IOException ex) {
+                LOGGER.log(Level.WARNING, "Could not close serversocket: {0}", ex);
+            }
         }
 
     }
@@ -260,7 +311,7 @@ public class NetworkCommunicator extends Thread {
 
         try {
             // Connect to server at port: 60000
-            connection = new Socket(partnerAddress, 60000);
+            connection = new Socket(partnerAddress, partnerPort);
             // Get the input and output streams
             out = new ObjectOutputStream(connection.getOutputStream());
             out.flush();
@@ -283,19 +334,33 @@ public class NetworkCommunicator extends Thread {
 
             LOGGER.log(Level.FINE, "New GameAdvertiser started...");
 
-            DatagramSocket s;
+            DatagramSocket s = null;
             byte[] buf;
             DatagramPacket dp;
 
             try {
-                // This port will be used, to send the advertise messages
-                s = new DatagramSocket(60006);
+
+                int UDPPort = 60000;
+
+                // getting the first available port...
+                for (; UDPPort < 61000; UDPPort++) {
+                    try {
+                        // This port will be used, to send the advertise messages
+                        s = new DatagramSocket(UDPPort);
+                        LOGGER.log(Level.INFO, "Sending advertisement on port: {0}", UDPPort);
+                        break;
+                    } catch (IOException ex) {
+                        LOGGER.log(Level.FINEST, "UDPPort is closed: {0} : {1}", new Object[]{port, ex.getLocalizedMessage()});
+                        continue;
+                    }
+
+                }
+
+
 
                 while (needToAdvertise) {
 
-                    //gameName = 
-                    
-                    NetworkPacket np = new NetworkPacket(controller.getGameName());
+                    NetworkPacket np = new NetworkPacket(new GameInfo(controller.getGameName(), null, port)); // IP will be determined later...
 
                     buf = serialisePacket(np);
 
@@ -308,7 +373,7 @@ public class NetworkCommunicator extends Thread {
                     LOGGER.log(Level.FINE, "Sending game info...: {0}", controller.getGameName());
                     s.send(packet);
                     try {
-                        sleep(1000);
+                        sleep(500);
                     } catch (InterruptedException ex) {
                         LOGGER.log(Level.WARNING, "IOException in advertizement: {0}", ex.getLocalizedMessage());
                     }
@@ -316,6 +381,8 @@ public class NetworkCommunicator extends Thread {
 
             } catch (IOException ex) {
                 LOGGER.log(Level.WARNING, "IOException in advertizement: {0}", ex.getLocalizedMessage());
+            } finally {
+                s.close();
             }
         }
 
@@ -325,7 +392,7 @@ public class NetworkCommunicator extends Thread {
          * @param packet the packet, which will be serialized
          * @return a byte array of the serialized packet
          */
-        public final byte[] serialisePacket(NetworkPacket packet) {
+        private byte[] serialisePacket(NetworkPacket packet) {
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(baos);

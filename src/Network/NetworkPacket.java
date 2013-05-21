@@ -8,13 +8,13 @@ import java.io.Serializable;
  */
 public class NetworkPacket implements Serializable {
 
-    private String gameName;
+    private Object info;
     
-    public NetworkPacket(String gameName) {
-        this.gameName = gameName;
+    public NetworkPacket(Object info) {
+        this.info = info;
     }
 
-    public String getGameName() {
-        return gameName;
+    public Object getInfo() {
+        return info;
     }
 }

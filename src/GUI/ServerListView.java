@@ -64,7 +64,7 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
         serverNameInputPanel.add(new Label("Szerverek:"));
         serverNameInputPanel.add(serverList);
 
-Dimension buttonSize = new Dimension(100, 25);
+        Dimension buttonSize = new Dimension(100, 25);
         {   // start button
             startButton = new JButton("Start");
             startButton.setVerticalTextPosition(AbstractButton.CENTER);
@@ -76,7 +76,7 @@ Dimension buttonSize = new Dimension(100, 25);
             startButton.setPreferredSize(buttonSize);
         }
 
-        
+
 
         {   // refresh button
             refreshButton = new JButton("Frissítés");
@@ -93,12 +93,12 @@ Dimension buttonSize = new Dimension(100, 25);
         ButtonsPanel = new JPanel(new BorderLayout());
         ButtonsPanel.add(refreshButton, BorderLayout.WEST);
         ButtonsPanel.add(startButton, BorderLayout.EAST);
-        
-        framePanel.add(serverNameInputPanel,BorderLayout.NORTH);
-        framePanel.add(ButtonsPanel,BorderLayout.SOUTH);
-        
-        framePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));//az egész ablakon belül 20 pixel keret
-        serverNameInputPanel.setBorder(BorderFactory.createEmptyBorder(0,0,20,0));
+
+        framePanel.add(serverNameInputPanel, BorderLayout.NORTH);
+        framePanel.add(ButtonsPanel, BorderLayout.SOUTH);
+
+        framePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // az egész ablakon belül 20 pixel keret
+        serverNameInputPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
         //Create and set up the window.
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -117,9 +117,9 @@ Dimension buttonSize = new Dimension(100, 25);
         switch (e.getActionCommand()) {
             case "refresh":
                 serverList.removeAll();
-                LOGGER.log(Level.OFF, "Getting the server list...");
+                LOGGER.log(Level.FINEST, "Getting the server list...");
                 String[] availableServers = ctrl.getAvailableServerList();
-                LOGGER.log(Level.OFF, "Server list recived");
+                LOGGER.log(Level.FINEST, "Server list recived");
                 if (availableServers.length == 0 || availableServers[0] == null) {
                     serverList.add("Nincs elérhető szerver...");
                 } else {
@@ -130,17 +130,14 @@ Dimension buttonSize = new Dimension(100, 25);
                 }
                 break;
             case "start":
-                
-                    if(choosenServer==null)
-                    {
-                        JOptionPane.showMessageDialog(this, "Nincs szerver kiválasztva!", "Reversi", JOptionPane.ERROR_MESSAGE);
-                    }
-                    else
-                    {
-                        ctrl.startClientGame(name, choosenServer);
-                    }
+
+                if (choosenServer == null) {
+                    JOptionPane.showMessageDialog(this, "Nincs szerver kiválasztva!", "Reversi", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    ctrl.startClientGame(name, choosenServer);
+                }
                 break;
-            
+
         }
     }
 

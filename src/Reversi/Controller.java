@@ -86,9 +86,9 @@ public class Controller {
 
     }
 
-    public void stopNetworkCommunicator() {
+    private void stopNetworkCommunicator() {
         if (networkCommunicator != null) {
-            networkCommunicator.commitSuicide();
+            networkCommunicator.selfDestruction();
             networkCommunicator = null;
         }
     }
@@ -113,10 +113,11 @@ public class Controller {
         return null;
     }
 
-    public void showServers()
-    {
+    public void showServers() {
+        startNetworkCommunicator(ReversiType.CLIENT);
         serverView = new ServerListView(this);
     }
+
     public static void main(String[] args) {
 
 
@@ -187,14 +188,24 @@ public class Controller {
 
     private void initLogger() {
         //Initializing logger:
+        
         try {
             DateFormat df = new SimpleDateFormat("yyyy_MM_dd_HH_mm_SS");
             String logDate = df.format(new Date().getTime());
 
-            Handler handler = new FileHandler("logs/Reversi_" + logDate + ".log"); // logs folder should be created manualy
+            // the detailed log
+            Handler handler = new FileHandler("logs/Reversi_" + logDate + "_ALL.log"); // logs folder should be created manualy
             handler.setFormatter(new SimpleFormatter());
-            LOGGER.setLevel(Level.FINE);
+            handler.setLevel(Level.FINEST);
+            
+            // info log, only the most importatnt things...
+            Handler handler_info = new FileHandler("logs/Reversi_" + logDate + "_INFO.log"); // logs folder should be created manualy
+            handler_info.setFormatter(new SimpleFormatter());
+            handler_info.setLevel(Level.INFO);
+            
             LOGGER.addHandler(handler);
+            LOGGER.addHandler(handler_info);
+            LOGGER.setLevel(Level.FINEST);
         } catch (IOException e) {
             System.err.println("logger initialisation error: " + e.getLocalizedMessage());
         }

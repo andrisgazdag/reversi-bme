@@ -228,7 +228,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             startButton.setToolTipText("Let the game begin!");
         }
 
-        Dimension buttonSize = new Dimension(150, 25);
+        //Dimension buttonSize = new Dimension(150, 25);
 
        /* {   // refresh button
             refreshButton = new JButton("Refresh");
@@ -250,19 +250,19 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             loadGameButton.addActionListener(this);
             loadGameButton.setToolTipText("Mentett játék folytatása.");
             //loadGameButton.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
-            loadGameButton.setPreferredSize(buttonSize);
+            //loadGameButton.setPreferredSize(buttonSize);
         }
 
         mainPanel.add(serverNameInputPanel, BorderLayout.AFTER_LAST_LINE);
 
         // create panels for the buttons
-        functionButtonsPanel = new JPanel(new FlowLayout()); // load and refresh buttons
+        //functionButtonsPanel = new JPanel(new FlowLayout()); // load and refresh buttons
         gameButtonsPanel = new JPanel(new BorderLayout(0, 5)); // start button
 
-        functionButtonsPanel.add(loadGameButton);
+        //functionButtonsPanel.add(loadGameButton);
        // functionButtonsPanel.add(refreshButton);
 
-        gameButtonsPanel.add(functionButtonsPanel, BorderLayout.NORTH);
+        gameButtonsPanel.add(loadGameButton, BorderLayout.NORTH);
         gameButtonsPanel.add(startButton, BorderLayout.SOUTH);
 
         framePanel.add(mainPanel, BorderLayout.CENTER);
@@ -306,8 +306,8 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                 // inditani kell a jatekot a kivalasztott opcioknak megfeleloen
                 if (singlePlayerButton.isSelected()) {
                     // start single game
-                    GameLevel level = null;
-                    TableSize size = null;
+                    GameLevel level;
+                    TableSize size;
 
                     // get game level
                     if (easyButton.isSelected()) {
@@ -346,9 +346,9 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                     } else {
                         // start a new client with choosen server
                         // String choosenServer = serverList.getSelectedItem();
-                        
-                        ctrl.showServers();
                         dispose();
+                        ctrl.showServers();
+                        
                         //ctrl.startClientGame(name, choosenServer);
                     }
                 }
@@ -386,7 +386,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                 tableSizeButton10.setEnabled(true);
                 tableSizeButton12.setEnabled(true);
                 //serverList.setEnabled(false);
-                ctrl.stopNetworkCommunicator();
+                //ctrl.stopNetworkCommunicator();
                 //refreshButton.setEnabled(false);
                 break;
             case "Kliens":
@@ -395,8 +395,9 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                 tableSizeButton10.setEnabled(false);
                 tableSizeButton12.setEnabled(false);
                 //serverList.setEnabled(true);
+                serverButton.setEnabled(true);
                 serverNameField.setEnabled(false);
-                ctrl.startNetworkCommunicator(ReversiType.CLIENT);
+                //ctrl.startNetworkCommunicator(ReversiType.CLIENT);
                 //refreshButton.setEnabled(true);
                 break;
             case "Szerver":
