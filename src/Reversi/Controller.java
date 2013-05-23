@@ -29,7 +29,7 @@ public class Controller {
     NetworkCommunicator networkCommunicator = null;
     Game game = null;
     String gameName = "Skynet";
-
+    
     public Controller() {
         // eloszor a jatekvalaszto ablak
         initLogger();
@@ -117,7 +117,244 @@ public class Controller {
         startNetworkCommunicator(ReversiType.CLIENT);
         serverView = new ServerListView(this);
     }
+    
+    public boolean iteration(int row, int col)
+    {
+        if (isStepValid(row, col, true)[0]==0){
+            return false;
+        } else {
+            //update game user
+            //score
+            //gui
+            //delay
+            //ai
+            //update game ai
+            //calc score
+            //update gui //redraw
+        } 
+        return true;
+    }
+    
+    private boolean updateGame(int row, int col, int changes[], boolean red) {
+         if (game.redIsNext != red) {
+            return false;
+        }
+         else {
+             game.redIsNext = !game.redIsNext;
+         }
+        Field me = red ? Field.RED : Field.BLUE;
+        game.setField(row, col, me);
+        for (int jj = 0; jj < 8; ++jj) {
+            for (int ii = 1; ii <= changes[1]; ++ii) {
+                game.setField(row + ii * rowStepTable[jj], col + ii * colStepTable[jj], me);
+            }
+        }
+        if (changes[0] > 0) {
+            return true;
+        }
+        return false;
+    }
+    
+    private int[] rowStepTable = {-1,-1,-1,0,1,1,1,0};
+    private int[] colStepTable = {-1,0,1,1,1,0,-1,-1};    
 
+    private int[] isStepValid(int row, int col, boolean red) {
+        int size=game.getTableSize().getSize();
+        int changes[] = new int[size+1]; // inisalájzd tu lauter nulls
+        //changes[0] = score!!
+        if (row < 0 || row > size-1 || col < 0 || col > size-1) {
+            return changes;
+        }
+        Field[][] table = game.getTable();
+        Field enemy = red ? Field.BLUE : Field.RED;
+        Field me = red ? Field.RED : Field.BLUE;
+
+        if (table[row][col] != Field.EMPTY) {
+            return changes;
+        }
+
+        int actRow, actCol;
+        Field actField;
+        
+        for (int jj = 0; jj < 8; ++jj) {
+            for (int ii = 1; ii < size; ++ii) {
+                actRow = row + ii * rowStepTable[jj];
+                actCol = col + ii * colStepTable[jj];
+                if (actRow < 0 || actCol < 0) {
+                    break;
+                }
+                actField = table[actRow][actCol];
+                if (actField == enemy) {
+                    continue;
+                }
+                if (actField == me) {
+                    changes[0] += changes[jj + 1] = ii - 1;
+                    break;
+                }
+                if (actField == Field.EMPTY) {
+                    break;
+                }
+            }
+        }
+
+//        for (int ii = 1; ii < size; ++ii) {
+//            actRow = row - ii;
+//            actCol = col - ii;
+//            if (actRow < 0 || actCol < 0) {
+//                break;
+//            }
+//            actField = table[actRow][actCol];
+//            if (actField == enemy) {
+//                continue;
+//            }
+//            if (actField == me) {
+//                changes[0] += changes[1] = ii - 1;
+//                break;
+//            }
+//            if (actField == Field.EMPTY) {
+//                break;
+//            }
+//        }
+//
+//        for (int ii = 1; ii < size; ++ii) {
+//            actRow = row - ii;
+//            actCol = col;
+//            if (actRow < 0) {
+//                break;
+//            }
+//            actField = table[actRow][actCol];
+//            if (actField == enemy) {
+//                continue;
+//            }
+//            if (actField == me) {
+//                changes[0] += changes[1] = ii - 1;
+//                break;
+//            }
+//            if (actField == Field.EMPTY) {
+//                break;
+//            }
+//        }
+//
+//        for (int ii = 1; ii < size; ++ii) {
+//            actRow = row - ii;
+//            actCol = col + ii;
+//            if (actRow < 0 || actCol > size-1) {
+//                break;
+//            }
+//            actField = table[actRow][actCol];
+//            if (actField == enemy) {
+//                continue;
+//            }
+//            if (actField == me) {
+//                changes[0] += changes[1] = ii - 1;
+//                break;
+//            }
+//            if (actField == Field.EMPTY) {
+//                break;
+//            }
+//        }
+//
+//        for (int ii = 1; ii < size; ++ii) {
+//            actRow = row;
+//            actCol = col + ii;
+//            if (actCol > size-1) {
+//                break;
+//            }
+//            actField = table[actRow][actCol];
+//            if (actField == enemy) {
+//                continue;
+//            }
+//            if (actField == me) {
+//                changes[0] += changes[1] = ii - 1;
+//                break;
+//            }
+//            if (actField == Field.EMPTY) {
+//                break;
+//            }
+//        }
+//
+//        for (int ii = 1; ii < size; ++ii) {
+//            actRow = row + ii;
+//            actCol = col + ii;
+//            if (actRow > size-1 || actCol > size-1) {
+//                break;
+//            }
+//            actField = table[actRow][actCol];
+//            if (actField == enemy) {
+//                continue;
+//            }
+//            if (actField == me) {
+//                changes[0] += changes[1] = ii - 1;
+//                break;
+//            }
+//            if (actField == Field.EMPTY) {
+//                break;
+//            }
+//        }
+//        
+//        for (int ii = 1; ii < size; ++ii) {
+//            actRow = row + ii;
+//            actCol = col;
+//            if (actRow > size-1) {
+//                break;
+//            }
+//            actField = table[actRow][actCol];
+//            if (actField == enemy) {
+//                continue;
+//            }
+//            if (actField == me) {
+//                changes[0] += changes[1] = ii - 1;
+//                break;
+//            }
+//            if (actField == Field.EMPTY) {
+//                break;
+//            }
+//        }
+//        
+//        for (int ii = 1; ii < size; ++ii) {
+//            actRow = row + ii;
+//            actCol = col - ii;
+//            if (actRow > size-1 || actCol < 0) {
+//                break;
+//            }
+//            actField = table[actRow][actCol];
+//            if (actField == enemy) {
+//                continue;
+//            }
+//            if (actField == me) {
+//                changes[0] += changes[1] = ii - 1;
+//                break;
+//            }
+//            if (actField == Field.EMPTY) {
+//                break;
+//            }
+//        }
+//        
+//        for (int ii = 1; ii < size; ++ii) {
+//            actRow = row;
+//            actCol = col - ii;
+//            if (actCol > size-1) {
+//                break;
+//            }
+//            actField = table[actRow][actCol];
+//            if (actField == enemy) {
+//                continue;
+//            }
+//            if (actField == me) {
+//                changes[0] += changes[1] = ii - 1;
+//                break;
+//            }
+//            if (actField == Field.EMPTY) {
+//                break;
+//            }
+//        }
+
+        return changes;
+    }
+    
+    
+    
+    
     public static void main(String[] args) {
 
 
