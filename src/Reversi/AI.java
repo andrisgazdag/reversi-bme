@@ -26,30 +26,36 @@ public class AI {
     public int[] step() {
                
         int optimals[][] = new int[3][2];
-        int max1 = 0, max2 = 0, max3 = 0;
+        int[] max = {0, 0, 0};
         int size = game.getTableSize().getSize();
         for (int jj = 0; jj < size; ++jj) {
             for (int ii = 0; ii < size; ++ii) {
                 int[] actPos = {jj, ii};
                 int score = game.isStepValid(jj, ii, false)[0];
-                if (score > max1) {
-                    max3 = max2;
-                    max2 = max1;
-                    max1 = score;
+                if (score > max[0]) {
+                    max[2] = max[1];
+                    max[1] = max[0];
+                    max[0] = score;
                     optimals[2] = optimals[1];
                     optimals[1] = optimals[0];
                     optimals[0] = actPos;
-                } else if (score > max2) {
-                    max3 = max2;
-                    max2 = score;
+                } else if (score > max[1]) {
+                    max[2] = max[1];
+                    max[1] = score;
                     optimals[2] = optimals[1];
                     optimals[1] = actPos;
-                } else if (score > max3) {
-                    max3 = score;
+                } else if (score > max[2]) {
+                    max[2] = score;
                     optimals[2] = actPos;
                 }
             }
         }
-        return optimals[level.getLevel()-1];
+        for (int kk = 0; kk < level.getLevel(); ++kk) {
+            if (max[level.getLevel() - 1 - kk] != 0) {
+                return optimals[level.getLevel() - 1 - kk];
+            }
+        }
+        int[] ret = {-1,-1};
+        return ret;
     }
 }

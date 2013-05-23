@@ -65,7 +65,7 @@ public class SinglePlayerGame extends Game {
             } else {
                 updateGame(rowAI, colAI, changesAI, false); // AI lepett
 //                ctrlr.updateView();
-                LOGGER.log(Level.FINER, "Update after AI has stepd.");
+                LOGGER.log(Level.FINER, "Update after AI has stepped.");
                 
                 //update game user
                 //score
@@ -77,7 +77,9 @@ public class SinglePlayerGame extends Game {
                 //update gui //redraw
                 //update gui //redraw
             }
-        
+            if (!canStep(true) && !canStep(false)){
+                ctrlr.endGame();
+            }
         return true;
     }
 }
