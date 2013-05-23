@@ -14,6 +14,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -23,7 +25,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-public class GamePlayView extends JFrame {
+public class GamePlayView extends JFrame implements Runnable {
 
     private Controller ctrl;
     private DrawPanel drawPanel = new DrawPanel();
@@ -39,6 +41,8 @@ public class GamePlayView extends JFrame {
     int scoreBlue, scoreRed;
     JPanel inputPanel = new JPanel();
     JFileChooser fc;
+    private boolean keepRedrawing = true;
+    private static final Logger LOGGER = Logger.getLogger("Reversi");
 
     public GamePlayView(TableSize size, Controller c) {
         super("Reversi");
@@ -143,6 +147,18 @@ public class GamePlayView extends JFrame {
     }
 
     @Override
+    public void run() {
+        while (keepRedrawing) {
+            this.repaint();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    @Override
     public void paint(Graphics g) {
         super.paint(g);
         drawPanel.repaint();
@@ -157,10 +173,11 @@ public class GamePlayView extends JFrame {
         drawPanel.repaint();
     }
 
-    public void reDraw() {
-        drawPanel.repaint();
-    }
-
+    /*
+     public void reDraw() {
+     drawPanel.repaint();
+     }
+     */
     private class DrawPanel extends JPanel {
 
         private static final long serialVersionUID = 1L;
@@ -206,10 +223,10 @@ public class GamePlayView extends JFrame {
                 for (int j = 0; j < tableSize.getSize(); ++j) {
                     if (table[i][j] == Field.BLUE) {
                         g.setColor(Color.blue);
-                        g.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2 ,CircleSize,CircleSize);
+                        g.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, CircleSize, CircleSize);
                     } else if (table[i][j] == Field.RED) {
                         g.setColor(Color.red);
-                        g.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2 ,CircleSize,CircleSize);
+                        g.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, CircleSize, CircleSize);
                     }
                 }
             }

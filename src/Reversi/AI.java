@@ -5,6 +5,8 @@
 package Reversi;
 
 import Enums.GameLevel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -22,6 +24,7 @@ public class AI {
     }
             
     public int[] step() {
+               
         int optimals[][] = new int[3][2];
         int max1 = 0, max2 = 0, max3 = 0;
         int size = game.getTableSize().getSize();

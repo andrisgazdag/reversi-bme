@@ -52,8 +52,10 @@ public class Controller {
         gameTypeView = null; // release the object
         game = new SinglePlayerGame(size);
         ai = new AI(level, game, this);
-        gameView = new GamePlayView(size, this); // start new frame
-        gameView.reDraw(/*game.getTable(), game.calculateScores()*/);
+        //gameView = new GamePlayView(size, this); // start new frame
+        new Thread(new GamePlayView(size, this)).start(); // start gui thread
+        //gameView.repaint();
+        //gameView.reDraw(/*game.getTable(), game.calculateScores()*/);
     }
 
     public void startServerGame(TableSize size, String serverName, String playerName) {
@@ -126,14 +128,17 @@ public class Controller {
     
     public boolean iteration(int row, int col) // nem bool
     {
-        int[] changes = isStepValid(row, col, true);
+        int[] changes = isStepValid(row, col, true); // helyes-e a lepes
         if (changes[0] == 0) {
-            return false;
+            LOGGER.log(Level.FINER, "Invalid step");
+            return false; // ha nem akkor exit
         } else {
-            updateGame(row, col, changes, true);
-            gameView.reDraw(/*game.getTable(), game.calculateScores()*/);
+            updateGame(row, col, changes, true); // jatek allapotanak frissitese
+            //gameView.repaint(); // gui ujrarajzolasa
+            
             try {
-                Thread.sleep(1000);
+                Thread.sleep(1000); // lassítja az AI válaszát
+                LOGGER.log(Level.FINER, "Controller slept...");
             } catch (InterruptedException ex) {
                 Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -141,11 +146,11 @@ public class Controller {
             int colAI = ai.step()[1];
             int[] changesAI = isStepValid(rowAI, colAI, false);
             if (changesAI[0] == 0) {
-                return false;
+                return false; // AI nem tudott lepni
             } else {
-                updateGame(rowAI, colAI, changesAI, false);
-                gameView.reDraw(/*game.getTable(), game.calculateScores()*/);
-               
+                updateGame(rowAI, colAI, changesAI, false); // AI lepett
+                //gameView.repaint(); // GUI frissitese
+                LOGGER.log(Level.FINER, "Update after AI has stepd.");
                 
                 //update game user
                 //score
