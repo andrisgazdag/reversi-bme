@@ -139,7 +139,7 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
         status.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
         //setLocation(400, 0);
-
+        
         setVisible(true);  //ablak megjelenítése
         setResizable(false); // ne akarja senki átméretezni az ablakot!
 
@@ -319,13 +319,16 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
     public void showUserWin() {
         // JOptionPane.showMessageDialog(GamePlayView.this, "Győztél!");
         JOptionPane.showMessageDialog(this, "Győztél!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
+        setTitle("Győztél");
     }
 
     public void showUserEven() {
         JOptionPane.showMessageDialog(this, "Döntetlen!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
+        setTitle("Döntetlen!");
     }
     
     public void showUserLoose() {
         JOptionPane.showMessageDialog(this, "Vesztettél!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
+        setTitle("Vesztettél!");
     }
 }
