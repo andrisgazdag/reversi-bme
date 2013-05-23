@@ -6,6 +6,7 @@ package Reversi;
 
 import Enums.GameLevel;
 import Enums.TableSize;
+import static Reversi.Game.LOGGER;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,8 +35,9 @@ public class SinglePlayerGame extends Game {
             } else { // tehát nincs a usernek valid lépése
                 if (!canStep(false)) { // a gépnek sincs
                     ctrlr.endGame(); //vége van
-                } else {
-                    // AI jöjjön
+                } else { // AI jöjjön
+                    redIsNext=!redIsNext;
+                     //redIsNext = false;
                 }
             }
 
@@ -47,14 +49,18 @@ public class SinglePlayerGame extends Game {
             } catch (InterruptedException ex) {
                 Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
             }
-          
-            
-            
+        }
+           
             int[] respAI = ai.step();
             int rowAI = respAI[0];
             int colAI = respAI[1];
             int[] changesAI = isStepValid(rowAI, colAI, false);
             if (changesAI[0] == 0) {
+                if (canStep(false)){
+                    LOGGER.log(Level.FINER, "IMPOSSIBLE!! AI nem tud lepni pedig megis");
+                }
+                  redIsNext=!redIsNext;
+                     //redIsNext = true;
                 return false; // AI nem tudott lepni
             } else {
                 updateGame(rowAI, colAI, changesAI, false); // AI lepett
@@ -71,7 +77,7 @@ public class SinglePlayerGame extends Game {
                 //update gui //redraw
                 //update gui //redraw
             }
-        }
+        
         return true;
     }
 }

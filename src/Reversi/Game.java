@@ -10,8 +10,8 @@ public abstract class Game{
 
     private TableSize tableSize;  // a tábla mérete tableSize x tableSize
     private Field[][] table = null; // a tabla cellai
-    public Controller ctrlr = null; 
-    private boolean redIsNext = true;
+    protected Controller ctrlr = null; 
+    protected boolean redIsNext = true;
 
     protected static final Logger LOGGER = Logger.getLogger("Reversi");
     
@@ -66,6 +66,7 @@ public abstract class Game{
     
      public boolean updateGame(int row, int col, int changes[], boolean red) {
         if (redIsNext != red) {
+            LOGGER.log(Level.FINER, "updategame hiba: nem az jön akinek kéne");
             return false;
         } else {
             redIsNext = !redIsNext;
@@ -106,11 +107,6 @@ public abstract class Game{
         return false;
     }
     
-//    public boolean endIfEnd()
-//    {
-//        
-//    }
-
     private int[] rowStepTable = {-1,-1,-1,0,1,1,1,0};
     private int[] colStepTable = {-1,0,1,1,1,0,-1,-1};    
 
