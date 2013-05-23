@@ -3,20 +3,23 @@ package Reversi;
 import Enums.Field;
 import Enums.TableSize;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class Game {
+public abstract class Game{
 
     private TableSize tableSize;  // a tábla mérete tableSize x tableSize
     private Field[][] table = null; // a tabla cellai
-    public boolean redIsNext = true;
+    public Controller ctrlr = null; 
+    private boolean redIsNext = true;
 
     protected static final Logger LOGGER = Logger.getLogger("Reversi");
     
     public Game() {
     }
 
-    public Game(TableSize tableSize) {
+    public Game(TableSize tableSize, Controller ctrlr) {
+        this.ctrlr=ctrlr;
         this.tableSize = tableSize;
         int size=tableSize.getSize();
         table = new Field[size][size];
@@ -30,7 +33,7 @@ public abstract class Game {
         table[size/2-1][size/2]=Field.BLUE;
         table[size/2][size/2-1]=Field.BLUE;
     }
-
+    
     public Field[][] getTable() {
         return table;
     }
@@ -70,12 +73,21 @@ public abstract class Game {
          }
         Field me = red ? Field.RED : Field.BLUE;
         setField(row, col, me);
+        ctrlr.updateView();
+        
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         for (int jj = 0; jj < 8; ++jj) {
             for (int ii = 1; ii <= changes[jj+1]; ++ii) {
                 setField(row + ii * rowStepTable[jj], col + ii * colStepTable[jj], me);
             }
         }
         if (changes[0] > 0) {
+            ctrlr.updateView();
             return true;
         }
         return false;
@@ -91,7 +103,7 @@ public abstract class Game {
         if (row < 0 || row > size-1 || col < 0 || col > size-1) {
             return changes;
         }
-        Field[][] table = getTable();
+        //Field[][] table = getTable();
         Field enemy = red ? Field.BLUE : Field.RED;
         Field me = red ? Field.RED : Field.BLUE;
 

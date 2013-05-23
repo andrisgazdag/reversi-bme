@@ -4,8 +4,8 @@ import Enums.TableSize;
 
 public class ServerGame extends Game {
 
-    public ServerGame(TableSize tableSize) {
-        super(tableSize);
+    public ServerGame(TableSize tableSize, Controller ctrlr) {
+        super(tableSize, ctrlr);
     }
     
      

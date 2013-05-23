@@ -50,18 +50,18 @@ public class Controller {
     public void startSingleGame(GameLevel level, TableSize size, String playerName) {
         
         gameTypeView = null; // release the object
-        game = new SinglePlayerGame(size, level);
+        game = new SinglePlayerGame(size, this, level);
         //ai = new AI(level, game/*, this*/);
-        //gameView = new GamePlayView(size, this); // start new frame
-        new Thread(new GamePlayView(size, this)).start(); // start gui thread
-        //gameView.repaint();
+        gameView = new GamePlayView(size, this); // start new frame
+        //new Thread(new GamePlayView(size, this)).start(); // start gui thread
+        gameView.repaint();
         //gameView.reDraw(/*game.getTable(), game.calculateScores()*/);
     }
 
     public void startServerGame(TableSize size, String serverName, String playerName) {
 
         gameTypeView = null; // release the object
-        game = new ServerGame(size);
+        game = new ServerGame(size, this);
         gameView = new GamePlayView(size, this); // start new frame
 
     }
@@ -126,22 +126,28 @@ public class Controller {
         serverView = new ServerListView(this);
     }
     
-     public boolean iteration(int row, int col)
-     {
-     return game.iteration(row, col);
-     }
+    public boolean iteration(final int row, final int col) {
+        Runnable r = new Runnable() {
+            public void run() {
+                game.iteration(row, col);
+            }
+        };        
+        new Thread(r).start();
+//        
+//        return game.iteration(row, col);
+        return true;
+    }
     
+     public void updateView(){
+         gameView.repaint();
+     }
+     
    public static void main(String[] args) {
-
-
         Controller ctrl = new Controller();
-
 
         /*
 
          try {
-
-
          // saját code
 
          System.out.println("What would you like to start? (0=server; 1=client)");

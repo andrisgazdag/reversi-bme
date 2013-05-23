@@ -25,7 +25,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-public class GamePlayView extends JFrame implements Runnable {
+public class GamePlayView extends JFrame /*implements Runnable*/ {
 
     private Controller ctrl;
     private DrawPanel drawPanel = new DrawPanel();
@@ -146,17 +146,17 @@ public class GamePlayView extends JFrame implements Runnable {
 
     }
 
-    @Override
-    public void run() {
-        while (keepRedrawing) {
-            this.repaint();
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                LOGGER.log(Level.SEVERE, null, ex);
-            }
-        }
-    }
+//    @Override
+//    public void run() {
+//        while (keepRedrawing) {
+//            this.repaint();
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException ex) {
+//                LOGGER.log(Level.SEVERE, null, ex);
+//            }
+//        }
+//    }
 
     @Override
     public void paint(Graphics g) {

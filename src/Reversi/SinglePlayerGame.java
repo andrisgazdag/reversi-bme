@@ -17,9 +17,9 @@ public class SinglePlayerGame extends Game {
 
     private AI ai;
 
-    public SinglePlayerGame(TableSize size, GameLevel level)
+    public SinglePlayerGame(TableSize size, Controller ctrlr, GameLevel level)
     {
-        super(size);
+        super(size, ctrlr);
         ai = new AI(level, this);
     }
     
@@ -33,9 +33,10 @@ public class SinglePlayerGame extends Game {
         } else {
             updateGame(row, col, changes, true); // jatek allapotanak frissitese
             //gameView.repaint(); // gui ujrarajzolasa
+//            ctrlr.updateView();
             
             try {
-                Thread.sleep(1000); // lassítja az AI válaszát
+                Thread.sleep(2000); // lassítja az AI válaszát
                 LOGGER.log(Level.FINER, "Controller slept...");
             } catch (InterruptedException ex) {
                 Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
@@ -48,7 +49,7 @@ public class SinglePlayerGame extends Game {
                 return false; // AI nem tudott lepni
             } else {
                 updateGame(rowAI, colAI, changesAI, false); // AI lepett
-                //gameView.repaint(); // GUI frissitese
+//                ctrlr.updateView();
                 LOGGER.log(Level.FINER, "Update after AI has stepd.");
                 
                 //update game user
@@ -64,5 +65,4 @@ public class SinglePlayerGame extends Game {
         }
         return true;
     }
-    
 }
