@@ -34,9 +34,13 @@ public class Controller {
     public Controller() {
         // eloszor a jatekvalaszto ablak
         initLogger();
-        gameTypeView = new GameTypeView(this);
+        startReversi(); //azért lett külön fgv-be téve mert új játékot lehet indítani a GUIból
     }
 
+    public void startReversi()
+    {
+        gameTypeView = new GameTypeView(this); 
+    }
     public String[] getAvailableServerList() {
 
         if (networkCommunicator == null) {
