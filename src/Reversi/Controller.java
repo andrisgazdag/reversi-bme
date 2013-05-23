@@ -143,13 +143,16 @@ public class Controller {
          gameView.reDraw();
      }
      
-     public void endGame()
-     {
-         int[] scores = getScores();
-         if (scores[0]>scores[1]){
-             gameView.showUserWin();
-         }
-     }
+    public void endGame() {
+        int[] scores = getScores();
+        if (scores[0] > scores[1]) {
+            gameView.showUserWin();
+        } else if (scores[0] < scores[1]) {
+            gameView.showUserLoose();
+        } else {
+            gameView.showUserEven();
+        }
+    }
      
    public static void main(String[] args) {
       

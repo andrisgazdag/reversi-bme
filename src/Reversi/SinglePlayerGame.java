@@ -24,30 +24,32 @@ public class SinglePlayerGame extends Game {
     }
     
     @Override
-     public boolean iteration(int row, int col) // nem bool
+    public boolean iteration(int row, int col)
     {
         int[] changes = isStepValid(row, col, true); // helyes-e a lepes
-        if (changes[0] == 0) {
+        if (changes[0] == 0) { //ez a lépés nem valid
             LOGGER.log(Level.FINER, "Invalid step");
-            if(canStep(true)){ //ha ez nem valid, de lenne valid -->user találja meg
-                return false; // ha nem akkor exit
+            if (canStep(true)) { //ha ez nem valid, de lenne valid -->user találja meg
+                return false;
+            } else { // tehát nincs a usernek valid lépése
+                if (!canStep(false)) { // a gépnek sincs
+                    ctrlr.endGame(); //vége van
+                } else {
+                    // AI jöjjön
+                }
             }
-            else{ // tehát nincs a usernek valid lépése
-                
-                
-            }
-            
-        } else {
+
+        } else { // a lépés valid
             updateGame(row, col, changes, true); // jatek allapotanak frissitese
-            //gameView.repaint(); // gui ujrarajzolasa
-//            ctrlr.updateView();
-            
-            try {
+            try { // AI "gondolkozik"
                 Thread.sleep(1000); // lassítja az AI válaszát
                 LOGGER.log(Level.FINER, "Controller slept...");
             } catch (InterruptedException ex) {
                 Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
             }
+          
+            
+            
             int[] respAI = ai.step();
             int rowAI = respAI[0];
             int colAI = respAI[1];
