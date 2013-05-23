@@ -24,6 +24,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
     static String easy = "Könnyű";
     static String server = "Szerver";
     static String client = "Kliens";
+    static String normal = "Normál";
     static String tableSizeString8 = "8x8";
     static String tableSizeString10 = "10x10";
     static String tableSizeString12 = "12x12";
@@ -39,6 +40,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
     protected JButton startButton;
     protected JButton refreshButton;
     JRadioButton hardButton;
+    JRadioButton normalButton;
     JRadioButton easyButton;
     JRadioButton serverButton;
     JRadioButton clientButton;
@@ -62,6 +64,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
         //Create the radio buttons:
         {
             hardButton = new JRadioButton(hard);
+            normalButton = new JRadioButton(normal);
             easyButton = new JRadioButton(easy);
             serverButton = new JRadioButton(server);
             clientButton = new JRadioButton(client);
@@ -83,6 +86,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             tableSizeButton12.setActionCommand(tableSizeString12);
             hardButton.setActionCommand(hard);
             easyButton.setActionCommand(easy);
+            normalButton.setActionCommand(normal);
         }
 
         //set selected and visible button:
@@ -115,6 +119,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             ButtonGroup groupLevel = new ButtonGroup();
             groupLevel.add(hardButton);
             groupLevel.add(easyButton);
+            groupLevel.add(normalButton);
 
             ButtonGroup groupSize = new ButtonGroup();
             groupSize.add(tableSizeButton8);
@@ -129,6 +134,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             multiPlayerButton.addActionListener(this);
             hardButton.addActionListener(this);
             easyButton.addActionListener(this);
+            normalButton.addActionListener(this);
             tableSizeButton8.addActionListener(this);
             tableSizeButton10.addActionListener(this);
             tableSizeButton12.addActionListener(this);
@@ -150,6 +156,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             Label levelLabel = new Label("Szint:");
             levelPanel.add(levelLabel);
             levelPanel.add(easyButton);
+            levelPanel.add(normalButton);
             levelPanel.add(hardButton);
             levelPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
         }
@@ -312,7 +319,10 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                     // get game level
                     if (easyButton.isSelected()) {
                         level = GameLevel.EASY;
-                    } else {
+                    } else if(normalButton.isSelected())
+                    {
+                        level = GameLevel.NORMAL;
+                    }else {
                         level = GameLevel.HARD;
                     }
 
@@ -360,6 +370,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                 // ez hívódik meg ha a kétszemélyes gombra kattintunk
                 hardButton.setEnabled(false);
                 easyButton.setEnabled(false);
+                normalButton.setEnabled(false);
                 serverButton.setEnabled(true);
                 clientButton.setEnabled(true);
                 if (clientButton.isSelected()) { //ha ki van jelölve a kliens gomba kkor a táblaméret inaktív
@@ -379,6 +390,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                 break;
             case "Egyszemélyes":
                 hardButton.setEnabled(true);
+                normalButton.setEnabled(true);
                 easyButton.setEnabled(true);
                 serverButton.setEnabled(false);
                 clientButton.setEnabled(false);
