@@ -21,8 +21,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Network Communicator class: handles the connections and the communications
  *
- * @author Batman
+ * @author Maria Buthi
  */
 public class NetworkCommunicator extends Thread {
 
@@ -60,6 +61,7 @@ public class NetworkCommunicator extends Thread {
      * C'tor of the NetworkCommunicator class
      *
      * @param gameType The type of the current game (Server/Client)
+     * @param controller the Controller class of the game
      */
     public NetworkCommunicator(ReversiType gameType, Controller controller) {
 
@@ -72,6 +74,10 @@ public class NetworkCommunicator extends Thread {
 
     }
 
+    /**
+     * To stop the thread of the networkCommunicator. It closes all awaiting
+     * sockets and connections.
+     */
     public void selfDestruction() {
 
         LOGGER.log(Level.INFO, "NetworkCommunicator initiaing self destruction...");
@@ -98,6 +104,9 @@ public class NetworkCommunicator extends Thread {
         this.interrupt();
     }
 
+    /**
+     * The main function of the thread.
+     */
     @Override
     public void run() {
 
@@ -107,7 +116,7 @@ public class NetworkCommunicator extends Thread {
 
             // starting the advertiser thread
             gameAD = new GameAdvertiser();
-            startListening(); // start listening end get a port, which is free
+            startListening(); // start listening on a port, which is free
             gameAD.start();
             waitForClient(); // wait for client to connect
             gameAD.stopAdvertise();
@@ -126,27 +135,40 @@ public class NetworkCommunicator extends Thread {
 
         }
 
+        // The main loop of the thread
         // The establishment is done, waiting for sending requests...
         while (communicatorIsNeeded) {
+
             try {
                 sleep(1000);
             } catch (InterruptedException ex) {
                 LOGGER.log(Level.WARNING, "Sleep interrupted: {0}", ex);
             }
+
         }
 
     }
 
+    /**
+     * @return Returns the operating mode of the networkCommunicator
+     */
     public ReversiType getGameType() {
         return gameType;
     }
 
+    /**
+     * @return A boolean value, weather the nC is connected to a communication
+     * partner or not.
+     */
     public boolean isConnected() {
-
         return (connection != null) && (out != null) && (in != null);
-
     }
 
+    /**
+     * Sends a packet to the communication partner.
+     *
+     * @param packet a NetworkPacket
+     */
     public void send(NetworkPacket packet) {
 
         try {
@@ -159,6 +181,9 @@ public class NetworkCommunicator extends Thread {
 
     }
 
+    /**
+     * @return a NetworkPacket received over the network.
+     */
     public NetworkPacket recive() {
 
         NetworkPacket packet = null;
@@ -173,12 +198,19 @@ public class NetworkCommunicator extends Thread {
         return packet;
     }
 
+    /**
+     * It stops the thread and closes the communications politely. (Not like
+     * selfDestruction.)
+     */
     public void endCommunications() {
 
         communicatorIsNeeded = false;
 
     }
 
+    /**
+     * @return A string list of game names found in the local network.
+     */
     public String[] getAvailableGames() {
 
         String[] a = new String[]{null};
@@ -186,6 +218,12 @@ public class NetworkCommunicator extends Thread {
 
     }
 
+    /**
+     * Connects to a server game on the local network
+     *
+     * @param gameName The name of the LAN game
+     * @return whether the connection was created successfully
+     */
     public boolean connectToGame(String gameName) {
 
         LOGGER.log(Level.FINE, "Connecting to game: {0}", gameName);
@@ -206,11 +244,17 @@ public class NetworkCommunicator extends Thread {
 
     }
 
+    /**
+     * Stops the search for the server games on the LAN.
+     */
     private void stopSearchingForGames() {
         needToSearchForGames = false;
         LOGGER.log(Level.FINE, "Searching for games has stopped.");
     }
 
+    /**
+     * Starts searching for server games on the LAN.
+     */
     private void searchForGames() {
 
         MulticastSocket ms = null;
@@ -255,13 +299,16 @@ public class NetworkCommunicator extends Thread {
 
             ms.leaveGroup(group);
         } catch (IOException e) {
-            System.out.println(e.getLocalizedMessage());
-            e.printStackTrace();
+            LOGGER.log(Level.WARNING, "Search for games exception: {0}", port);
         } finally {
             ms.close();
         }
     }
 
+    /**
+     * Selects a free port for the server, where it will be able to start
+     * listening for client connection requests.
+     */
     private void startListening() {
 
         // Create server socket, and wait for incoming connection
@@ -279,6 +326,9 @@ public class NetworkCommunicator extends Thread {
 
     }
 
+    /**
+     * Waits for the client to establish the TCP connection.
+     */
     private void waitForClient() {
 
         // The IP Address of the communication partner
@@ -307,10 +357,13 @@ public class NetworkCommunicator extends Thread {
 
     }
 
+    /**
+     * The client connects to the server, with the previously set parameters.
+     */
     private void connectToServer() {
 
         try {
-            // Connect to server at port: 60000
+            // Connect to server
             connection = new Socket(partnerAddress, partnerPort);
             // Get the input and output streams
             out = new ObjectOutputStream(connection.getOutputStream());
@@ -322,8 +375,12 @@ public class NetworkCommunicator extends Thread {
 
     }
 
+    /**
+     * A separate thread, to advertise a server game on the LAN.
+     */
     private class GameAdvertiser extends Thread {
 
+        // the value can be set to false, to stop the GameAdvertiser
         private boolean needToAdvertise = true;
 
         /**
@@ -405,11 +462,19 @@ public class NetworkCommunicator extends Thread {
             return null;
         }
 
+        /**
+         * This function can be used to stop the GameAdvertiser
+         */
         public void stopAdvertise() {
             needToAdvertise = false;
         }
     }
 
+    /**
+     * Deserializes a NetworkPacket
+     * @param  a byte array of the serialized packet
+     * @return a NetworkPacket, which is deserialized out of the bytes
+     */
     private NetworkPacket deserialisePacket(byte[] buf) {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(buf);
