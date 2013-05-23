@@ -26,9 +26,9 @@ public abstract class Game {
     }
         
         table[size/2][size/2]=Field.RED;
-        table[(size+1)/2][(size+1)/2]=Field.RED;
-        table[size/2][(size+1)/2]=Field.BLUE;
-        table[(size+1)/2][size/2]=Field.BLUE;
+        table[size/2+1][size/2+1]=Field.RED;
+        table[size/2][size/2+1]=Field.BLUE;
+        table[size/2+1][size/2]=Field.BLUE;
     }
 
     public Field[][] getTable() {
