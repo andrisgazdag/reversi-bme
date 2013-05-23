@@ -1,5 +1,6 @@
 package GUI;
 
+import Enums.Field;
 import Enums.TableSize;
 import Reversi.Controller;
 import java.awt.BorderLayout;
@@ -156,6 +157,26 @@ public class GamePlayView extends JFrame {
             drawPanel.pointsRed.add(p);
         }
         drawPanel.repaint();
+    }
+    
+    public void reDraw(Field[][] table, int[] score)
+    {
+        drawPanel.pointsBlue.clear();
+        drawPanel.pointsRed.clear();
+        for(int i=0; i<tableSize.getSize();++i)
+        {
+           for(int j=0; j<tableSize.getSize();++j) 
+           {
+               if(table[i][j] == Field.BLUE)
+               {
+                   addPoint(new Point(i * cellSize + BORDER_SIZE, j * cellSize + BORDER_SIZE), 1);
+               }
+               else if(table[i][j] == Field.RED)
+               {
+                   addPoint(new Point(i * cellSize + BORDER_SIZE, j * cellSize + BORDER_SIZE), 0);
+               }
+           }
+        }
     }
 
     private class DrawPanel extends JPanel {
