@@ -47,10 +47,11 @@ public class Controller {
     }
 
     public void startSingleGame(GameLevel level, TableSize size, String playerName) {
-        AI ai = new AI(level);
+        
         gameTypeView = null; // release the object
         game = new SinglePlayerGame(size);
         gameView = new GamePlayView(size, this); // start new frame
+        AI ai = new AI(level, game, this);
 
     }
 
@@ -154,7 +155,7 @@ public class Controller {
         Field me = red ? Field.RED : Field.BLUE;
         game.setField(row, col, me);
         for (int jj = 0; jj < 8; ++jj) {
-            for (int ii = 1; ii <= changes[1]; ++ii) {
+            for (int ii = 1; ii <= changes[jj+1]; ++ii) {
                 game.setField(row + ii * rowStepTable[jj], col + ii * colStepTable[jj], me);
             }
         }
@@ -167,7 +168,7 @@ public class Controller {
     private int[] rowStepTable = {-1,-1,-1,0,1,1,1,0};
     private int[] colStepTable = {-1,0,1,1,1,0,-1,-1};    
 
-    private int[] isStepValid(int row, int col, boolean red) {
+    public int[] isStepValid(int row, int col, boolean red) {
         int size=game.getTableSize().getSize();
         int changes[] = new int[size+1]; // inisalájzd tu lauter nulls
         //changes[0] = score!!

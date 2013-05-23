@@ -112,7 +112,8 @@ public class GamePlayView extends JFrame {
                 {
 
                     if (X < tableSize.getSize() && Y < tableSize.getSize() && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
-                        addPoint(new Point(X * cellSize + BORDER_SIZE, Y * cellSize + BORDER_SIZE), 0);
+//                        addPoint(new Point(X * cellSize + BORDER_SIZE, Y * cellSize + BORDER_SIZE), 0);
+                        ctrl.iteration(X, Y);
                     }
 
                 }
