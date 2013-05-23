@@ -47,6 +47,6 @@ public class AI {
                 }
             }
         }
-        return optimals[level.getLevel()];
+        return optimals[level.getLevel()-1];
     }
 }

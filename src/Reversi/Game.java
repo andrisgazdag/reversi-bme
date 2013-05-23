@@ -25,10 +25,10 @@ public abstract class Game {
         Arrays.fill(subarray, Field.EMPTY);
     }
         
+        table[size/2-1][size/2-1]=Field.RED;
         table[size/2][size/2]=Field.RED;
-        table[size/2+1][size/2+1]=Field.RED;
-        table[size/2][size/2+1]=Field.BLUE;
-        table[size/2+1][size/2]=Field.BLUE;
+        table[size/2-1][size/2]=Field.BLUE;
+        table[size/2][size/2-1]=Field.BLUE;
     }
 
     public Field[][] getTable() {
