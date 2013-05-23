@@ -29,7 +29,7 @@ public class Controller {
     NetworkCommunicator networkCommunicator = null;
     Game game = null;
     String gameName = "Skynet";
-    AI ai;
+//  AI ai;
     
     public Controller() {
         // eloszor a jatekvalaszto ablak
@@ -50,8 +50,8 @@ public class Controller {
     public void startSingleGame(GameLevel level, TableSize size, String playerName) {
         
         gameTypeView = null; // release the object
-        game = new SinglePlayerGame(size);
-        ai = new AI(level, game/*, this*/);
+        game = new SinglePlayerGame(size, level);
+        //ai = new AI(level, game/*, this*/);
         //gameView = new GamePlayView(size, this); // start new frame
         new Thread(new GamePlayView(size, this)).start(); // start gui thread
         //gameView.repaint();
@@ -126,49 +126,12 @@ public class Controller {
         serverView = new ServerListView(this);
     }
     
-    public boolean iteration(int row, int col) // nem bool
-    {
-        int[] changes = game.isStepValid(row, col, true); // helyes-e a lepes
-        if (changes[0] == 0) {
-            LOGGER.log(Level.FINER, "Invalid step");
-            return false; // ha nem akkor exit
-        } else {
-            game.updateGame(row, col, changes, true); // jatek allapotanak frissitese
-            //gameView.repaint(); // gui ujrarajzolasa
-            
-            try {
-                Thread.sleep(1000); // lassítja az AI válaszát
-                LOGGER.log(Level.FINER, "Controller slept...");
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            int rowAI = ai.step()[0];
-            int colAI = ai.step()[1];
-            int[] changesAI = game.isStepValid(rowAI, colAI, false);
-            if (changesAI[0] == 0) {
-                return false; // AI nem tudott lepni
-            } else {
-                game.updateGame(rowAI, colAI, changesAI, false); // AI lepett
-                //gameView.repaint(); // GUI frissitese
-                LOGGER.log(Level.FINER, "Update after AI has stepd.");
-                
-                //update game user
-                //score
-                //gui
-                //delay
-
-                //ai
-                //update game ai
-                //update gui //redraw
-                //update gui //redraw
-            }
-        }
-        return true;
-    }
+     public boolean iteration(int row, int col)
+     {
+     return game.iteration(row, col);
+     }
     
-        
-    
-    public static void main(String[] args) {
+   public static void main(String[] args) {
 
 
         Controller ctrl = new Controller();

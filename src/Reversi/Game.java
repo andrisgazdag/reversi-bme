@@ -59,6 +59,7 @@ public abstract class Game {
         return scores;
     }
     
+    public abstract boolean iteration(int row, int col);
     
      public boolean updateGame(int row, int col, int changes[], boolean red) {
          if (redIsNext != red) {

@@ -8,5 +8,10 @@ public class ClientGame extends Game {
     }
 
 
+    @Override
+    public boolean iteration(int row, int col)
+    {
+    return false;
+    }
     
 }

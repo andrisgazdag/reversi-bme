@@ -8,4 +8,11 @@ public class ServerGame extends Game {
         super(tableSize);
     }
     
+     
+    @Override
+    public boolean iteration(int row, int col)
+    {
+    return false;
+    }
+    
 }
