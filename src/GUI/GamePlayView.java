@@ -23,7 +23,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-
 public class GamePlayView extends JFrame {
 
     private Controller ctrl;
@@ -46,16 +45,13 @@ public class GamePlayView extends JFrame {
         scoreBlue = 0;
         scoreRed = 0;
         ctrl = c;
-        
-        if(size == null)
-        {
+
+        if (size == null) {
             tableSize = TableSize.BIG;
-        }
-        else
-        {
+        } else {
             tableSize = size;
         }
-        
+
         width = tableSize.getSize() * cellSize + 2 * BORDER_SIZE;//+2*BORDER_SIZE;
         height = width;
 
@@ -143,7 +139,7 @@ public class GamePlayView extends JFrame {
 //        for (int i = 0; i < 8; ++i) {
 //            addPoint(new Point(i * cellSize + BORDER_SIZE, i * cellSize + BORDER_SIZE), i % 2);
 //        }
-        
+
     }
 
     @Override
@@ -160,25 +156,9 @@ public class GamePlayView extends JFrame {
         }
         drawPanel.repaint();
     }
-    
-    public void reDraw(Field[][] table, int[] score)
-    {
-        drawPanel.pointsBlue.clear();
-        drawPanel.pointsRed.clear();
-        for(int i=0; i<tableSize.getSize();++i)
-        {
-           for(int j=0; j<tableSize.getSize();++j) 
-           {
-               if(table[i][j] == Field.BLUE)
-               {
-                   addPoint(new Point(i * cellSize + BORDER_SIZE+(cellSize-CircleSize)/2, j * cellSize + BORDER_SIZE +(cellSize-CircleSize)/2), 1);
-               }
-               else if(table[i][j] == Field.RED)
-               {
-                   addPoint(new Point(i * cellSize + BORDER_SIZE+(cellSize-CircleSize)/2, j * cellSize + BORDER_SIZE+(cellSize-CircleSize)/2), 0);
-               }
-           }
-        }
+
+    public void reDraw() {
+        drawPanel.repaint();
     }
 
     private class DrawPanel extends JPanel {
@@ -220,22 +200,22 @@ public class GamePlayView extends JFrame {
             }
 
 
-            scoreBlue = 0;
-            scoreRed = 0;
-            //pöttyök kirajzolása
-            g.setColor(Color.red);
-            for (Point p : pointsRed) {
-                g.fillOval(p.x, p.y, CircleSize, CircleSize);
-                scoreRed++;
+            Field[][] table = ctrl.getGameState();
+            int[] score = ctrl.getScores();
+            for (int i = 0; i < tableSize.getSize(); ++i) {
+                for (int j = 0; j < tableSize.getSize(); ++j) {
+                    if (table[i][j] == Field.BLUE) {
+                        g.setColor(Color.blue);
+                        g.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2 ,CircleSize,CircleSize);
+                    } else if (table[i][j] == Field.RED) {
+                        g.setColor(Color.red);
+                        g.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2 ,CircleSize,CircleSize);
+                    }
+                }
             }
 
-            g.setColor(Color.blue);
-            for (Point p : pointsBlue) {
-                g.fillOval(p.x, p.y, CircleSize, CircleSize);
-                scoreBlue++;
-            }
-            ScoreBlue.setText(Integer.toString(scoreBlue)); //pontszámok megjelenítése
-            ScoreRed.setText(Integer.toString(scoreRed));
+            ScoreBlue.setText(Integer.toString(score[1])); //pontszámok megjelenítése
+            ScoreRed.setText(Integer.toString(score[0]));
         }
     }
 
@@ -284,5 +264,4 @@ public class GamePlayView extends JFrame {
     public void showUserLoose() {
         JOptionPane.showMessageDialog(this, "Vesztettél!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
     }
-
 }

@@ -53,7 +53,7 @@ public class Controller {
         game = new SinglePlayerGame(size);
         ai = new AI(level, game, this);
         gameView = new GamePlayView(size, this); // start new frame
-        gameView.reDraw(game.getTable(), game.calculateScores());
+        gameView.reDraw(/*game.getTable(), game.calculateScores()*/);
     }
 
     public void startServerGame(TableSize size, String serverName, String playerName) {
@@ -114,6 +114,10 @@ public class Controller {
         }
         return null;
     }
+    public int[] getScores()
+    {
+       return game.calculateScores();
+    }
 
     public void showServers() {
         startNetworkCommunicator(ReversiType.CLIENT);
@@ -127,7 +131,7 @@ public class Controller {
             return false;
         } else {
             updateGame(row, col, changes, true);
-            gameView.reDraw(game.getTable(), game.calculateScores());
+            gameView.reDraw(/*game.getTable(), game.calculateScores()*/);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
@@ -140,7 +144,7 @@ public class Controller {
                 return false;
             } else {
                 updateGame(rowAI, colAI, changesAI, false);
-                gameView.reDraw(game.getTable(), game.calculateScores());
+                gameView.reDraw(/*game.getTable(), game.calculateScores()*/);
                
                 
                 //update game user
