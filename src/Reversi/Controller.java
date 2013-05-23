@@ -128,6 +128,7 @@ public class Controller {
     
     public boolean iteration(final int row, final int col) {
         Runnable r = new Runnable() {
+            @Override
             public void run() {
                 game.iteration(row, col);
             }
@@ -140,6 +141,14 @@ public class Controller {
     
      public void updateView(){
          gameView.reDraw();
+     }
+     
+     public void endGame()
+     {
+         int[] scores = getScores();
+         if (scores[0]>scores[1]){
+             gameView.showUserWin();
+         }
      }
      
    public static void main(String[] args) {

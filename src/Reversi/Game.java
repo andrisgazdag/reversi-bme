@@ -65,24 +65,23 @@ public abstract class Game{
     public abstract boolean iteration(int row, int col);
     
      public boolean updateGame(int row, int col, int changes[], boolean red) {
-         if (redIsNext != red) {
+        if (redIsNext != red) {
             return false;
+        } else {
+            redIsNext = !redIsNext;
         }
-         else {
-             redIsNext = !redIsNext;
-         }
         Field me = red ? Field.RED : Field.BLUE;
         setField(row, col, me);
         ctrlr.updateView();
-        
+
         try {
             Thread.sleep(200);
         } catch (InterruptedException ex) {
             Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         for (int jj = 0; jj < 8; ++jj) {
-            for (int ii = 1; ii <= changes[jj+1]; ++ii) {
+            for (int ii = 1; ii <= changes[jj + 1]; ++ii) {
                 setField(row + ii * rowStepTable[jj], col + ii * colStepTable[jj], me);
             }
         }
@@ -92,7 +91,26 @@ public abstract class Game{
         }
         return false;
     }
+
+     
+     // ezitten azt adja vissza h az adott szinü (red vany nem-red játékos léphet e még validat
+    public boolean canStep(boolean red) {
+        int size = tableSize.getSize();
+        for (int jj = 0; jj < size; ++jj) {
+            for (int ii = 0; ii < size; ++ii) {
+                if (isStepValid(jj, ii, red)[0] != 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     
+//    public boolean endIfEnd()
+//    {
+//        
+//    }
+
     private int[] rowStepTable = {-1,-1,-1,0,1,1,1,0};
     private int[] colStepTable = {-1,0,1,1,1,0,-1,-1};    
 
@@ -134,10 +152,9 @@ public abstract class Game{
                 }
             }
         }
-        
         return changes;
     }
-
+    
 //        for (int ii = 1; ii < size; ++ii) {
 //            actRow = row - ii;
 //            actCol = col - ii;

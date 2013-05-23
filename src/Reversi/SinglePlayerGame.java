@@ -29,7 +29,14 @@ public class SinglePlayerGame extends Game {
         int[] changes = isStepValid(row, col, true); // helyes-e a lepes
         if (changes[0] == 0) {
             LOGGER.log(Level.FINER, "Invalid step");
-            return false; // ha nem akkor exit
+            if(canStep(true)){ //ha ez nem valid, de lenne valid -->user találja meg
+                return false; // ha nem akkor exit
+            }
+            else{ // tehát nincs a usernek valid lépése
+                
+                
+            }
+            
         } else {
             updateGame(row, col, changes, true); // jatek allapotanak frissitese
             //gameView.repaint(); // gui ujrarajzolasa

@@ -321,6 +321,10 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
         JOptionPane.showMessageDialog(this, "Győztél!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    public void showUserEven() {
+        JOptionPane.showMessageDialog(this, "Döntetlen!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
     public void showUserLoose() {
         JOptionPane.showMessageDialog(this, "Vesztettél!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
     }

@@ -22,7 +22,7 @@ public class AI {
         this.game=game;
 //        this.ctrlr=ctrlr;
     }
-            
+
     public int[] step() {
                
         int optimals[][] = new int[3][2];
