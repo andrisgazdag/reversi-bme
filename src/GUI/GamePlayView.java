@@ -35,7 +35,7 @@ public class GamePlayView extends JFrame {
     private int offsetX = 0;
     private int offsetY = 0;
     private TableSize tableSize;  //a tábla mérete tableSize x tableSize
-    private int CircleSize = cellSize;
+    private int CircleSize = 34;
     static JLabel ScoreBlue, ScoreRed;
     int scoreBlue, scoreRed;
     JPanel inputPanel = new JPanel();
@@ -171,11 +171,11 @@ public class GamePlayView extends JFrame {
            {
                if(table[i][j] == Field.BLUE)
                {
-                   addPoint(new Point(i * cellSize + BORDER_SIZE, j * cellSize + BORDER_SIZE), 1);
+                   addPoint(new Point(i * cellSize + BORDER_SIZE+(cellSize-CircleSize)/2, j * cellSize + BORDER_SIZE +(cellSize-CircleSize)/2), 1);
                }
                else if(table[i][j] == Field.RED)
                {
-                   addPoint(new Point(i * cellSize + BORDER_SIZE, j * cellSize + BORDER_SIZE), 0);
+                   addPoint(new Point(i * cellSize + BORDER_SIZE+(cellSize-CircleSize)/2, j * cellSize + BORDER_SIZE+(cellSize-CircleSize)/2), 0);
                }
            }
         }
