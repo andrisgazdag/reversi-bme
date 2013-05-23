@@ -57,9 +57,9 @@ public class Controller {
         game = new SinglePlayerGame(size, this, level);
         //ai = new AI(level, game/*, this*/);
         gameView = new GamePlayView(size, this); // start new frame
-        //new Thread(new GamePlayView(size, this)).start(); // start gui thread
-        gameView.repaint();
-        //gameView.reDraw();
+        new Thread(gameView).start(); // start gui thread
+        //gameView.repaint();
+        //gameView.updateGamePlayView();
     }
 
     public void startServerGame(TableSize size, String serverName, String playerName) {
@@ -144,7 +144,7 @@ public class Controller {
     }
     
      public void updateView(){
-         gameView.reDraw();
+         gameView.updateGamePlayView();
      }
      
     public void endGame() {

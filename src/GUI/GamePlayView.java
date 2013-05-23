@@ -25,7 +25,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-public class GamePlayView extends JFrame /*implements Runnable*/ {
+public class GamePlayView extends JFrame implements Runnable {
 
     private Controller ctrl;
     private DrawPanel drawPanel = new DrawPanel();
@@ -44,7 +44,8 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
     private boolean keepRedrawing = true;
     private static final Logger LOGGER = Logger.getLogger("Reversi");
     private boolean firstPaintFrame = false;
-    private Graphics graph;
+    Field[][] localTable = null;
+    Field[][] gameTable = null;
 
     public GamePlayView(TableSize size, Controller c) {
 
@@ -63,7 +64,7 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
         height = width;
 
         fc = new JFileChooser();  //fájl betöltéshez kell
-        //setSize(700, 750);
+
         setSize(width + tableSize.getSize() + 0, height + tableSize.getSize() + 90);  //az ablak mérete
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -96,30 +97,17 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
         inputPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                // System.out.println("X:" + e.getX() + " Y:" + e.getY());
-                // ctrl.sendClick(new Point(e.getX(), e.getY()));
+
                 //itt meghatározzuk, hogy mely négyzetrácsba kattintottunk majd
                 //ennek megfelelően rakjuk be a pontokat tároló listába a pontot
                 int Y = ((e.getY() - BORDER_SIZE) / cellSize);
                 int X = ((e.getX() - BORDER_SIZE) / cellSize);
-                //le kell csekkolni, hogy a keretre kattintást ne érzékelje
-//                if (X < tableSize && Y < tableSize && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
-//                    addPoint(new Point(X * cellSize + BORDER_SIZE, Y * cellSize + BORDER_SIZE),  1);
-//                }
-                if (e.isMetaDown()) //jobb egér klikk
-                {
-                    if (X < tableSize.getSize() && Y < tableSize.getSize() && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
-                        addPoint(new Point(X * cellSize + BORDER_SIZE, Y * cellSize + BORDER_SIZE), 1);
-                    }
-                } else //bal egér klikk
-                {
 
-                    if (X < tableSize.getSize() && Y < tableSize.getSize() && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
-//                        addPoint(new Point(X * cellSize + BORDER_SIZE, Y * cellSize + BORDER_SIZE), 0);
-                        ctrl.iteration(X, Y);
-                    }
-
+                if (X < tableSize.getSize() && Y < tableSize.getSize() && e.getX() > BORDER_SIZE && e.getY() > BORDER_SIZE) {
+                    ctrl.iteration(X, Y);
+                    LOGGER.log(Level.FINEST, "Mouse Click at: {0} {1}", new Object[]{X, Y});
                 }
+
             }
         });
 
@@ -138,94 +126,68 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
         add(status, BorderLayout.SOUTH);
         status.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        //setLocation(400, 0);
-        
         setVisible(true);  //ablak megjelenítése
         setResizable(false); // ne akarja senki átméretezni az ablakot!
 
-//        for (int i = 0; i < 8; ++i) {
-//            addPoint(new Point(i * cellSize + BORDER_SIZE, i * cellSize + BORDER_SIZE), i % 2);
-//        }
+        localTable = new Field[ctrl.getGameState().length][ctrl.getGameState().length];
+        gameTable = ctrl.getGameState();
 
     }
-
-//    @Override
-//    public void run() {
-//        while (keepRedrawing) {
-//            this.repaint();
-//            try {
-//                Thread.sleep(500);
-//            } catch (InterruptedException ex) {
-//                LOGGER.log(Level.SEVERE, null, ex);
-//            }
-//        }
-//    }
 
     @Override
-    public void paint(Graphics g) {
-//          if (firstPaintFrame){
-//            firstPaintFrame = false;
-        super.paint(g);
-//          }
-        drawPanel.repaint();
-    }
+    public void run() {
+        while (keepRedrawing) {
 
+            // check if something has changed
+            boolean somethingChanged = false;
 
-
-
-    public void reDraw()
-    {
-        //Graphics g = super.getGraphics();
-    //    Graphics graph = getGraphics();
-        
-                    Field[][] table = ctrl.getGameState();
-            int[] score = ctrl.getScores();
-            for (int i = 0; i < tableSize.getSize(); ++i) {
-                for (int j = 0; j < tableSize.getSize(); ++j) {
-                    if (table[i][j] == Field.BLUE) {
-                        graph.setColor(Color.blue);
-                        graph.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, CircleSize, CircleSize);
-                    } else if (table[i][j] == Field.RED) {
-                        graph.setColor(Color.red);
-                        graph.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, CircleSize, CircleSize);
+            for (int i = 0; i < localTable.length && !somethingChanged; i++) {
+                for (int j = 0; j < localTable.length && !somethingChanged; j++) {
+                    if (gameTable[i][j] != localTable[i][j]) {
+                        somethingChanged = true;
+                        LOGGER.log(Level.FINER, "Difference was detected!");
                     }
                 }
             }
+            
+            // repaint if something has changed
+            if (somethingChanged) {
+                for (int i = 0; i < localTable.length; i++) {
+                    System.arraycopy(gameTable[i], 0, localTable[i], 0, localTable.length);
+                }
+                drawPanel.repaint();
+            }
 
-            ScoreBlue.setText(Integer.toString(score[1])); //pontszámok megjelenítése
-            ScoreRed.setText(Integer.toString(score[0]));
-    }
-
-    private void addPoint(Point p, int Color) {
-        if (Color == 1) {
-            drawPanel.pointsBlue.add(p);
-        } else {
-            drawPanel.pointsRed.add(p);
+            try {
+                Thread.sleep(40);
+            } catch (InterruptedException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            }
         }
-        drawPanel.repaint();
     }
 
-    /*
-     public void reDraw() {
-     drawPanel.repaint();
-     }
-     */
-    private class DrawPanel extends JPanel {
-        
-        private boolean firstPaintPanel = true;
+    @Override
+    public void paint(Graphics g) {
 
-        private static final long serialVersionUID = 1L;
-        ArrayList<Point> pointsBlue = new ArrayList<>();
-        ArrayList<Point> pointsRed = new ArrayList<>();
+        super.paint(g);
+        drawPanel.repaint();
+
+    }
+
+    public void updateGamePlayView() {
+        LOGGER.log(Level.FINE, "Notifying view about update...");
+        gameTable = ctrl.getGameState();
+    }
+
+    private class DrawPanel extends JPanel {
+
+        private boolean firstPaintPanel = true;
 
         @Override
         protected void paintComponent(Graphics g) {
-             
-            graph = getGraphics();
-//            if (firstPaintPanel){
-//            firstPaintPanel = false;
-            
             super.paintComponent(g);
+            
+            LOGGER.log(Level.FINER, "Repainting the game...");
 
             //KERET KIRAJZOLÁSA
             g.setColor(Color.darkGray);
@@ -255,18 +217,15 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
                         BORDER_SIZE + i * cellSize, height - BORDER_SIZE);
             }
 
-            
-//            }
-            
             // körök
-            Field[][] table = ctrl.getGameState();
+            //Field[][] localTable = ctrl.getGameState();
             int[] score = ctrl.getScores();
             for (int i = 0; i < tableSize.getSize(); ++i) {
                 for (int j = 0; j < tableSize.getSize(); ++j) {
-                    if (table[i][j] == Field.BLUE) {
+                    if (localTable[i][j] == Field.BLUE) {
                         g.setColor(Color.blue);
                         g.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, CircleSize, CircleSize);
-                    } else if (table[i][j] == Field.RED) {
+                    } else if (localTable[i][j] == Field.RED) {
                         g.setColor(Color.red);
                         g.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, CircleSize, CircleSize);
                     }
@@ -325,7 +284,7 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
         JOptionPane.showMessageDialog(this, "Döntetlen!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
         setTitle("Reversi - Döntetlen!");
     }
-    
+
     public void showUserLoose() {
         JOptionPane.showMessageDialog(this, "Vesztettél!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
         setTitle("Reversi - Vesztettél!");
