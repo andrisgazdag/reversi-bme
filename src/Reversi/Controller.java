@@ -47,7 +47,7 @@ public class Controller {
     }
 
     public void startSingleGame(GameLevel level, TableSize size, String playerName) {
-
+        AI ai = new AI(level);
         gameTypeView = null; // release the object
         game = new SinglePlayerGame(size);
         gameView = new GamePlayView(size, this); // start new frame
@@ -120,17 +120,26 @@ public class Controller {
     
     public boolean iteration(int row, int col)
     {
-        if (isStepValid(row, col, true)[0]==0){
+        int[] changes = isStepValid(row, col, true);
+        if (changes[0]==0){
             return false;
         } else {
-            //update game user
-            //score
-            //gui
-            //delay
-            //ai
-            //update game ai
-            //calc score
-            //update gui //redraw
+            updateGame(row, col, changes, true);
+            gameView.reDraw(game.getTable(), game.calculateScores());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                //update game user
+                //score
+                //gui
+                //delay
+            
+                //ai
+                //update game ai
+                //update gui //redraw
+                //update gui //redraw
         } 
         return true;
     }

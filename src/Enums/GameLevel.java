@@ -9,6 +9,15 @@ package Enums;
  * @author GAndris
  */
 public enum GameLevel {
-    EASY,
-    HARD
+    EASY(3), NORMAL(2), HARD(1);
+        
+    private final int level;
+    private GameLevel(int level) {
+        this.level = level;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+    
 }
