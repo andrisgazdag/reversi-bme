@@ -140,9 +140,10 @@ public class GamePlayView extends JFrame {
         setVisible(true);  //ablak megjelenítése
         setResizable(false); // ne akarja senki átméretezni az ablakot!
 
-        for (int i = 0; i < 8; ++i) {
-            addPoint(new Point(i * cellSize + BORDER_SIZE, i * cellSize + BORDER_SIZE), i % 2);
-        }
+//        for (int i = 0; i < 8; ++i) {
+//            addPoint(new Point(i * cellSize + BORDER_SIZE, i * cellSize + BORDER_SIZE), i % 2);
+//        }
+        
     }
 
     @Override

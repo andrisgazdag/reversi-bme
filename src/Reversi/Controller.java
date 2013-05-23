@@ -29,6 +29,7 @@ public class Controller {
     NetworkCommunicator networkCommunicator = null;
     Game game = null;
     String gameName = "Skynet";
+    AI ai;
     
     public Controller() {
         // eloszor a jatekvalaszto ablak
@@ -50,9 +51,9 @@ public class Controller {
         
         gameTypeView = null; // release the object
         game = new SinglePlayerGame(size);
+        ai = new AI(level, game, this);
         gameView = new GamePlayView(size, this); // start new frame
-        AI ai = new AI(level, game, this);
-
+        gameView.reDraw(game.getTable(), game.calculateScores());
     }
 
     public void startServerGame(TableSize size, String serverName, String playerName) {
@@ -119,10 +120,10 @@ public class Controller {
         serverView = new ServerListView(this);
     }
     
-    public boolean iteration(int row, int col)
+    public boolean iteration(int row, int col) // nem bool
     {
         int[] changes = isStepValid(row, col, true);
-        if (changes[0]==0){
+        if (changes[0] == 0) {
             return false;
         } else {
             updateGame(row, col, changes, true);
@@ -132,19 +133,30 @@ public class Controller {
             } catch (InterruptedException ex) {
                 Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
             }
+            int rowAI = ai.step()[0];
+            int colAI = ai.step()[1];
+            int[] changesAI = isStepValid(rowAI, colAI, false);
+            if (changesAI[0] == 0) {
+                return false;
+            } else {
+                updateGame(rowAI, colAI, changesAI, false);
+                gameView.reDraw(game.getTable(), game.calculateScores());
+               
+                
                 //update game user
                 //score
                 //gui
                 //delay
-            
+
                 //ai
                 //update game ai
                 //update gui //redraw
                 //update gui //redraw
-        } 
+            }
+        }
         return true;
     }
-    
+
     private boolean updateGame(int row, int col, int changes[], boolean red) {
          if (game.redIsNext != red) {
             return false;
@@ -190,7 +202,7 @@ public class Controller {
             for (int ii = 1; ii < size; ++ii) {
                 actRow = row + ii * rowStepTable[jj];
                 actCol = col + ii * colStepTable[jj];
-                if (actRow < 0 || actCol < 0) {
+                if (actRow < 0 || actCol < 0 || actRow > size-1 || actCol > size-1) {
                     break;
                 }
                 actField = table[actRow][actCol];

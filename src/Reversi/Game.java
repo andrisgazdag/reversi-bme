@@ -2,6 +2,7 @@ package Reversi;
 
 import Enums.Field;
 import Enums.TableSize;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 public abstract class Game {
@@ -17,7 +18,17 @@ public abstract class Game {
 
     public Game(TableSize tableSize) {
         this.tableSize = tableSize;
-        table = new Field[tableSize.getSize()][tableSize.getSize()];
+        int size=tableSize.getSize();
+        table = new Field[size][size];
+        //Arrays.fill(table, Field.EMPTY);
+        for(Field[] subarray : table) {
+        Arrays.fill(subarray, Field.EMPTY);
+    }
+        
+        table[size/2][size/2]=Field.RED;
+        table[(size+1)/2][(size+1)/2]=Field.RED;
+        table[size/2][(size+1)/2]=Field.BLUE;
+        table[(size+1)/2][size/2]=Field.BLUE;
     }
 
     public Field[][] getTable() {
