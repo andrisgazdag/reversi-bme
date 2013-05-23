@@ -55,7 +55,7 @@ public class Controller {
         gameView = new GamePlayView(size, this); // start new frame
         //new Thread(new GamePlayView(size, this)).start(); // start gui thread
         gameView.repaint();
-        //gameView.reDraw(/*game.getTable(), game.calculateScores()*/);
+        //gameView.reDraw();
     }
 
     public void startServerGame(TableSize size, String serverName, String playerName) {
@@ -139,11 +139,12 @@ public class Controller {
     }
     
      public void updateView(){
-         gameView.repaint();
+         gameView.reDraw();
      }
      
    public static void main(String[] args) {
-        Controller ctrl = new Controller();
+      
+       Controller ctrl = new Controller();
 
         /*
 

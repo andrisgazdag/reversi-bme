@@ -36,7 +36,7 @@ public class SinglePlayerGame extends Game {
 //            ctrlr.updateView();
             
             try {
-                Thread.sleep(2000); // lassítja az AI válaszát
+                Thread.sleep(1000); // lassítja az AI válaszát
                 LOGGER.log(Level.FINER, "Controller slept...");
             } catch (InterruptedException ex) {
                 Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);

@@ -43,8 +43,11 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
     JFileChooser fc;
     private boolean keepRedrawing = true;
     private static final Logger LOGGER = Logger.getLogger("Reversi");
+    private boolean firstPaintFrame = false;
+    private Graphics graph;
 
     public GamePlayView(TableSize size, Controller c) {
+
         super("Reversi");
         scoreBlue = 0;
         scoreRed = 0;
@@ -160,8 +163,37 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
 
     @Override
     public void paint(Graphics g) {
+//          if (firstPaintFrame){
+//            firstPaintFrame = false;
         super.paint(g);
+//          }
         drawPanel.repaint();
+    }
+
+
+
+
+    public void reDraw()
+    {
+        //Graphics g = super.getGraphics();
+    //    Graphics graph = getGraphics();
+        
+                    Field[][] table = ctrl.getGameState();
+            int[] score = ctrl.getScores();
+            for (int i = 0; i < tableSize.getSize(); ++i) {
+                for (int j = 0; j < tableSize.getSize(); ++j) {
+                    if (table[i][j] == Field.BLUE) {
+                        graph.setColor(Color.blue);
+                        graph.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, CircleSize, CircleSize);
+                    } else if (table[i][j] == Field.RED) {
+                        graph.setColor(Color.red);
+                        graph.fillOval(i * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, j * cellSize + BORDER_SIZE + (cellSize - CircleSize) / 2, CircleSize, CircleSize);
+                    }
+                }
+            }
+
+            ScoreBlue.setText(Integer.toString(score[1])); //pontszámok megjelenítése
+            ScoreRed.setText(Integer.toString(score[0]));
     }
 
     private void addPoint(Point p, int Color) {
@@ -179,6 +211,8 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
      }
      */
     private class DrawPanel extends JPanel {
+        
+        private boolean firstPaintPanel = true;
 
         private static final long serialVersionUID = 1L;
         ArrayList<Point> pointsBlue = new ArrayList<>();
@@ -186,6 +220,11 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
 
         @Override
         protected void paintComponent(Graphics g) {
+             
+            graph = getGraphics();
+//            if (firstPaintPanel){
+//            firstPaintPanel = false;
+            
             super.paintComponent(g);
 
             //KERET KIRAJZOLÁSA
@@ -216,7 +255,10 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
                         BORDER_SIZE + i * cellSize, height - BORDER_SIZE);
             }
 
-
+            
+//            }
+            
+            // körök
             Field[][] table = ctrl.getGameState();
             int[] score = ctrl.getScores();
             for (int i = 0; i < tableSize.getSize(); ++i) {
@@ -231,6 +273,7 @@ public class GamePlayView extends JFrame /*implements Runnable*/ {
                 }
             }
 
+            // score-ok
             ScoreBlue.setText(Integer.toString(score[1])); //pontszámok megjelenítése
             ScoreRed.setText(Integer.toString(score[0]));
         }
