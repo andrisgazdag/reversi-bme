@@ -69,6 +69,8 @@ public class GamePacket implements Serializable {
      
     public String printField() {
         StringBuilder sb = new StringBuilder();
+        
+        sb.append("\n");
 
         for (int i = 0; i < table.length; i++) {
             for (int j = 0; j < table.length; j++) {

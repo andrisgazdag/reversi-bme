@@ -65,7 +65,7 @@ public class Controller {
         //ai = new AI(level, game/*, this*/);
         gameView = new GamePlayView(size, this); // start new frame
         new Thread(gameView).start(); // start gui thread
-        
+
         //gameView.repaint();
         //gameView.updateGamePlayView();
     }
@@ -119,7 +119,8 @@ public class Controller {
             GamePacket savePacket;
             if (game instanceof SinglePlayerGame) {
                 SinglePlayerGame singGame = (SinglePlayerGame) game;
-                savePacket = new GamePacket(getGameState(), game.isRedIsNext(), singGame.getLevel(), gameName);
+                savePacket = new GamePacket(singGame.getTable(), game.isRedIsNext(), singGame.getLevel(), gameName);
+                LOGGER.log(Level.FINER, "Saved to file: \n {0}", savePacket);
             } else {
                 LOGGER.log(Level.SEVERE, "Only single plyer games can be saved!!!!");
                 return;
@@ -139,6 +140,7 @@ public class Controller {
                 LOGGER.log(Level.SEVERE, null, ex);
             }
         }
+
     }
 
     // load game from file
@@ -150,6 +152,9 @@ public class Controller {
             fin = new FileInputStream(file);
             ois = new ObjectInputStream(fin);
             savedGame = (GamePacket) ois.readObject();
+
+            // Controll log
+            LOGGER.log(Level.FINER, "Load from file: \n {0}", savedGame);
 
             TableSize tableSize = null;
             // start the game
@@ -166,9 +171,13 @@ public class Controller {
             }
 
             startSingleGame(savedGame.getLevel(), tableSize, gameName);
-            
+
             game.setTable(savedGame.getTable());
             game.setRedIsNext(savedGame.isRedIsNext());
+
+
+            updateView();
+
 
         } catch (ClassNotFoundException | IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
@@ -184,6 +193,7 @@ public class Controller {
                 Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+
 
     }
 
@@ -224,9 +234,9 @@ public class Controller {
 //            }
 //        };
 //        new Thread(r).start();
-        
+
         game.step = new int[]{row, col};
-        game.userFlag=true;
+        game.userFlag = true;
 
         return true;
     }
@@ -244,7 +254,7 @@ public class Controller {
         } else {
             gameView.showUserEven();
         }
-        game.runFlag=false;
+        game.runFlag = false;
     }
 
     public static void main(String[] args) {
