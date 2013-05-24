@@ -7,13 +7,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
@@ -27,6 +25,7 @@ import javax.swing.JPanel;
 
 public class GamePlayView extends JFrame implements Runnable {
 
+    private static final Logger LOGGER = Logger.getLogger("Reversi");
     private Controller ctrl;
     private DrawPanel drawPanel = new DrawPanel();
     private final static int BORDER_SIZE = 10;
@@ -37,26 +36,23 @@ public class GamePlayView extends JFrame implements Runnable {
     private int offsetY = 0;
     private TableSize tableSize;  //a tábla mérete tableSize x tableSize
     private int CircleSize = 34;
-    static JLabel ScoreBlue, ScoreRed;
-    int scoreBlue, scoreRed;
-    JPanel inputPanel = new JPanel();
-    JFileChooser fc;
+    private JLabel ScoreBlue, ScoreRed;
+    private int scoreBlue, scoreRed;
+    private JPanel inputPanel = new JPanel();
+    private JFileChooser fc;
     private boolean keepRedrawing = true;
-    private static final Logger LOGGER = Logger.getLogger("Reversi");
     private boolean firstPaintFrame = false;
-    Field[][] localTable = null;
-    Field[][] gameTable = null;
+    private Field[][] localTable = null;
+    private Field[][] gameTable = null;
 
     public GamePlayView(TableSize size, Controller c) {
 
-        //super("Reversi: " + c.getNetworkCommunicator().gameType.toString());
         super("Reversi");
-        
-        if (c.getNetworkCommunicator()!=null)
-        {
+
+        if (c.getNetworkCommunicator() != null) {
             setTitle("Reversi: " + c.getNetworkCommunicator().gameType.toString());
         }
-        
+
         scoreBlue = 0;
         scoreRed = 0;
         ctrl = c;
@@ -67,16 +63,16 @@ public class GamePlayView extends JFrame implements Runnable {
             tableSize = size;
         }
 
-        width = tableSize.getSize() * cellSize + 2 * BORDER_SIZE;//+2*BORDER_SIZE;
+        width = tableSize.getSize() * cellSize + 2 * BORDER_SIZE;
         height = width;
 
-        fc = new JFileChooser();  //fájl betöltéshez kell
+        fc = new JFileChooser();  // fájl betöltéshez kell
 
-        setSize(width + tableSize.getSize() + 0, height + tableSize.getSize() + 90);  //az ablak mérete
+        setSize(width + tableSize.getSize() + 0, height + tableSize.getSize() + 90);  // az ablak mérete
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        //menük:
+        // menük:
         JMenuBar menuBar = new JMenuBar();
 
         JMenuItem menuItem = new JMenuItem("Mentés");
@@ -95,12 +91,10 @@ public class GamePlayView extends JFrame implements Runnable {
 
 
         add(inputPanel);
-        drawPanel.setBounds(offsetX, offsetY, width, height);//(30, 30, 600, 600);//(230, 30, 200, 200);
-        //drawPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
+        drawPanel.setBounds(offsetX, offsetY, width, height);//TODO (30, 30, 600, 600);//(230, 30, 200, 200);
 
         add(drawPanel);
         inputPanel.setBounds(offsetX, offsetY, width, height);
-        // inputPanel.setBorder(BorderFactory.createTitledBorder("Input"));
         inputPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -118,7 +112,7 @@ public class GamePlayView extends JFrame implements Runnable {
             }
         });
 
-        //pontszámok kiírása
+        // pontszámok kiírása
         ScoreBlue = new JLabel("2");
         ScoreBlue.setForeground(Color.blue);
         ScoreBlue.setFont(new Font("Dialog", Font.BOLD, 30));
@@ -143,6 +137,7 @@ public class GamePlayView extends JFrame implements Runnable {
 
     @Override
     public void run() {
+
         while (keepRedrawing) {
 
             // check if something has changed
@@ -156,7 +151,7 @@ public class GamePlayView extends JFrame implements Runnable {
                     }
                 }
             }
-            
+
             // repaint if something has changed
             if (somethingChanged) {
                 for (int i = 0; i < localTable.length; i++) {
@@ -170,7 +165,9 @@ public class GamePlayView extends JFrame implements Runnable {
             } catch (InterruptedException ex) {
                 LOGGER.log(Level.SEVERE, null, ex);
             }
+
         }
+
     }
 
     @Override
@@ -193,7 +190,7 @@ public class GamePlayView extends JFrame implements Runnable {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-            
+
             LOGGER.log(Level.FINER, "Repainting the game...");
 
             //KERET KIRAJZOLÁSA
@@ -225,7 +222,6 @@ public class GamePlayView extends JFrame implements Runnable {
             }
 
             // körök
-            //Field[][] localTable = ctrl.getGameState();
             int[] score = ctrl.getScores();
             for (int i = 0; i < tableSize.getSize(); ++i) {
                 for (int j = 0; j < tableSize.getSize(); ++j) {
@@ -251,7 +247,6 @@ public class GamePlayView extends JFrame implements Runnable {
         public void actionPerformed(ActionEvent e) {
 
             if (e.getActionCommand().equals("Kilépés")) {
-                //felmerül a kérdés h itt nem kéne-e itten törölni dolgokat
                 dispose();
                 ctrl.startReversi();
             }
@@ -283,7 +278,6 @@ public class GamePlayView extends JFrame implements Runnable {
     }
 
     public void showUserWin() {
-        // JOptionPane.showMessageDialog(GamePlayView.this, "Győztél!");
         JOptionPane.showMessageDialog(this, "Győztél!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
         setTitle("Reversi - Győztél");
     }

@@ -1,30 +1,19 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Reversi;
 
 import Enums.GameLevel;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- *
- * @author Satrafuckar
- */
 public class AI {
+
     private GameLevel level;
     private Game game;
-//    private Controller ctrlr;
-    
-    public AI(GameLevel level, Game game/*, Controller ctrlr*/){
-        this.level=level;
-        this.game=game;
-//        this.ctrlr=ctrlr;
+
+    public AI(GameLevel level, Game game) {
+        this.level = level;
+        this.game = game;
     }
 
     public int[] step() {
-               
+
         int optimals[][] = new int[3][2];
         int[] max = {0, 0, 0};
         int size = game.getTableSize().getSize();
@@ -55,7 +44,8 @@ public class AI {
                 return optimals[level.getLevel() - 1 - kk];
             }
         }
-        int[] ret = {-1,-1};
+        int[] ret = {-1, -1};
         return ret;
+
     }
 }

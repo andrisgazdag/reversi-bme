@@ -28,14 +28,11 @@ public class GamePacket implements Serializable {
 
     public GamePacket(Field[][] table, boolean redIsNext) {
         this.table = table;
-        //     this.step=step;
         this.redIsNext = redIsNext;
     }
 
     public GamePacket(int[] step) {
-        //    this.table = table;
         this.step = step;
-        //  this.redIsNext=redIsNext;
     }
 
     public Field[][] getTable() {
@@ -61,43 +58,4 @@ public class GamePacket implements Serializable {
     public boolean isRedIsNext() {
         return redIsNext;
     }
-    
- @Override
-    public String toString() {
-       // return "Red next: " + redIsNext + "tableSize: " + table.length + "table: " + printField();
-     return "csigi";
-    // return printField();
-    }
-     
-    public String printField() {
-//        StringBuilder sb = new StringBuilder();
-//        
-//        sb.append("\n");
-//
-//        for (int i = 0; i < table.length; i++) {
-//            for (int j = 0; j < table.length; j++) {
-//                sb.append(table[j][i]);
-//                sb.append("\t");
-//            }
-//            sb.append("\n");
-//        }
-//        
-//        return sb.toString();
-        
-//        StringBuilder sb = new StringBuilder();
-        
-  //      sb.append("\n");
-
-        for (int i = 0; i < table.length; i++) {
-            
-            for (int j = 0; j < table.length; j++) {
-                System.out.print((table[j][i])+"\t");
-                //sb.append("\t");
-            }
-            System.out.print("\n");
-        }
-        
-        return "";
-    }
-    
 }

@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Network Communicator class: handles the connections and the communications
+ * Network Communicator class: handles the connections and the communications over the LAN
  *
  * @author Maria Buthi
  */
@@ -102,6 +102,7 @@ public class NetworkCommunicator extends Thread {
         }
         LOGGER.log(Level.INFO, "Destruction done. Continuing with thred interruption...");
         this.interrupt();
+        
     }
 
     /**
@@ -174,7 +175,6 @@ public class NetworkCommunicator extends Thread {
         try {
             // Communicating with the server
             out.writeObject(packet);
- //           System.out.println(packet);
             out.flush();
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Socket establishment Exception: {0}", e.getLocalizedMessage());
@@ -195,19 +195,25 @@ public class NetworkCommunicator extends Thread {
         } catch (IOException | ClassNotFoundException ex) {
             LOGGER.log(Level.SEVERE, "Server could not be reserved: {0}", ex);
         }
-//System.out.println(packet);
         return packet;
     }
-    
+
+    /**
+     * Sends a GamePacket to the communication partner.
+     *
+     * @param packet a GamePacket
+     */
     public void send_gp(GamePacket packet) {
 
         try {
-            // Communicating with the server
+            // Reinitializing the ObjectOutputStream
             out = new ObjectOutputStream(connection.getOutputStream());
             out.flush();
+
+            // Communicating with the server
             out.writeObject(packet);
- //           System.out.println(packet);
             out.flush();
+
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Socket establishment Exception: {0}", e.getLocalizedMessage());
         }
@@ -215,7 +221,7 @@ public class NetworkCommunicator extends Thread {
     }
 
     /**
-     * @return a NetworkPacket received over the network.
+     * @return a GamePacket received over the network.
      */
     public GamePacket recive_gp() {
 
@@ -228,8 +234,8 @@ public class NetworkCommunicator extends Thread {
         } catch (IOException | ClassNotFoundException ex) {
             LOGGER.log(Level.SEVERE, "Server could not be reserved: {0}", ex);
         }
-//        System.out.println(packet);
         return packet;
+
     }
 
     /**
@@ -282,8 +288,10 @@ public class NetworkCommunicator extends Thread {
      * Stops the search for the server games on the LAN.
      */
     private void stopSearchingForGames() {
+
         needToSearchForGames = false;
         LOGGER.log(Level.FINE, "Searching for games has stopped.");
+
     }
 
     /**
@@ -292,7 +300,7 @@ public class NetworkCommunicator extends Thread {
     private void searchForGames() {
 
         MulticastSocket ms = null;
-        InetAddress group = null;
+        InetAddress group;
         try {
             ms = new MulticastSocket(60005);
             group = InetAddress.getByName("225.0.0.1");
@@ -337,6 +345,7 @@ public class NetworkCommunicator extends Thread {
         } finally {
             ms.close();
         }
+
     }
 
     /**
@@ -347,6 +356,7 @@ public class NetworkCommunicator extends Thread {
 
         // Create server socket, and wait for incoming connection
         for (; port < 61000; port++) {
+
             try {
                 waitingServerSocket = new ServerSocket(port);
                 LOGGER.log(Level.INFO, "Server is waiting for client on port: {0}", port);
@@ -364,11 +374,6 @@ public class NetworkCommunicator extends Thread {
      * Waits for the client to establish the TCP connection.
      */
     private void waitForClient() {
-
-        // The IP Address of the communication partner
-        // InetAddress partnerAddress = null;
-        // The Server TCP communication port
-        //int port = 60000; // ezt jo lenne randomizalni...
 
         try {
 
@@ -435,6 +440,7 @@ public class NetworkCommunicator extends Thread {
 
                 // getting the first available port...
                 for (; UDPPort < 61000; UDPPort++) {
+
                     try {
                         // This port will be used, to send the advertise messages
                         s = new DatagramSocket(UDPPort);
@@ -446,8 +452,6 @@ public class NetworkCommunicator extends Thread {
                     }
 
                 }
-
-
 
                 while (needToAdvertise) {
 
@@ -468,6 +472,7 @@ public class NetworkCommunicator extends Thread {
                     } catch (InterruptedException ex) {
                         LOGGER.log(Level.WARNING, "IOException in advertizement: {0}", ex.getLocalizedMessage());
                     }
+
                 }
 
             } catch (IOException ex) {
@@ -475,6 +480,7 @@ public class NetworkCommunicator extends Thread {
             } finally {
                 s.close();
             }
+
         }
 
         /**
@@ -484,6 +490,7 @@ public class NetworkCommunicator extends Thread {
          * @return a byte array of the serialized packet
          */
         private byte[] serialisePacket(NetworkPacket packet) {
+
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -493,7 +500,9 @@ public class NetworkCommunicator extends Thread {
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, "Serialization problem: {0}", e.getLocalizedMessage());
             }
+
             return null;
+
         }
 
         /**
@@ -506,7 +515,8 @@ public class NetworkCommunicator extends Thread {
 
     /**
      * Deserializes a NetworkPacket
-     * @param  a byte array of the serialized packet
+     *
+     * @param a byte array of the serialized packet
      * @return a NetworkPacket, which is deserialized out of the bytes
      */
     private NetworkPacket deserialisePacket(byte[] buf) {
@@ -531,5 +541,6 @@ public class NetworkCommunicator extends Thread {
         }
 
         return recivedPacket;
+        
     }
 }

@@ -35,15 +35,13 @@ public class Controller {
     NetworkCommunicator networkCommunicator = null;
     Game game = null;
     String gameName = "Skynet";
-//  AI ai;
 
     public Controller() {
-        // eloszor a jatekvalaszto ablak
-        initLogger();
-        startReversi(); //azért lett külön fgv-be téve mert új játékot lehet indítani a GUIból
+        initLogger(); // Initializing the logger for the program
+        startReversi(); // Create Game chooser window
     }
 
-    public void startReversi() {
+    public final void startReversi() {
         gameTypeView = new GameTypeView(this);
     }
 
@@ -59,15 +57,16 @@ public class Controller {
 
     public void startSingleGame(GameLevel level, TableSize size, String playerName) {
 
-        gameTypeView = null; // release the object
+        gameTypeView = null; // release the gameTypeView object
+
+        // Create the game object
         game = new SinglePlayerGame(size, this, level);
-        game.start();
-        //ai = new AI(level, game/*, this*/);
-        gameView = new GamePlayView(size, this); // start new frame
+        game.start(); // start game thread
+
+        // Create the GUI object
+        gameView = new GamePlayView(size, this);
         new Thread(gameView).start(); // start gui thread
 
-        //gameView.repaint();
-        //gameView.updateGamePlayView();
     }
 
     public void startServerGame(TableSize size, String serverName, String playerName) {
@@ -107,14 +106,17 @@ public class Controller {
     }
 
     private void stopNetworkCommunicator() {
+
         if (networkCommunicator != null) {
             networkCommunicator.selfDestruction();
             networkCommunicator = null;
         }
+
     }
 
     // save game to file
     public void saveGame(File file) {
+
         FileOutputStream fout = null;
         try {
 
@@ -147,10 +149,11 @@ public class Controller {
 
     // load game from file
     public void loadGame(File file) {
+
         FileInputStream fin = null;
         ObjectInputStream ois = null;
         try {
-            GamePacket savedGame = null;
+            GamePacket savedGame;
             fin = new FileInputStream(file);
             ois = new ObjectInputStream(fin);
             savedGame = (GamePacket) ois.readObject();
@@ -177,9 +180,7 @@ public class Controller {
             game.setTable(savedGame.getTable());
             game.setRedIsNext(savedGame.isRedIsNext());
 
-
             updateView();
-
 
         } catch (ClassNotFoundException | IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
@@ -195,7 +196,6 @@ public class Controller {
                 Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
 
     }
 
@@ -217,6 +217,7 @@ public class Controller {
             return game.getTable();
         }
         return null;
+
     }
 
     public int[] getScores() {
@@ -224,18 +225,13 @@ public class Controller {
     }
 
     public void showServers() {
+
         startNetworkCommunicator(ReversiType.CLIENT);
         serverView = new ServerListView(this);
+
     }
 
     public boolean iteration(final int row, final int col) {
-//        Runnable r = new Runnable() {
-//            @Override
-//            public void run() {
-//                game.iteration(row, col);
-//            }
-//        };
-//        new Thread(r).start();
 
         game.step = new int[]{row, col};
         game.userFlag = true;
@@ -248,13 +244,7 @@ public class Controller {
     }
 
     public void endGame() {
-        
-//        try { //hogy minden update-elodjon //NEMITT A HIBA
-//            Thread.sleep(1000);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-        
+
         int[] scores = getScores();
         if ((game instanceof SinglePlayerGame) || (game instanceof ServerGame)) {
             if (scores[0] > scores[1]) {
@@ -277,73 +267,9 @@ public class Controller {
         stopNetworkCommunicator();
     }
 
-    public static void main(String[] args) {
-
-        Controller ctrl = new Controller();
-
-        /*
-
-         try {
-         // saját code
-
-         System.out.println("What would you like to start? (0=server; 1=client)");
-         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-         gameMode = Integer.parseInt(br.readLine()) == 1 ? ReversiType.CLIENT : ReversiType.SERVER;
-         } catch (IOException ex) {
-         System.out.println("Exception at input: " + ex.getLocalizedMessage());
-         }
-         System.out.println("GameMode is: " + gameMode);
-
-
-         // create and start the network communicator
-         Network.NetworkCommunicator nC = new NetworkCommunicator(gameMode);
-         nC.start();
-
-         // in client gameMode: get the available servers, and connect to the first one
-         if (gameMode == ReversiType.CLIENT) {
-         String[] games = null;
-         boolean keepContinue = true;
-         do {
-         games = nC.getAvailableGames();
-         if (games[0] != null) {
-         // if there is an available game, than connect to it
-         keepContinue = false;
-         nC.connectToGame(games[0]);
-         } else {
-         // else sleep a little bit, than try again...
-         try {
-         Thread.sleep(100);
-         } catch (InterruptedException ex) {
-         System.out.println("Thread sleep exception in the main thread: " + ex.getLocalizedMessage());
-         }
-         }
-         } while (keepContinue);
-         }
-
-         // wait until the communications are established
-         while (!nC.isConnected()) {
-         try {
-         Thread.sleep(10);
-         } catch (InterruptedException ex) {
-         System.out.println("Thread sleep exception in the main thread: " + ex.getLocalizedMessage());
-         }
-         }
-
-         // send a packet through the networkCommunicator
-         nC.send(new NetworkPacket("test message from controller in mode: " + gameMode));
-
-         // recive a packet through the networkCommunicator
-         NetworkPacket recived = nC.recive();
-         System.out.println("Message arrived: " + recived.getGameName());
-
-         // stop the networkCommunicator
-         nC.endCommunications();
-         */
-    }
-
     private void initLogger() {
-        //Initializing logger:
 
+        //Initializing logger:
         try {
             DateFormat df = new SimpleDateFormat("yyyy_MM_dd_HH_mm_SS");
             String logDate = df.format(new Date().getTime());
@@ -364,7 +290,13 @@ public class Controller {
         } catch (IOException e) {
             System.err.println("logger initialisation error: " + e.getLocalizedMessage());
         }
+
+    }
+
+    public static void main(String[] args) {
+
+        // The controller class drives the application
+        Controller ctrl = new Controller();
+
     }
 }
-// indul a játék
-//g = new GamePlayView(TableSize.SMALL, this);

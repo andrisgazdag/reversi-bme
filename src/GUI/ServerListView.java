@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package GUI;
 
 import Reversi.Controller;
@@ -10,7 +6,6 @@ import java.awt.Choice;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Label;
-import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -26,6 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
+ * TODO: what does this do???
  *
  * @author Alex
  */
@@ -87,8 +83,6 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
             refreshButton.setActionCommand("refresh");
             refreshButton.addActionListener(this);
             refreshButton.setToolTipText("Refresh the server list!");
-            //refreshButton.setPreferredSize(buttonSize);
-            //refreshButton.setEnabled(false);
         }
 
         ButtonsPanel = new JPanel(new BorderLayout());
@@ -103,7 +97,6 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
         //Create and set up the window.
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        //newContentPane.setOpaque(true); //content panes must be opaque
         setContentPane(framePanel);
 
         setPreferredSize(new Dimension(300, 200));
@@ -115,6 +108,7 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
         switch (e.getActionCommand()) {
             case "refresh":
                 serverList.removeAll();
@@ -139,8 +133,8 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
                     ctrl.startClientGame(name, choosenServer);
                 }
                 break;
-
         }
+
     }
 
     @Override
