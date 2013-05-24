@@ -18,6 +18,7 @@ public abstract class Game extends Thread{
     public int[] step = new int[2];
 
     public Game() {
+        tableSize=null;
     }
 
     public void setCtrlr(Controller ctrlr) {
@@ -80,7 +81,7 @@ public abstract class Game extends Thread{
         return scores;
     }
 
-    public abstract boolean iteration(int row, int col);
+//    public abstract boolean iteration(int row, int col);
 
     public boolean updateGame(int row, int col, int changes[], boolean red) {
 //        if (redIsNext != red) {
@@ -140,7 +141,7 @@ public abstract class Game extends Thread{
 
     public int[] isStepValid(int row, int col, boolean red) {
         int size = getTableSize().getSize();
-        int changes[] = new int[size + 1]; // inisalájzd tu lauter nulls
+        int changes[] = new int[9]; // inisalájzd tu lauter nulls
         //changes[0] = score!!
         if (row < 0 || row > size - 1 || col < 0 || col > size - 1) {
             return changes;

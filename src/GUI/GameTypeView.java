@@ -12,8 +12,8 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.text.TextAction;
 
-public class GameTypeView extends JFrame implements ActionListener/*, ItemListener */{
-
+public class GameTypeView extends JFrame implements ActionListener/*, ItemListener */ {
+    
     private static final Logger LOGGER = Logger.getLogger("Reversi");
     //static JFrame frame = new JFrame("Reversi");
     Controller ctrl = null;
@@ -25,6 +25,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
     static String server = "Szerver";
     static String client = "Kliens";
     static String normal = "Normál";
+    static String tableSizeString4 = "4x4";
     static String tableSizeString8 = "8x8";
     static String tableSizeString10 = "10x10";
     static String tableSizeString12 = "12x12";
@@ -44,6 +45,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
     JRadioButton easyButton;
     JRadioButton serverButton;
     JRadioButton clientButton;
+    JRadioButton tableSizeButton4;
     JRadioButton tableSizeButton8;
     JRadioButton tableSizeButton10;
     JRadioButton tableSizeButton12;
@@ -53,12 +55,12 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
     private Choice serverList;
     String name, choosenServer;
     private JFileChooser fc;
-
+    
     public GameTypeView(final Controller ctrl) {
-
+        
         super("Reversi");
         this.ctrl = ctrl;
-
+        
         fc = new JFileChooser();  //fájl betöltéshez kell
 
         //Create the radio buttons:
@@ -68,6 +70,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             easyButton = new JRadioButton(easy);
             serverButton = new JRadioButton(server);
             clientButton = new JRadioButton(client);
+            tableSizeButton4 = new JRadioButton(tableSizeString4);
             tableSizeButton8 = new JRadioButton(tableSizeString8);
             tableSizeButton10 = new JRadioButton(tableSizeString10);
             tableSizeButton12 = new JRadioButton(tableSizeString12);
@@ -81,6 +84,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             clientButton.setActionCommand(client);
             singlePlayerButton.setActionCommand(singlePlayerString);
             multiPlayerButton.setActionCommand(multiPlayerString);
+            tableSizeButton4.setActionCommand(tableSizeString4);
             tableSizeButton8.setActionCommand(tableSizeString8);
             tableSizeButton10.setActionCommand(tableSizeString10);
             tableSizeButton12.setActionCommand(tableSizeString12);
@@ -103,7 +107,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
         {
             hardButton.setToolTipText("Nincs esélyed!");
             easyButton.setToolTipText("Talán van esélyed!");
-
+            
         }
 
         //Group the radio buttons. Only one button is selectable in each group.
@@ -111,17 +115,18 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             ButtonGroup groupModeSingle = new ButtonGroup();
             groupModeSingle.add(singlePlayerButton);
             groupModeSingle.add(multiPlayerButton);
-
+            
             ButtonGroup groupModeMulti = new ButtonGroup();
             groupModeMulti.add(serverButton);
             groupModeMulti.add(clientButton);
-
+            
             ButtonGroup groupLevel = new ButtonGroup();
             groupLevel.add(hardButton);
             groupLevel.add(easyButton);
             groupLevel.add(normalButton);
-
+            
             ButtonGroup groupSize = new ButtonGroup();
+            groupSize.add(tableSizeButton4);
             groupSize.add(tableSizeButton8);
             groupSize.add(tableSizeButton10);
             groupSize.add(tableSizeButton12);
@@ -135,6 +140,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             hardButton.addActionListener(this);
             easyButton.addActionListener(this);
             normalButton.addActionListener(this);
+            tableSizeButton4.addActionListener(this);
             tableSizeButton8.addActionListener(this);
             tableSizeButton10.addActionListener(this);
             tableSizeButton12.addActionListener(this);
@@ -150,7 +156,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             modePanel.add(multiPlayerButton);
             modePanel.add(serverButton);
             modePanel.add(clientButton);
-
+            
             levelPanel = new JPanel();
             levelPanel.setLayout(new GridLayout(5, 1));
             Label levelLabel = new Label("Szint:");
@@ -160,14 +166,15 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             levelPanel.add(hardButton);
             levelPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
         }
-
+        
         JPanel tablePanel = new JPanel(new GridLayout(5, 1));
         {
             tablePanel.add(new Label("Táblaméret:"));
+            tablePanel.add(tableSizeButton4);
             tablePanel.add(tableSizeButton8);
             tablePanel.add(tableSizeButton10);
             tablePanel.add(tableSizeButton12);
-
+            
             userNameInputPanel = new JPanel();
             nameField = new TextField(20);
             nameField.setText("Béla");
@@ -175,7 +182,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             userNameInputPanel.add(nameField);
             userNameInputPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
             framePanel.add(userNameInputPanel, BorderLayout.NORTH);
-
+            
             serverNameInputPanel = new JPanel();
             serverNameInputPanel.setLayout(new GridLayout(2, 2));
             serverNameInputPanel.add(new Label("Szerver név:"));
@@ -184,45 +191,44 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             serverNameInputPanel.add(serverNameField);
             serverNameField.setEnabled(false);
             serverNameField.addActionListener(new TextAction(name) { // ha megvaltozik a szerver neve, akkor arrol a controller ertesul
-
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     ctrl.setGameName(serverNameField.getText());
                 }
             });
         }
-
+        
         mainPanel = new JPanel(new BorderLayout());
         buttonsPanel = new JPanel(new BorderLayout());
-
+        
         buttonsPanel.add(modePanel, BorderLayout.WEST);
         buttonsPanel.add(levelPanel, BorderLayout.CENTER);
         buttonsPanel.add(tablePanel, BorderLayout.EAST);
         mainPanel.add(buttonsPanel, BorderLayout.NORTH);
 
         /*{
-           serverList = new Choice();
-            //serverList.add("List of avaliable servers");
+         serverList = new Choice();
+         //serverList.add("List of avaliable servers");
 
-            LOGGER.log(Level.SEVERE, "Getting the server list...");
-            String[] availableServers = ctrl.getAvailableServerList();
-            LOGGER.log(Level.SEVERE, "Server list recived");
-            if (availableServers.length == 0 || availableServers[0] == null) {
-                serverList.add("No available server...");
-            } else {
-                for (String s : availableServers) {
-                    LOGGER.log(Level.INFO, "Available server: {0}", s);
-                    serverList.add(s);
-                }
-            }
+         LOGGER.log(Level.SEVERE, "Getting the server list...");
+         String[] availableServers = ctrl.getAvailableServerList();
+         LOGGER.log(Level.SEVERE, "Server list recived");
+         if (availableServers.length == 0 || availableServers[0] == null) {
+         serverList.add("No available server...");
+         } else {
+         for (String s : availableServers) {
+         LOGGER.log(Level.INFO, "Available server: {0}", s);
+         serverList.add(s);
+         }
+         }
 
-            serverList.select(0);
-            serverList.addItemListener(this);
-            serverList.setEnabled(false);
-            serverNameInputPanel.add(new Label("Szerverek:"));
-            serverNameInputPanel.add(serverList);
-        }*/
-
+         serverList.select(0);
+         serverList.addItemListener(this);
+         serverList.setEnabled(false);
+         serverNameInputPanel.add(new Label("Szerverek:"));
+         serverNameInputPanel.add(serverList);
+         }*/
+        
         framePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));//az egész ablakon belül 20 pixel keret
 
         {   // start button
@@ -237,18 +243,18 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
 
         //Dimension buttonSize = new Dimension(150, 25);
 
-       /* {   // refresh button
-            refreshButton = new JButton("Refresh");
-            refreshButton.setVerticalTextPosition(AbstractButton.CENTER);
-            refreshButton.setHorizontalTextPosition(AbstractButton.LEADING);
-            refreshButton.setMnemonic(KeyEvent.VK_D);
-            refreshButton.setActionCommand("refresh");
-            refreshButton.addActionListener(this);
-            refreshButton.setToolTipText("Refresh the server list!");
-            refreshButton.setPreferredSize(buttonSize);
-            refreshButton.setEnabled(false);
-        }*/
-
+        /* {   // refresh button
+         refreshButton = new JButton("Refresh");
+         refreshButton.setVerticalTextPosition(AbstractButton.CENTER);
+         refreshButton.setHorizontalTextPosition(AbstractButton.LEADING);
+         refreshButton.setMnemonic(KeyEvent.VK_D);
+         refreshButton.setActionCommand("refresh");
+         refreshButton.addActionListener(this);
+         refreshButton.setToolTipText("Refresh the server list!");
+         refreshButton.setPreferredSize(buttonSize);
+         refreshButton.setEnabled(false);
+         }*/
+        
         {   // load game
             loadGameButton = new JButton("Betöltés");
             loadGameButton.setVerticalTextPosition(AbstractButton.CENTER);
@@ -259,7 +265,7 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
             //loadGameButton.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
             //loadGameButton.setPreferredSize(buttonSize);
         }
-
+        
         mainPanel.add(serverNameInputPanel, BorderLayout.AFTER_LAST_LINE);
 
         // create panels for the buttons
@@ -267,15 +273,15 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
         gameButtonsPanel = new JPanel(new BorderLayout(0, 5)); // start button
 
         //functionButtonsPanel.add(loadGameButton);
-       // functionButtonsPanel.add(refreshButton);
+        // functionButtonsPanel.add(refreshButton);
 
         gameButtonsPanel.add(loadGameButton, BorderLayout.NORTH);
         gameButtonsPanel.add(startButton, BorderLayout.SOUTH);
-
+        
         framePanel.add(mainPanel, BorderLayout.CENTER);
         framePanel.add(gameButtonsPanel, BorderLayout.SOUTH); // adding buttons to the main panel
 
-
+        
         serverNameInputPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 15, 0));
 
         //Create and set up the window.
@@ -283,22 +289,21 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
 
         //newContentPane.setOpaque(true); //content panes must be opaque
         setContentPane(framePanel);
-
+        
         setPreferredSize(new Dimension(400, 390));
 
         //Display the window.
         pack();
         setVisible(true);
-
+        
     }
 
     /*@Override
-    public void itemStateChanged(ItemEvent e) {  //a legördülő listában másik elemet választunk ki
-        if (e.getSource().equals(serverList)) {
-            choosenServer = serverList.getSelectedItem();
-        }
-    }*/
-
+     public void itemStateChanged(ItemEvent e) {  //a legördülő listában másik elemet választunk ki
+     if (e.getSource().equals(serverList)) {
+     choosenServer = serverList.getSelectedItem();
+     }
+     }*/
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
@@ -309,46 +314,41 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                 //GamePlayView g = new GamePlayView();
                 // ctrl.startSinglePlayerGame(tableSize);
                 name = nameField.getText();
+                
+                TableSize size;
+                // get table size
+                if (tableSizeButton4.isSelected()) {
+                    size = TableSize.TINY;
+                } else if (tableSizeButton8.isSelected()) {
+                    size = TableSize.SMALL;
+                } else if (tableSizeButton10.isSelected()) {
+                    size = TableSize.MEDIUM;
+                } else {
+                    size = TableSize.BIG;
+                }
+
+                /////////////////////////////////DEBUG////////////////////////////                    
+                //       size = TableSize.TINY;
+/////////////////////////////////DEBUG//////////////////////////// 
 
                 // inditani kell a jatekot a kivalasztott opcioknak megfeleloen
                 if (singlePlayerButton.isSelected()) {
                     // start single game
                     GameLevel level;
-                    TableSize size;
 
                     // get game level
                     if (easyButton.isSelected()) {
                         level = GameLevel.EASY;
-                    } else if(normalButton.isSelected())
-                    {
+                    } else if (normalButton.isSelected()) {
                         level = GameLevel.NORMAL;
-                    }else {
+                    } else {
                         level = GameLevel.HARD;
                     }
-
-                    // get table size
-                    if (tableSizeButton8.isSelected()) {
-                        size = TableSize.SMALL;
-                    } else if (tableSizeButton10.isSelected()) {
-                        size = TableSize.MEDIUM;
-                    } else {
-                        size = TableSize.BIG;
-                    }
-
+                    
                     ctrl.startSingleGame(level, size, name);
-
+                    
                 } else {
-                    // start multiplayer game
-                    TableSize size = null;
-                    // get table size
-                    if (tableSizeButton8.isSelected()) {
-                        size = TableSize.SMALL;
-                    } else if (tableSizeButton10.isSelected()) {
-                        size = TableSize.MEDIUM;
-                    } else {
-                        size = TableSize.BIG;
-                    }
-
+                    // start multiplayer game      
                     if (serverButton.isSelected()) {
                         // start a new server with selected name
                         String serverName = serverNameField.getText();
@@ -358,14 +358,12 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
 //                         String choosenServer = serverList.getSelectedItem();
                         dispose();
                         ctrl.showServers();
-                        
+
 //                        ctrl.startClientGame(name, choosenServer);
                     }
                 }
-
-
                 break;
-
+            
             case "Kétszemélyes":
                 // ez hívódik meg ha a kétszemélyes gombra kattintunk
                 hardButton.setEnabled(false);
@@ -374,14 +372,10 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                 serverButton.setEnabled(true);
                 clientButton.setEnabled(true);
                 if (clientButton.isSelected()) { //ha ki van jelölve a kliens gomba kkor a táblaméret inaktív
-                    tableSizeButton8.setEnabled(false);
-                    tableSizeButton10.setEnabled(false);
-                    tableSizeButton12.setEnabled(false);
-                   // serverList.setEnabled(true);
+                    setSizeBtnsEnabled(false);
+                    // serverList.setEnabled(true);
                 } else {
-                    tableSizeButton8.setEnabled(true);
-                    tableSizeButton10.setEnabled(true);
-                    tableSizeButton12.setEnabled(true);
+                    setSizeBtnsEnabled(true);
                     serverNameField.setEnabled(true);
                     ctrl.startNetworkCommunicator(ReversiType.SERVER);
                 }
@@ -394,18 +388,14 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                 easyButton.setEnabled(true);
                 serverButton.setEnabled(false);
                 clientButton.setEnabled(false);
-                tableSizeButton8.setEnabled(true);
-                tableSizeButton10.setEnabled(true);
-                tableSizeButton12.setEnabled(true);
+                setSizeBtnsEnabled(true);
                 //serverList.setEnabled(false);
                 //ctrl.stopNetworkCommunicator();
                 //refreshButton.setEnabled(false);
                 break;
             case "Kliens":
                 serverButton.setEnabled(false);//megakadályozzuk Bélát szegény gép kínzásában
-                tableSizeButton8.setEnabled(false);
-                tableSizeButton10.setEnabled(false);
-                tableSizeButton12.setEnabled(false);
+                setSizeBtnsEnabled(false);
                 //serverList.setEnabled(true);
                 serverButton.setEnabled(true);
                 serverNameField.setEnabled(false);
@@ -413,13 +403,11 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                 //refreshButton.setEnabled(true);
                 break;
             case "Szerver":
-                tableSizeButton8.setEnabled(true);
-                tableSizeButton10.setEnabled(true);
-                tableSizeButton12.setEnabled(true);
-               // serverList.setEnabled(false);
+                setSizeBtnsEnabled(true);
+                // serverList.setEnabled(false);
                 serverNameField.setEnabled(true);
                 ctrl.startNetworkCommunicator(ReversiType.SERVER);
-               // refreshButton.setEnabled(false);
+                // refreshButton.setEnabled(false);
                 break;
             case "Betöltés":
                 int returnVal = fc.showOpenDialog(GameTypeView.this);
@@ -429,26 +417,33 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                     dispose();// ablak becsukása
                     //todo: játék betöltése és indítása
                     ctrl.loadGame(file);
-
+                    
                 } else { // Béla mégsem akar betölteni semmit, így visszatérünk az előző ablakhoz
                     System.out.println("Open command cancelled by user.");
                 }
                 break;
             /*case "refresh":
-                serverList.removeAll();
-                LOGGER.log(Level.OFF, "Getting the server list...");
-                String[] availableServers = ctrl.getAvailableServerList();
-                LOGGER.log(Level.OFF, "Server list recived");
-                if (availableServers.length == 0 || availableServers[0] == null) {
-                    serverList.add("No available server...");
-                } else {
-                    for (String s : availableServers) {
-                        LOGGER.log(Level.INFO, "Available server: {0}", s);
-                        serverList.add(s);
-                    }
-                }
-                break;*/
+             serverList.removeAll();
+             LOGGER.log(Level.OFF, "Getting the server list...");
+             String[] availableServers = ctrl.getAvailableServerList();
+             LOGGER.log(Level.OFF, "Server list recived");
+             if (availableServers.length == 0 || availableServers[0] == null) {
+             serverList.add("No available server...");
+             } else {
+             for (String s : availableServers) {
+             LOGGER.log(Level.INFO, "Available server: {0}", s);
+             serverList.add(s);
+             }
+             }
+             break;*/
         }
+        
+    }
 
+    void setSizeBtnsEnabled(boolean en) {
+        tableSizeButton4.setEnabled(en);
+        tableSizeButton8.setEnabled(en);
+        tableSizeButton10.setEnabled(en);
+        tableSizeButton12.setEnabled(en);
     }
 }

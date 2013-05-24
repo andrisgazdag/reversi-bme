@@ -174,6 +174,7 @@ public class NetworkCommunicator extends Thread {
         try {
             // Communicating with the server
             out.writeObject(packet);
+ //           System.out.println(packet);
             out.flush();
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Socket establishment Exception: {0}", e.getLocalizedMessage());
@@ -194,7 +195,40 @@ public class NetworkCommunicator extends Thread {
         } catch (IOException | ClassNotFoundException ex) {
             LOGGER.log(Level.SEVERE, "Server could not be reserved: {0}", ex);
         }
+//System.out.println(packet);
+        return packet;
+    }
+    
+    public void send_gp(GamePacket packet) {
 
+        try {
+            // Communicating with the server
+            out = new ObjectOutputStream(connection.getOutputStream());
+            out.flush();
+            out.writeObject(packet);
+ //           System.out.println(packet);
+            out.flush();
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Socket establishment Exception: {0}", e.getLocalizedMessage());
+        }
+
+    }
+
+    /**
+     * @return a NetworkPacket received over the network.
+     */
+    public GamePacket recive_gp() {
+
+        GamePacket packet = null;
+
+        try {
+            in = new ObjectInputStream(connection.getInputStream());
+            packet = (GamePacket) in.readObject();
+            LOGGER.log(Level.FINER, "Packet recived: {0}", packet);
+        } catch (IOException | ClassNotFoundException ex) {
+            LOGGER.log(Level.SEVERE, "Server could not be reserved: {0}", ex);
+        }
+//        System.out.println(packet);
         return packet;
     }
 

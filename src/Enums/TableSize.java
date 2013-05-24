@@ -2,7 +2,7 @@ package Enums;
 
 public enum TableSize {
 
-    SMALL(8), MEDIUM(10), BIG(12);
+    TINY(4), SMALL(8), MEDIUM(10), BIG(12);
     
     private int size;
 

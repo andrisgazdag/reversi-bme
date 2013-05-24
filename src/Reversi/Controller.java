@@ -74,6 +74,7 @@ public class Controller {
 
         gameTypeView = null; // release the object
         game = new ServerGame(size, this);
+        game.start();
         gameView = new GamePlayView(size, this); // start new frame
         new Thread(gameView).start(); // start gui thread
 
@@ -83,6 +84,7 @@ public class Controller {
 
         gameTypeView = null; // release the object
         game = new ClientGame(choosenServer, this);
+        game.start();
         gameView = new GamePlayView(game.getTableSize(), this); // start new frame
         new Thread(gameView).start(); // start gui thread
 
@@ -246,15 +248,33 @@ public class Controller {
     }
 
     public void endGame() {
+        
+//        try { //hogy minden update-elodjon //NEMITT A HIBA
+//            Thread.sleep(1000);
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+        
         int[] scores = getScores();
-        if (scores[0] > scores[1]) {
-            gameView.showUserWin();
-        } else if (scores[0] < scores[1]) {
-            gameView.showUserLoose();
-        } else {
-            gameView.showUserEven();
+        if ((game instanceof SinglePlayerGame) || (game instanceof ServerGame)) {
+            if (scores[0] > scores[1]) {
+                gameView.showUserWin();
+            } else if (scores[0] < scores[1]) {
+                gameView.showUserLoose();
+            } else {
+                gameView.showUserEven();
+            }
+        } else if (game instanceof ClientGame) {
+            if (scores[0] < scores[1]) {
+                gameView.showUserWin();
+            } else if (scores[0] > scores[1]) {
+                gameView.showUserLoose();
+            } else {
+                gameView.showUserEven();
+            }
         }
         game.runFlag = false;
+        stopNetworkCommunicator();
     }
 
     public static void main(String[] args) {

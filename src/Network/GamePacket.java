@@ -64,23 +64,40 @@ public class GamePacket implements Serializable {
     
  @Override
     public String toString() {
-        return "Red next: " + redIsNext + "tableSize: " + table.length + "table: " + printField();
+       // return "Red next: " + redIsNext + "tableSize: " + table.length + "table: " + printField();
+     return "csigi";
+    // return printField();
     }
      
     public String printField() {
-        StringBuilder sb = new StringBuilder();
+//        StringBuilder sb = new StringBuilder();
+//        
+//        sb.append("\n");
+//
+//        for (int i = 0; i < table.length; i++) {
+//            for (int j = 0; j < table.length; j++) {
+//                sb.append(table[j][i]);
+//                sb.append("\t");
+//            }
+//            sb.append("\n");
+//        }
+//        
+//        return sb.toString();
         
-        sb.append("\n");
+//        StringBuilder sb = new StringBuilder();
+        
+  //      sb.append("\n");
 
         for (int i = 0; i < table.length; i++) {
+            
             for (int j = 0; j < table.length; j++) {
-                sb.append(table[j][i]);
-                sb.append("\t");
+                System.out.print((table[j][i])+"\t");
+                //sb.append("\t");
             }
-            sb.append("\n");
+            System.out.print("\n");
         }
         
-        return sb.toString();
+        return "";
     }
     
 }
