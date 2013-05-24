@@ -1,6 +1,7 @@
 package Network;
 
 import Enums.Field;
+import Enums.GameLevel;
 import java.io.Serializable;
 
 public class GamePacket implements Serializable {
@@ -8,6 +9,15 @@ public class GamePacket implements Serializable {
     private Field[][] table = null;
     private boolean redIsNext;
     private int[] step = null;
+    private GameLevel level;
+    private String playerName;
+
+    public GamePacket(Field[][] table, boolean redIsNext, GameLevel level, String playerName) {
+        this.table = table;
+        this.redIsNext = redIsNext;
+        this.level = level;
+        this.playerName = playerName;
+    }
 
     public GamePacket(Field[][] table, boolean redIsNext, int[] step) {
         this.table = table;
@@ -38,4 +48,17 @@ public class GamePacket implements Serializable {
     public boolean getRedIsNext() {
         return redIsNext;
     }
+
+    public GameLevel getLevel() {
+        return level;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public boolean isRedIsNext() {
+        return redIsNext;
+    }
+    
 }

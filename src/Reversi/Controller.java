@@ -10,9 +10,11 @@ import GUI.ServerListView;
 import Network.GamePacket;
 import Network.NetworkCommunicator;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -109,9 +111,16 @@ public class Controller {
     public void saveGame(File file) {
         FileOutputStream fout = null;
         try {
-            
-            GamePacket savePacket = new GamePacket(getGameState(), game.isRedIsNext());
-            
+
+            GamePacket savePacket;
+            if (game instanceof SinglePlayerGame) {
+                SinglePlayerGame singGame = (SinglePlayerGame) game;
+                savePacket = new GamePacket(getGameState(), game.isRedIsNext(), singGame.getLevel(), gameName);
+            } else {
+                LOGGER.log(Level.SEVERE, "Only single plyer games can be saved!!!!");
+                return;
+            }
+
             fout = new FileOutputStream(file);
             ObjectOutputStream oos = new ObjectOutputStream(fout);
             oos.writeObject(savePacket);
@@ -130,7 +139,52 @@ public class Controller {
 
     // load game from file
     public void loadGame(File file) {
-        // ide fogalamam sincs, hogy mit kellene irni...
+        FileInputStream fin = null;
+        ObjectInputStream ois = null;
+        try {
+            GamePacket savedGame = null;
+            fin = new FileInputStream(file);
+            ois = new ObjectInputStream(fin);
+            savedGame = (GamePacket) ois.readObject();
+
+            TableSize tableSize = null;
+            // start the game
+            switch (savedGame.getTable().length) {
+                case 8:
+                    tableSize = TableSize.SMALL;
+                    break;
+                case 10:
+                    tableSize = TableSize.MEDIUM;
+                    break;
+                case 12:
+                    tableSize = TableSize.BIG;
+                    break;
+            }
+
+            startSingleGame(savedGame.getLevel(), tableSize, gameName);
+            
+            game.setTable(savedGame.getTable());
+            game.setRedIsNext(savedGame.isRedIsNext());
+
+        } catch (ClassNotFoundException | IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                fin.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                ois.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+    }
+
+    public NetworkCommunicator getNetworkCommunicator() {
+        return networkCommunicator;
     }
 
     public String getGameName() {
@@ -166,7 +220,7 @@ public class Controller {
             }
         };
         new Thread(r).start();
-        
+
         return true;
     }
 

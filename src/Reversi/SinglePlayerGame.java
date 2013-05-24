@@ -17,11 +17,13 @@ import java.util.logging.Logger;
 public class SinglePlayerGame extends Game {
 
     private AI ai;
+    private GameLevel level;
 
     public SinglePlayerGame(TableSize size, Controller ctrlr, GameLevel level)
     {
         super(size, ctrlr);
         ai = new AI(level, this);
+        this.level = level;
     }
     
     @Override
@@ -70,6 +72,7 @@ public class SinglePlayerGame extends Game {
             while (!canStep(true)) {
                 if (!canStep(false)) {
                     ctrlr.endGame();
+                    return false;
                 }
                 respAI = ai.step();
                 rowAI = respAI[0];
@@ -92,4 +95,9 @@ public class SinglePlayerGame extends Game {
         endIfEnd();
         return true;
     }
+
+    public GameLevel getLevel() {
+        return level;
+    }
+    
 }

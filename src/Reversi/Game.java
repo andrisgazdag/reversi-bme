@@ -37,6 +37,14 @@ public abstract class Game {
         return table;
     }
 
+    public void setTable(Field[][] table) {
+        this.table = table;
+    }
+
+    public void setRedIsNext(boolean redIsNext) {
+        this.redIsNext = redIsNext;
+    }
+
     public boolean isRedIsNext() {
         return redIsNext;
     }
@@ -114,7 +122,6 @@ public abstract class Game {
             ctrlr.endGame();
         }
     }
-    
     private int[] rowStepTable = {-1, -1, -1, 0, 1, 1, 1, 0};
     private int[] colStepTable = {-1, 0, 1, 1, 1, 0, -1, -1};
 
