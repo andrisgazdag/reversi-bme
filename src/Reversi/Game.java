@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class Game{
+public abstract class Game {
 
-    private TableSize tableSize;  // a tábla mérete tableSize x tableSize
-    private Field[][] table = null; // a tabla cellai
+    protected TableSize tableSize;  // a tábla mérete tableSize x tableSize
+    protected Field[][] table = null; // a tabla cellai
     protected Controller ctrlr = null; 
     protected boolean redIsNext = true;
 
@@ -107,6 +107,12 @@ public abstract class Game{
         return false;
     }
     
+    public void endIfEnd() {
+        if (!canStep(true) && !canStep(false)) {
+            ctrlr.endGame();
+        }
+    }
+
     private int[] rowStepTable = {-1,-1,-1,0,1,1,1,0};
     private int[] colStepTable = {-1,0,1,1,1,0,-1,-1};    
 

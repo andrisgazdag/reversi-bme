@@ -73,7 +73,7 @@ public class Controller {
     public void startClientGame(String plyerName, String choosenServer) {
 
         gameTypeView = null; // release the object
-        game = new ClientGame();
+        game = new ClientGame(choosenServer, this);
         gameView = new GamePlayView(game.getTableSize(), this); // start new frame
 
     }

@@ -25,19 +25,19 @@ public class SinglePlayerGame extends Game {
     }
     
     @Override
-    public boolean iteration(int row, int col)
-    {
+    public boolean iteration(int row, int col) {
         int[] changes = isStepValid(row, col, true); // helyes-e a lepes
         if (changes[0] == 0) { //ez a lépés nem valid
             LOGGER.log(Level.FINER, "Invalid step");
             if (canStep(true)) { //ha ez nem valid, de lenne valid -->user találja meg
+                endIfEnd();
                 return false;
             } else { // tehát nincs a usernek valid lépése
                 if (!canStep(false)) { // a gépnek sincs
                     ctrlr.endGame(); //vége van
                 } else { // AI jöjjön
-                    redIsNext=!redIsNext;
-                     //redIsNext = false;
+                    redIsNext = !redIsNext;
+                    //redIsNext = false;
                 }
             }
 
@@ -50,36 +50,46 @@ public class SinglePlayerGame extends Game {
                 Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-           
-            int[] respAI = ai.step();
-            int rowAI = respAI[0];
-            int colAI = respAI[1];
-            int[] changesAI = isStepValid(rowAI, colAI, false);
-            if (changesAI[0] == 0) {
-                if (canStep(false)){
-                    LOGGER.log(Level.FINER, "IMPOSSIBLE!! AI nem tud lepni pedig megis");
-                }
-                  redIsNext=!redIsNext;
-                     //redIsNext = true;
-                return false; // AI nem tudott lepni
-            } else {
-                updateGame(rowAI, colAI, changesAI, false); // AI lepett
-//                ctrlr.updateView();
-                LOGGER.log(Level.FINER, "Update after AI has stepped.");
-                
-                //update game user
-                //score
-                //gui
-                //delay
 
-                //ai
-                //update game ai
-                //update gui //redraw
-                //update gui //redraw
+        int[] respAI = ai.step();
+        int rowAI = respAI[0];
+        int colAI = respAI[1];
+        int[] changesAI = isStepValid(rowAI, colAI, false);
+        if (changesAI[0] == 0) {
+            if (canStep(false)) {
+                LOGGER.log(Level.FINER, "IMPOSSIBLE!! AI nem tud lepni pedig megis");
             }
-            if (!canStep(true) && !canStep(false)){
-                ctrlr.endGame();
+            redIsNext = !redIsNext;
+            //redIsNext = true;
+            endIfEnd();
+            return false; // AI nem tudott lepni
+        } else {
+            updateGame(rowAI, colAI, changesAI, false); // AI lepett
+            LOGGER.log(Level.FINER, "Update after AI has stepped.");
+            
+            while (!canStep(true)) {
+                if (!canStep(false)) {
+                    ctrlr.endGame();
+                }
+                respAI = ai.step();
+                rowAI = respAI[0];
+                colAI = respAI[1];
+                changesAI = isStepValid(rowAI, colAI, false);
+                updateGame(rowAI, colAI, changesAI, false); // AI lepett
+                LOGGER.log(Level.FINER, "Update after AI has stepped.");
             }
+
+            //update game user
+            //score
+            //gui
+            //delay
+
+            //ai
+            //update game ai
+            //update gui //redraw
+            //update gui //redraw
+        }
+        endIfEnd();
         return true;
     }
 }
