@@ -7,9 +7,13 @@ import Enums.TableSize;
 import GUI.GamePlayView;
 import GUI.GameTypeView;
 import GUI.ServerListView;
+import Network.GamePacket;
 import Network.NetworkCommunicator;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,17 +34,17 @@ public class Controller {
     Game game = null;
     String gameName = "Skynet";
 //  AI ai;
-    
+
     public Controller() {
         // eloszor a jatekvalaszto ablak
         initLogger();
         startReversi(); //azért lett külön fgv-be téve mert új játékot lehet indítani a GUIból
     }
 
-    public void startReversi()
-    {
-        gameTypeView = new GameTypeView(this); 
+    public void startReversi() {
+        gameTypeView = new GameTypeView(this);
     }
+
     public String[] getAvailableServerList() {
 
         if (networkCommunicator == null) {
@@ -52,7 +56,7 @@ public class Controller {
     }
 
     public void startSingleGame(GameLevel level, TableSize size, String playerName) {
-        
+
         gameTypeView = null; // release the object
         game = new SinglePlayerGame(size, this, level);
         //ai = new AI(level, game/*, this*/);
@@ -101,6 +105,30 @@ public class Controller {
         }
     }
 
+    // save game to file
+    public void saveGame(File file) {
+        FileOutputStream fout = null;
+        try {
+            
+            GamePacket savePacket = new GamePacket(getGameState(), game.isRedIsNext());
+            
+            fout = new FileOutputStream(file);
+            ObjectOutputStream oos = new ObjectOutputStream(fout);
+            oos.writeObject(savePacket);
+        } catch (FileNotFoundException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                fout.close();
+            } catch (IOException ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    // load game from file
     public void loadGame(File file) {
         // ide fogalamam sincs, hogy mit kellene irni...
     }
@@ -120,33 +148,32 @@ public class Controller {
         }
         return null;
     }
-    public int[] getScores()
-    {
-       return game.calculateScores();
+
+    public int[] getScores() {
+        return game.calculateScores();
     }
 
     public void showServers() {
         startNetworkCommunicator(ReversiType.CLIENT);
         serverView = new ServerListView(this);
     }
-    
+
     public boolean iteration(final int row, final int col) {
         Runnable r = new Runnable() {
             @Override
             public void run() {
                 game.iteration(row, col);
             }
-        };        
+        };
         new Thread(r).start();
-//        
-//        return game.iteration(row, col);
+        
         return true;
     }
-    
-     public void updateView(){
-         gameView.updateGamePlayView();
-     }
-     
+
+    public void updateView() {
+        gameView.updateGamePlayView();
+    }
+
     public void endGame() {
         int[] scores = getScores();
         if (scores[0] > scores[1]) {
@@ -157,10 +184,10 @@ public class Controller {
             gameView.showUserEven();
         }
     }
-     
-   public static void main(String[] args) {
-      
-       Controller ctrl = new Controller();
+
+    public static void main(String[] args) {
+
+        Controller ctrl = new Controller();
 
         /*
 
@@ -224,7 +251,7 @@ public class Controller {
 
     private void initLogger() {
         //Initializing logger:
-        
+
         try {
             DateFormat df = new SimpleDateFormat("yyyy_MM_dd_HH_mm_SS");
             String logDate = df.format(new Date().getTime());
@@ -233,12 +260,12 @@ public class Controller {
             Handler handler = new FileHandler("logs/Reversi_" + logDate + "_ALL.log"); // logs folder should be created manualy
             handler.setFormatter(new SimpleFormatter());
             handler.setLevel(Level.FINEST);
-            
+
             // info log, only the most importatnt things...
             Handler handler_info = new FileHandler("logs/Reversi_" + logDate + "_INFO.log"); // logs folder should be created manualy
             handler_info.setFormatter(new SimpleFormatter());
             handler_info.setLevel(Level.INFO);
-            
+
             LOGGER.addHandler(handler);
             LOGGER.addHandler(handler_info);
             LOGGER.setLevel(Level.FINEST);

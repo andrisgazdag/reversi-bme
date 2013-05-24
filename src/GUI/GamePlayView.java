@@ -255,6 +255,7 @@ public class GamePlayView extends JFrame implements Runnable {
 
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
+                    ctrl.saveGame(file);
                     System.out.println("Saving: " + file.getName() + "." + '\n');
                 } else {
                     System.out.println("Open command cancelled by user.");
