@@ -6,17 +6,24 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class Game {
+public abstract class Game extends Thread{
 
     protected TableSize tableSize;  // a tábla mérete tableSize x tableSize
     protected Field[][] table = null; // a tabla cellai
     protected Controller ctrlr = null;
     protected boolean redIsNext = true;
     protected static final Logger LOGGER = Logger.getLogger("Reversi");
+    public boolean userFlag = false;
+    public boolean runFlag = true;
+    public int[] step = new int[2];
 
     public Game() {
     }
 
+    public void setCtrlr(Controller ctrlr) {
+        this.ctrlr = ctrlr;
+    }
+    
     public Game(TableSize tableSize, Controller ctrlr) {
         this.ctrlr = ctrlr;
         this.tableSize = tableSize;
@@ -76,12 +83,12 @@ public abstract class Game {
     public abstract boolean iteration(int row, int col);
 
     public boolean updateGame(int row, int col, int changes[], boolean red) {
-        if (redIsNext != red) {
-            LOGGER.log(Level.FINER, "updategame hiba: nem az jön akinek kéne");
-            return false;
-        } else {
-            redIsNext = !redIsNext;
-        }
+//        if (redIsNext != red) {
+//            System.out.println("updategame hiba: nem az jön akinek kéne");
+//            return false;
+//        } else {
+//            redIsNext = !redIsNext;
+//        }
         Field me = red ? Field.RED : Field.BLUE;
         setField(row, col, me);
         ctrlr.updateView();
@@ -115,6 +122,12 @@ public abstract class Game {
             }
         }
         return false;
+    }
+    
+    @Override
+    public void run()
+    {
+     
     }
 
     public void endIfEnd() {

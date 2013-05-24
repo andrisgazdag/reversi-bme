@@ -11,6 +11,7 @@ public class GamePacket implements Serializable {
     private int[] step = null;
     private GameLevel level;
     private String playerName;
+    private static final long serialVersionUID = 11345173;
 
     public GamePacket(Field[][] table, boolean redIsNext, GameLevel level, String playerName) {
         this.table = table;
@@ -59,6 +60,25 @@ public class GamePacket implements Serializable {
 
     public boolean isRedIsNext() {
         return redIsNext;
+    }
+    
+ @Override
+    public String toString() {
+        return "Red next: " + redIsNext + "tableSize: " + table.length + "table: " + printField();
+    }
+     
+    public String printField() {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < table.length; i++) {
+            for (int j = 0; j < table.length; j++) {
+                sb.append(table[j][i]);
+                sb.append("\t");
+            }
+            sb.append("\n");
+        }
+        
+        return sb.toString();
     }
     
 }

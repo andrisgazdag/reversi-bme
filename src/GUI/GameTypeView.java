@@ -355,11 +355,11 @@ public class GameTypeView extends JFrame implements ActionListener/*, ItemListen
                         ctrl.startServerGame(size, serverName, name);
                     } else {
                         // start a new client with choosen server
-                        // String choosenServer = serverList.getSelectedItem();
+//                         String choosenServer = serverList.getSelectedItem();
                         dispose();
                         ctrl.showServers();
                         
-                        //ctrl.startClientGame(name, choosenServer);
+//                        ctrl.startClientGame(name, choosenServer);
                     }
                 }
 

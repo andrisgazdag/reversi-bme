@@ -2,28 +2,29 @@ package Reversi;
 
 import Enums.Field;
 import Enums.ReversiType;
+import Enums.TableSize;
 import Network.GamePacket;
-import Network.NetworkCommunicator;
 import Network.NetworkPacket;
 import static Reversi.Game.LOGGER;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClientGame extends Game {
 
-    private Network.NetworkCommunicator nC = null;
+    private Network.NetworkCommunicator nC;
 
     public ClientGame(String choosenServer, Controller ctrlr) {
         super(); // table size should be set later, ones the server has sent the information
-
+        super.setCtrlr(ctrlr);
         // create and start the network communicator
-        ReversiType gameMode = ReversiType.CLIENT;
+   //     ReversiType gameMode = ReversiType.CLIENT;
 
-        nC = new NetworkCommunicator(gameMode, ctrlr);
-        nC.start();
+//        nC = new NetworkCommunicator(gameMode, ctrlr);
+//        nC.start();
 
+        nC = ctrlr.getNetworkCommunicator();
+        System.out.println("got nc");
         nC.connectToGame(choosenServer);
-
+System.out.println("connected nc: " + choosenServer);
         // else sleep a little bit, than try again...
         try {
             Thread.sleep(100);
@@ -39,10 +40,11 @@ public class ClientGame extends Game {
                 System.out.println("Thread sleep exception in the main thread: " + ex.getLocalizedMessage());
             }
         }
-
+System.out.println("while utan --> isconnected nc");
         //server-töl recieve és kirajzol alapállapot
         
         recieve();
+//        System.out.println("recieved \n");
     }
 
     @Override
@@ -50,6 +52,8 @@ public class ClientGame extends Game {
         GamePacket packet;
         NetworkPacket np;
         if (redIsNext) {
+            recieve();
+            ctrlr.updateView();
             return false;
         }
         int[] changes = isStepValid(row, col, false); // helyes-e a lepes
@@ -62,12 +66,14 @@ public class ClientGame extends Game {
                 int[] step = {-1, -1};
                 packet = new GamePacket(step);
                 np = new NetworkPacket(packet);
+                System.out.println("sent:" + packet);
                 nC.send(np);
             }
         } else {
             int[] step = {row, col};
             packet = new GamePacket(step);
             np = new NetworkPacket(packet);
+            System.out.println("sent:" + packet);
             nC.send(np);
             setField(row, col, Field.BLUE);
             ctrlr.updateView();
@@ -85,7 +91,20 @@ public class ClientGame extends Game {
         NetworkPacket recieved = nC.recive();
         
         GamePacket gp = (GamePacket) recieved.getInfo();
+         System.out.println("recieved:" + gp.toString());
         table = gp.getTable();
         redIsNext = gp.getRedIsNext();
+   
+            switch (table.length) {
+                case 8:
+                    tableSize = TableSize.SMALL;
+                    break;
+                case 10:
+                    tableSize = TableSize.MEDIUM;
+                    break;
+                case 12:
+                    tableSize = TableSize.BIG;
+                    break;
+            }
     }
 }

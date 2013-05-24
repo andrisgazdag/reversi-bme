@@ -61,9 +61,11 @@ public class Controller {
 
         gameTypeView = null; // release the object
         game = new SinglePlayerGame(size, this, level);
+        game.start();
         //ai = new AI(level, game/*, this*/);
         gameView = new GamePlayView(size, this); // start new frame
         new Thread(gameView).start(); // start gui thread
+        
         //gameView.repaint();
         //gameView.updateGamePlayView();
     }
@@ -73,6 +75,7 @@ public class Controller {
         gameTypeView = null; // release the object
         game = new ServerGame(size, this);
         gameView = new GamePlayView(size, this); // start new frame
+        new Thread(gameView).start(); // start gui thread
 
     }
 
@@ -81,6 +84,7 @@ public class Controller {
         gameTypeView = null; // release the object
         game = new ClientGame(choosenServer, this);
         gameView = new GamePlayView(game.getTableSize(), this); // start new frame
+        new Thread(gameView).start(); // start gui thread
 
     }
 
@@ -213,13 +217,16 @@ public class Controller {
     }
 
     public boolean iteration(final int row, final int col) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                game.iteration(row, col);
-            }
-        };
-        new Thread(r).start();
+//        Runnable r = new Runnable() {
+//            @Override
+//            public void run() {
+//                game.iteration(row, col);
+//            }
+//        };
+//        new Thread(r).start();
+        
+        game.step = new int[]{row, col};
+        game.userFlag=true;
 
         return true;
     }
@@ -237,6 +244,7 @@ public class Controller {
         } else {
             gameView.showUserEven();
         }
+        game.runFlag=false;
     }
 
     public static void main(String[] args) {

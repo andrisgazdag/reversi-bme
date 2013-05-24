@@ -1,6 +1,8 @@
 package Enums;
 
-public enum Field {
+import java.io.Serializable;
+
+public enum Field implements Serializable {
     
     EMPTY,
     RED,

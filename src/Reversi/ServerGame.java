@@ -16,12 +16,14 @@ public class ServerGame extends Game {
     public ServerGame(TableSize tableSize, Controller ctrlr) {
         super(tableSize, ctrlr);
         nc = ctrlr.getNetworkCommunicator();
+        GamePacket gp = new GamePacket(table,redIsNext);
+             NetworkPacket np = new NetworkPacket(gp);
+             System.out.println("sent:" + gp);
+              nc.send(np);
     }
     
-     
-    @Override
-    public boolean iteration(int row, int col)
-    {
+         @Override
+    public boolean iteration(int row, int col) {
         GamePacket gp;
         NetworkPacket np;
         if (!redIsNext) {
@@ -34,33 +36,39 @@ public class ServerGame extends Game {
 //                endIfEnd();
                 return false;
             } else { // tehát nincs a usernek valid lépése
-              endIfEnd();
-              redIsNext=false;
-              gp = new GamePacket(table,redIsNext);
-              np = new NetworkPacket(gp);
-              nc.send(np);
+                endIfEnd();
+                redIsNext = false;
+                send();
             }
-            
+
         } else { // a lepes valid
             updateGame(row, col, changes, true); // jatek allapotanak frissitese
+            send();
+
         }
-        
+
         np = nc.recive();
-        int[] step = new int[2];
-        step = ((GamePacket)np.getInfo()).getStep();
-        if (step[0]==-1 && step[1]==-1){ // a masiknak nincs valid lepese
-            redIsNext=true;
+        System.out.println("recieved:" + (GamePacket) np.getInfo());
+        int[] step;
+        step = ((GamePacket) np.getInfo()).getStep();
+        if (step[0] == -1 && step[1] == -1) { // a masiknak nincs valid lepese
+            redIsNext = true;
             endIfEnd();
         } else { // valid lepes jott
             changes = isStepValid(step[0], step[1], false);
             updateGame(step[0], step[1], changes, false); // jatek allapotanak frissitese
-            
+
         }
-         
-        gp = new GamePacket(table,redIsNext);
-              np = new NetworkPacket(gp);
-              nc.send(np);
+
+        send();
+
         return true;
     }
-   
+
+    private void send() {
+        GamePacket gp = new GamePacket(table, redIsNext);
+        NetworkPacket np = new NetworkPacket(gp);
+        System.out.println("sent:" + gp);
+        nc.send(np);
+    }
 }

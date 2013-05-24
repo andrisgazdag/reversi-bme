@@ -49,7 +49,14 @@ public class GamePlayView extends JFrame implements Runnable {
 
     public GamePlayView(TableSize size, Controller c) {
 
+        //super("Reversi: " + c.getNetworkCommunicator().gameType.toString());
         super("Reversi");
+        
+        if (c.getNetworkCommunicator()!=null)
+        {
+            setTitle("Reversi: " + c.getNetworkCommunicator().gameType.toString());
+        }
+        
         scoreBlue = 0;
         scoreRed = 0;
         ctrl = c;

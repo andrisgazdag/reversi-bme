@@ -11,6 +11,7 @@ public class NetworkPacket implements Serializable {
 
     // Content of the Packet
     private Object info;
+    private static final long serialVersionUID = 11345174;
     
     /**
      * C'tor for the NP
@@ -26,5 +27,14 @@ public class NetworkPacket implements Serializable {
      */
     public Object getInfo() {
         return info;
+    }
+    
+     @Override
+    public String toString() {
+        if (info != null) {
+            return info.toString();
+        } else {
+            return super.toString();
+        }
     }
 }
