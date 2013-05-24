@@ -40,8 +40,9 @@ public class ClientGame extends Game {
             }
         }
 
-
         //server-töl recieve és kirajzol alapállapot
+        
+        recieve();
     }
 
     @Override
@@ -51,11 +52,11 @@ public class ClientGame extends Game {
         if (redIsNext) {
             return false;
         }
-        int[] changes = isStepValid(row, col, true); // helyes-e a lepes
+        int[] changes = isStepValid(row, col, false); // helyes-e a lepes
         if (changes[0] == 0) { //ez a lépés nem valid
             LOGGER.log(Level.FINER, "Invalid step");
-            if (canStep(true)) { //ha ez nem valid, de lenne valid -->user találja meg
-                endIfEnd();
+            if (canStep(false)) { //ha ez nem valid, de lenne valid -->user találja meg
+//                endIfEnd();
                 return false;
             } else { // tehát nincs a usernek valid lépése
                 int[] step = {-1, -1};
@@ -71,23 +72,20 @@ public class ClientGame extends Game {
             setField(row, col, Field.BLUE);
             ctrlr.updateView();
         }
-
-        //recieve and draw
-
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        recieve();
-
+  
+        endIfEnd();
+        recieve();  //recieve and draw
+        ctrlr.updateView();
+        endIfEnd();
+        
         return true;
     }
 
-    private void recieve() {
-        //NetworkPacket recieved = nC.recive();
-        //table = recieved.getInfo().getTable();
-        //redIsNext = recieved.getRedIsNext();
+    private void recieve() {   //recieve and draw
+        NetworkPacket recieved = nC.recive();
+        
+        GamePacket gp = (GamePacket) recieved.getInfo();
+        table = gp.getTable();
+        redIsNext = gp.getRedIsNext();
     }
 }
