@@ -9,33 +9,52 @@ import java.util.logging.Logger;
 
 public abstract class Game extends Thread {
 
+    // size of the game table
     protected TableSize tableSize;  //TODO a tábla mérete tableSize x tableSize
+    // game table itself
     protected Field[][] table = null; //TODO a tabla cellai
+    // reference to the controller
     protected Controller ctrlr = null;
+    // true if it is Red's turn, false if Blue's
     protected boolean redIsNext = true;
+    // logger
     protected static final Logger LOGGER = Logger.getLogger("Reversi");
+    // used when waiting for user input.
+    // Controller sets (true) if user clicked somewhere on the game table
     public boolean userFlag = false;
+    // tells the Game threads, wether they should run.
+    // Controller resets (false) when the game ends
     public boolean runFlag = true;
+    // variable to store the user's input (step coordinates)
     public int[] step = new int[2];
     
     // Possible steps
+    // from a specific field there are 8 possible directions to "move"
+    // up-down-left-right and the 4 diagonals
+    // theese are coded in this 2 arrays
     private int[] rowStepTable = {-1, -1, -1, 0, 1, 1, 1, 0};
     private int[] colStepTable = {-1, 0, 1, 1, 1, 0, -1, -1};
 
+    // no-param ctor
     public Game() {
         tableSize = null;
     }
 
+    // setter for Ctrlr, ClientGame needs it
     public void setCtrlr(Controller ctrlr) {
         this.ctrlr = ctrlr;
     }
 
+    // ctor
     public Game(TableSize tableSize, Controller ctrlr) {
+        // initialize members
         this.ctrlr = ctrlr;
         this.tableSize = tableSize;
+        // create game table
         int size = tableSize.getSize();
         table = new Field[size][size];
 
+        // set all fileds to Empty
         for (Field[] subarray : table) {
             Arrays.fill(subarray, Field.EMPTY);
         }
@@ -47,30 +66,37 @@ public abstract class Game extends Thread {
         table[size / 2][size / 2 - 1] = Field.BLUE;
     }
 
+    // getter for game table
     public Field[][] getTable() {
         return table;
     }
 
+    // setter for game table
     public void setTable(Field[][] table) {
         this.table = table;
     }
 
+    // setter for redIsNext
     public void setRedIsNext(boolean redIsNext) {
         this.redIsNext = redIsNext;
     }
 
+    // getter for redIsNext
     public boolean isRedIsNext() {
         return redIsNext;
     }
 
+    // sets a particular field to the given state
     public void setField(int x, int y, Field field) {
         table[x][y] = field;
     }
 
+    // getter for table size
     public TableSize getTableSize() {
         return tableSize;
     }
     
+    // waits until the user clicks a field on the table
     protected void waitForUserClick() {
         while (!userFlag) {                 // waiting for user click
             try {                           // controller will set this flag
@@ -82,8 +108,10 @@ public abstract class Game extends Thread {
         userFlag = false;   // resetting user clicked flag back
     }
 
+    // calculates the both players' scores, by iterating through the whole table
+    // and counting the chips
+    // returns an array containing the 2 scores
     protected int[] calculateScores() {
-
         int[] scores = {0, 0};
         for (int ii = 0; ii < tableSize.getSize(); ++ii) {
             for (int jj = 0; jj < tableSize.getSize(); ++jj) {
@@ -97,33 +125,41 @@ public abstract class Game extends Thread {
         return scores;
     }
 
+    // updates the game state based on the step and the calculated changes
+    // starting from that field in all directions
+    // param: red tells wether you are now red or blue
     protected boolean updateGame(int row, int col, int changes[], boolean red) {
+        Field me = red ? Field.RED : Field.BLUE;    // your own color
+        setField(row, col, me);     // first we set the clicked field so that
+                                    // the user knows the game registered its input
+        ctrlr.updateView();         // updating the GUI with this only change
 
-        Field me = red ? Field.RED : Field.BLUE;
-        setField(row, col, me);
-        ctrlr.updateView();
-
-        try {
+        try {   // sleeping a bit, so that the "twisting" chips twist later
             Thread.sleep(200);
         } catch (InterruptedException ex) {
             Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        for (int jj = 0; jj < 8; ++jj) {
+        for (int jj = 0; jj < 8; ++jj) { // we iterate through all 8 directions
             for (int ii = 1; ii <= changes[jj + 1]; ++ii) {
+                // and set the changing fields to our color the changes array accordingly
                 setField(row + ii * rowStepTable[jj], col + ii * colStepTable[jj], me);
             }
         }
-        if (changes[0] > 0) {
-            ctrlr.updateView();
+        if (changes[0] > 0) {       // if there was at least one change
+            ctrlr.updateView();     // GUI gets updated
             return true;
         }
+        
+        // actually the program should never get here. this function should
+        // only be called for pre-checked and valid steps
         return false;
     }
 
-    //TODO: ezitten azt adja vissza h az adott szinü (red vany nem-red játékos léphet e még validat
+    // returns if the by @param red specified user (color) has or has not any valid steps
     protected boolean canStep(boolean red) {
-
+        // iterating through the whole table, and return true if found a valid step
+        // valid step means: its score > 0
         int size = tableSize.getSize();
         for (int jj = 0; jj < size; ++jj) {
             for (int ii = 0; ii < size; ++ii) {
@@ -132,32 +168,40 @@ public abstract class Game extends Thread {
                 }
             }
         }
+        // in case the function have not returned yet, there is no valid step
         return false;
     }
 
+    // checks for both users if any of them has a valid step
+    // if not, tells the controller to end the game
     protected void endIfEnd() {
-
         if (!canStep(true) && !canStep(false)) {
             ctrlr.endGame();
         }
     }
 
+    // checks if a step is valid, returns its score, and an array with the
+    // number of chips that will flip in all 8 directions
+    // @param: red specifies the color of the new chip
+    // @param: row, col specifies where to place the new chip
     protected int[] isStepValid(int row, int col, boolean red) {
-
         int size = getTableSize().getSize();
-        int changes[] = new int[9]; //TODO inisalájzd tu lauter nulls
+        int changes[] = new int[9];     // initialized to zeros, so if we dont
+                                        // do any changes, it will stay zero
 
+        // if the given position is out of table range, function returns
         if (row < 0 || row > size - 1 || col < 0 || col > size - 1) {
             return changes;
         }
-
-        Field enemy = red ? Field.BLUE : Field.RED;
-        Field me = red ? Field.RED : Field.BLUE;
-
+        // in case the step is not on an emty field, we return
         if (table[row][col] != Field.EMPTY) {
             return changes;
         }
+        // return value is in theese cases total zeros, showing the step is not valid
 
+        // depending on param red, we set up what color are we, what the enemy
+        Field enemy = red ? Field.BLUE : Field.RED;
+        Field me = red ? Field.RED : Field.BLUE;
         int actRow, actCol;
         Field actField;
 

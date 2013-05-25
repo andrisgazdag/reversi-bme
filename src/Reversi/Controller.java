@@ -105,13 +105,12 @@ public class Controller {
 
     }
 
-    private void stopNetworkCommunicator() {
+    public void stopNetworkCommunicator() {
 
         if (networkCommunicator != null) {
             networkCommunicator.selfDestruction();
             networkCommunicator = null;
         }
-
     }
 
     // save game to file
@@ -291,13 +290,10 @@ public class Controller {
         } catch (IOException e) {
             System.err.println("logger initialisation error: " + e.getLocalizedMessage());
         }
-
     }
 
     public static void main(String[] args) {
-
         // The controller class drives the application
         Controller ctrl = new Controller();
-
     }
 }

@@ -71,7 +71,6 @@ public class NetworkCommunicator extends Thread {
         this.needToSearchForGames = true;
 
         LOGGER.log(Level.INFO, "New Networkcommunicator is created in mode: {0}", gameType);
-
     }
 
     /**
@@ -101,8 +100,7 @@ public class NetworkCommunicator extends Thread {
             }
         }
         LOGGER.log(Level.INFO, "Destruction done. Continuing with thred interruption...");
-        this.interrupt();
-        
+        this.interrupt(); 
     }
 
     /**
@@ -123,17 +121,12 @@ public class NetworkCommunicator extends Thread {
             gameAD.stopAdvertise();
 
         } else if (gameType == ReversiType.CLIENT) {
-
             LOGGER.log(Level.INFO, "New Client thread is started...");
-
             // search for games
             searchForGames();
-
         } else {
-
             LOGGER.log(Level.SEVERE, "Invalid game-type! Fatal error happened!");
             System.exit(-1);
-
         }
 
         // The main loop of the thread
@@ -145,9 +138,7 @@ public class NetworkCommunicator extends Thread {
             } catch (InterruptedException ex) {
                 LOGGER.log(Level.WARNING, "Sleep interrupted: {0}", ex);
             }
-
         }
-
     }
 
     /**
@@ -184,7 +175,6 @@ public class NetworkCommunicator extends Thread {
      * @param packet a NetworkPacket
      */
     public void send(NetworkPacket packet) {
-
         try {
             // Communicating with the server
             out.writeObject(packet);
@@ -192,7 +182,6 @@ public class NetworkCommunicator extends Thread {
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Socket establishment Exception: {0}", e.getLocalizedMessage());
         }
-
     }
 
     /**
