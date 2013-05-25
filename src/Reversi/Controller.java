@@ -67,6 +67,10 @@ public class Controller {
     public void startSingleGame(GameLevel level, TableSize size, String playerName) {
         gameTypeView = null;                // release the gameTypeView object
         // Create the game object
+        if (game != null) {
+            game.runFlag = false;
+            iteration(-1, -1);
+        }
         game = new SinglePlayerGame(size, this, level);
         game.start();                       // start game thread
         // Create the GUI object
