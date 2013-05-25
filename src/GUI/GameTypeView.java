@@ -251,6 +251,7 @@ public class GameTypeView extends JFrame implements ActionListener {
         setPreferredSize(new Dimension(400, 390));
         //Display the window.
         pack();
+        setResizable(false); //do not resize the window!
         setVisible(true);
     }
 
