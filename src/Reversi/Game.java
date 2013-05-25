@@ -202,29 +202,39 @@ public abstract class Game extends Thread {
         // depending on param red, we set up what color are we, what the enemy
         Field enemy = red ? Field.BLUE : Field.RED;
         Field me = red ? Field.RED : Field.BLUE;
-        int actRow, actCol;
-        Field actField;
+        
+        // variables for the loop
+        int actRow, actCol;     // actual field position
+        Field actField;         // actual field color
 
-        for (int jj = 0; jj < 8; ++jj) {
-            for (int ii = 1; ii < size; ++ii) {
+        for (int jj = 0; jj < 8; ++jj) {    // iterating through the 8 directions
+            for (int ii = 1; ii < size; ++ii) { // max size-1 iteration in each dir
+                // actual position: stepTables spedify the direction, ii the distance
                 actRow = row + ii * rowStepTable[jj];
                 actCol = col + ii * colStepTable[jj];
+                // in case we moved off the table, and havent finished analysing this dir
+                // then in this dir there won't be flipping chips, so --> next dir
                 if (actRow < 0 || actCol < 0 || actRow > size - 1 || actCol > size - 1) {
                     break;
                 }
+                // if positions are on the table, set field color
                 actField = table[actRow][actCol];
-                if (actField == enemy) {
-                    continue;
+                if (actField == enemy) {    // if found an enemy field
+                    continue;               // thats ok, go on
                 }
-                if (actField == me) {
+                if (actField == me) {       // if found a self-colored field
+                    // add to score how far we've got (how many enemy fields are in the way)
                     changes[0] += changes[jj + 1] = ii - 1;
-                    break;
+                    break;                  // this dir finisher --> next dir
                 }
-                if (actField == Field.EMPTY) {
-                    break;
+                if (actField == Field.EMPTY) { // if found an empty field
+                    break; // in this dir there won't be flipping chips, so --> next dir
                 }
             }
         }
+        // at the end return the changes, which may be a set of zeros (invalid step)
+        // or a valid total score at [0], and counts how many chip to flip in the
+        // 8 directions (at [1]..[8])
         return changes;
     }
 }
