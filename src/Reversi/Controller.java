@@ -123,7 +123,8 @@ public class Controller {
             GamePacket savePacket;
             if (game instanceof SinglePlayerGame) {
                 SinglePlayerGame singGame = (SinglePlayerGame) game;
-                savePacket = new GamePacket(singGame.getTable(), game.isRedIsNext(), singGame.getLevel(), gameName);
+                //savePacket = new GamePacket(singGame.getTable(), game.isRedIsNext(), singGame.getLevel(), gameName);
+                savePacket = new GamePacket(singGame.getTable(), game.isRedIsNext(), singGame.getAi().getAiLevel(), gameName);
                 LOGGER.log(Level.FINER, "Saved to file: \n {0}", savePacket);
             } else {
                 LOGGER.log(Level.SEVERE, "Only single plyer games can be saved!!!!");

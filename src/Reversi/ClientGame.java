@@ -4,8 +4,6 @@ import Enums.Field;
 import Enums.TableSize;
 import Network.GamePacket;
 import Network.NetworkPacket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 // client game in multiplayer (network) mode
@@ -30,17 +28,10 @@ public class ClientGame extends Game {
         try {
             Thread.sleep(100);
         } catch (InterruptedException ex) {
-            System.out.println("Thread sleep exception in the main thread: " + ex.getLocalizedMessage());
+            System.out.println("Thread sleep exception in the ClientGame thread: " + ex.getLocalizedMessage());
         }
 
-        // wait until the connection is established
-        while (!nC.isConnected()) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ex) {
-                System.out.println("Thread sleep exception in the main thread: " + ex.getLocalizedMessage());
-            }
-        }
+        nC.waitUntilConnected(); // wait until the connection is established
         System.out.println("after while --> isconnected nc"); // debug info
 
         // we recieve the initial state of the game, sent by the server
@@ -48,22 +39,14 @@ public class ClientGame extends Game {
     }
 
     // main function of the ClientGame Thread
+    // Server is always Red, Client is always Blue. Game begins with Red.
     @Override
     public void run() {
-
         while (runFlag) {   // the game runs until the Controller sets this flag to false
-
             endIfEnd();     // check if there is a possible valid step
                             // if there's none, end the Game
-            if (!redIsNext && canStep(false)) {     // Client user's turn
-                while (!userFlag) {                 // waiting for user click
-                    try {
-                        sleep(50);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                userFlag = false;   // setting user clicked flag back
+            if (!redIsNext && canStep(false)) {     // Client user's turn, and the client CAN step valid
+                waitForUserClick();                 // waiting for user input
                 // check if the step the user clicked is valid
                 int[] changes = isStepValid(step[0], step[1], false);
                 if (changes[0] == 0) {  // it is not valid
@@ -71,7 +54,7 @@ public class ClientGame extends Game {
                 } else {                // the current step is valid
                     send();             // send the step to the server
                     redIsNext = true;   // so that it direct enters the next if
-            // redIsNext will be overwritten by the servers info anyway
+            // redIsNext will be overwritten by the server's info anyway
             // but at the end of the game it is important to directly update
             // the Game and the View, before the Controller ends the Game
                 }

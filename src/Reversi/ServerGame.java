@@ -4,9 +4,6 @@ import Enums.TableSize;
 import Network.GamePacket;
 import Network.NetworkCommunicator;
 import Network.NetworkPacket;
-import static java.lang.Thread.sleep;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 // server game in multiplayer (network) mode
 public class ServerGame extends Game {
@@ -23,58 +20,53 @@ public class ServerGame extends Game {
         nc = ctrlr.getNetworkCommunicator();
 
         // wait until a client connects to us, and the connection is established
-        while (!nc.isConnected()) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ex) {
-                System.out.println("Thread sleep exception in the main thread: " + ex.getLocalizedMessage());
-            }
-        }
+        nc.waitUntilConnected();
+        
         // send the initial state of the game to the client
         send();
     }
 
+    // main function of the ServerGame Thread
+    // Server is always Red, Client is always Blue. Game begins with Red.
     @Override
     public void run() {
-        while (runFlag) {
-            endIfEnd();
-            if (redIsNext && canStep(true)) { // USER lép
-                while (!userFlag) {
-                    try {
-                        sleep(50);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+        while (runFlag) {   // the game runs until the Controller sets this flag to false
+            endIfEnd();     // check if there is a possible valid step
+                            // if there's none, end the Game
+            if (redIsNext && canStep(true)) {   // Server user's turn, and the server CAN step valid
+                waitForUserClick();             // waiting for user input
+                // check if the step the user clicked is valid
+                int[] changes = isStepValid(step[0], step[1], true);
+                if (changes[0] == 0) {          // it is not valid
+                    continue;       // go back and wait for a next (valid) step
+                } else {                        // the current step is valid
+                    // update Game state according to the current step
+                    updateGame(step[0], step[1], changes, true);
+                    if (canStep(false)) {   // in case the client has valid step
+                        redIsNext = false;  // client is next
                     }
+                    send();     // sending the updated Game state to the client
                 }
-                userFlag = false;
-                int[] changes = isStepValid(step[0], step[1], true); // helyes-e a lepes
-                if (changes[0] == 0) { //ez a lépés nem valid
-                    continue;
-                } else { //ez valid
-                    updateGame(step[0], step[1], changes, true); // jatek allapotanak frissitese
-                    if (canStep(false)) {
-                        redIsNext = false;
-                    }
-                    send();
-                }
-            } else if (canStep(false)) {    // client lép
-                recieve();
+            } else if (canStep(false)) {    // if the client can step valid
+                recieve();                  // we wait for a step from the client
+                // calculating what changes because of this step
                 int[] changes = isStepValid(step[0], step[1], false);
-                updateGame(step[0], step[1], changes, false); // jatek allapotanak frissitese
-                if (canStep(true)) {
-                    redIsNext = true;
+                // updating the Game state accordingly
+                updateGame(step[0], step[1], changes, false);
+                if (canStep(true)) {    // in case the server has valid step
+                    redIsNext = true;   // server is next
                 }
-                send();
+                send();     // sending the updated Game state back to the client
             }
         }
     }
-    
+
     // send the state of the Game to the client
     private void send() {
         // creating and filling packet
         GamePacket gp = new GamePacket(table, redIsNext);
         NetworkPacket np = new NetworkPacket(gp);
-        // for debugging print what we'v sent
+        // for debugging print what we've sent
         System.out.println("Server sent: " + gp);
         nc.send_gp(gp);
     }
@@ -82,9 +74,9 @@ public class ServerGame extends Game {
     // recieve one step of the client
     private void recieve() {
         GamePacket gp = nc.recive_gp();
-
+        // for debugging print what we've got
         System.out.println(" Server recieved: " + gp);
+        // set the Game's step variable, so the run function can handle the step
         step = gp.getStep();
-
     }
 }

@@ -2,6 +2,7 @@ package Reversi;
 
 import Enums.Field;
 import Enums.TableSize;
+import static java.lang.Thread.sleep;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,8 +70,19 @@ public abstract class Game extends Thread {
     public TableSize getTableSize() {
         return tableSize;
     }
+    
+    protected void waitForUserClick() {
+        while (!userFlag) {                 // waiting for user click
+            try {                           // controller will set this flag
+                sleep(50);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        userFlag = false;   // resetting user clicked flag back
+    }
 
-    public int[] calculateScores() {
+    protected int[] calculateScores() {
 
         int[] scores = {0, 0};
         for (int ii = 0; ii < tableSize.getSize(); ++ii) {
@@ -83,10 +95,9 @@ public abstract class Game extends Thread {
             }
         }
         return scores;
-
     }
 
-    public boolean updateGame(int row, int col, int changes[], boolean red) {
+    protected boolean updateGame(int row, int col, int changes[], boolean red) {
 
         Field me = red ? Field.RED : Field.BLUE;
         setField(row, col, me);
@@ -108,11 +119,10 @@ public abstract class Game extends Thread {
             return true;
         }
         return false;
-
     }
 
     //TODO: ezitten azt adja vissza h az adott szinü (red vany nem-red játékos léphet e még validat
-    public boolean canStep(boolean red) {
+    protected boolean canStep(boolean red) {
 
         int size = tableSize.getSize();
         for (int jj = 0; jj < size; ++jj) {
@@ -123,18 +133,16 @@ public abstract class Game extends Thread {
             }
         }
         return false;
-
     }
 
-    public void endIfEnd() {
+    protected void endIfEnd() {
 
         if (!canStep(true) && !canStep(false)) {
             ctrlr.endGame();
         }
-
     }
 
-    public int[] isStepValid(int row, int col, boolean red) {
+    protected int[] isStepValid(int row, int col, boolean red) {
 
         int size = getTableSize().getSize();
         int changes[] = new int[9]; //TODO inisalájzd tu lauter nulls

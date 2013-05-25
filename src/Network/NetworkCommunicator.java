@@ -164,7 +164,20 @@ public class NetworkCommunicator extends Thread {
     public boolean isConnected() {
         return (connection != null) && (out != null) && (in != null);
     }
-
+    
+    /**
+     * waits until another networkcommunicator connets to this nC
+     */
+    public void waitUntilConnected() {
+        while (!isConnected()) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
+                System.out.println("Thread sleep exception in the NetworkCommunicator: " + ex.getLocalizedMessage());
+            }
+        }
+    }
+    
     /**
      * Sends a packet to the communication partner.
      *

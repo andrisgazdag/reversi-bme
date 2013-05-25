@@ -14,6 +14,13 @@ public class AI {
         this.level = level;
         this.game = game;
     }
+    
+        /**
+     * @return the level
+     */
+    public GameLevel getAiLevel() {
+        return level;
+    }
 
     // next step function
     // returns an array containing the 2 coordinates of the AI's next step
