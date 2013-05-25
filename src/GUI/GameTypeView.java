@@ -20,7 +20,8 @@ public class GameTypeView extends JFrame implements ActionListener {
 
     private static final Logger LOGGER = Logger.getLogger("Reversi");
     private Controller ctrl = null;
-    private JPanel framePanel = new JPanel(new BorderLayout());
+    private JPanel framePanel = new JPanel(new BorderLayout()); //main panel in window
+    //strings to be displayed
     private String singlePlayerString = "Egyszemélyes";
     private String multiPlayerString = "Kétszemélyes";
     private String hard = "Nehéz";
@@ -32,17 +33,18 @@ public class GameTypeView extends JFrame implements ActionListener {
     private String tableSizeString8 = "8x8";
     private String tableSizeString10 = "10x10";
     private String tableSizeString12 = "12x12";
+    //Input text fields
     private TextField nameField;
     private TextField serverNameField;
+    //Panels:
     private JPanel mainPanel;
     private JPanel levelPanel;
     private JPanel buttonsPanel;
     private JPanel userNameInputPanel;
     private JPanel serverNameInputPanel;
     private JPanel gameButtonsPanel;
-    private JPanel functionButtonsPanel;
+    //Buttons:
     private JButton startButton;
-    private JButton refreshButton;
     private JRadioButton hardButton;
     private JRadioButton normalButton;
     private JRadioButton easyButton;
@@ -55,16 +57,15 @@ public class GameTypeView extends JFrame implements ActionListener {
     private JRadioButton singlePlayerButton;
     private JRadioButton multiPlayerButton;
     private JButton loadGameButton;
-    private Choice serverList;
-    private String name, choosenServer;
+    private String name;
     private JFileChooser fc;
 
     public GameTypeView(final Controller ctrl) {
 
         super("Reversi");
         this.ctrl = ctrl;
-
-        fc = new JFileChooser();  //fájl betöltéshez kell
+        //FileChooser to save/load a game
+        fc = new JFileChooser();
 
         //Create the radio buttons:
         {
@@ -96,7 +97,7 @@ public class GameTypeView extends JFrame implements ActionListener {
             normalButton.setActionCommand(normal);
         }
 
-        //set selected and visible button:
+        //set selected and visible buttons:
         {
             serverButton.setSelected(true);
             serverButton.setEnabled(false);
@@ -110,7 +111,6 @@ public class GameTypeView extends JFrame implements ActionListener {
         {
             hardButton.setToolTipText("Nincs esélyed!");
             easyButton.setToolTipText("Talán van esélyed!");
-
         }
 
         //Group the radio buttons. Only one button is selectable in each group.
@@ -151,25 +151,28 @@ public class GameTypeView extends JFrame implements ActionListener {
             clientButton.addActionListener(this);
         }
 
-        //Create the panels for the buttons:
+        //Create the panels for the buttons: (and set the layout of the buttons)
         JPanel modePanel = new JPanel(new GridLayout(5, 1));
         {
-            modePanel.add(new Label("Mód:"));
-            modePanel.add(singlePlayerButton);
+            modePanel.add(new Label("Mód:")); //add Label to buttongroup
+            modePanel.add(singlePlayerButton); //add buttons to group
             modePanel.add(multiPlayerButton);
             modePanel.add(serverButton);
             modePanel.add(clientButton);
-
-            levelPanel = new JPanel();
-            levelPanel.setLayout(new GridLayout(5, 1));
-            Label levelLabel = new Label("Szint:");
-            levelPanel.add(levelLabel);
-            levelPanel.add(easyButton);
-            levelPanel.add(normalButton);
-            levelPanel.add(hardButton);
-            levelPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
         }
 
+        levelPanel = new JPanel(); //create a new panel for the levelbuttons
+        {
+            levelPanel.setLayout(new GridLayout(5, 1)); //setup the layout manager
+            Label levelLabel = new Label("Szint:");//add Label to buttongroup
+            levelPanel.add(levelLabel);
+            levelPanel.add(easyButton);//add buttons to group
+            levelPanel.add(normalButton);
+            levelPanel.add(hardButton);
+            levelPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20)); // create empty border to seperate from other objects
+        }
+
+        //Create the panels for the buttons: (and set the layout of the buttons)
         JPanel tablePanel = new JPanel(new GridLayout(5, 1));
         {
             tablePanel.add(new Label("Táblaméret:"));
@@ -178,22 +181,25 @@ public class GameTypeView extends JFrame implements ActionListener {
             tablePanel.add(tableSizeButton10);
             tablePanel.add(tableSizeButton12);
 
-            userNameInputPanel = new JPanel();
+            userNameInputPanel = new JPanel(); //create an input panel for the user name
             nameField = new TextField(20);
-            nameField.setText("Béla");
+            nameField.setText("Béla"); // setup default user name
             userNameInputPanel.add(new Label("Név:"));
             userNameInputPanel.add(nameField);
-            userNameInputPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
-            framePanel.add(userNameInputPanel, BorderLayout.NORTH);
+            userNameInputPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));// create empty border to seperate from other objects
+            framePanel.add(userNameInputPanel, BorderLayout.NORTH); //place this panel at the top of the window
+        }
 
-            serverNameInputPanel = new JPanel();
-            serverNameInputPanel.setLayout(new GridLayout(2, 2));
-            serverNameInputPanel.add(new Label("Szerver név:"));
+        //create an input panel for the servername
+        serverNameInputPanel = new JPanel();
+        {
+            serverNameInputPanel.setLayout(new GridLayout(2, 2));//setup the layout manager
+            serverNameInputPanel.add(new Label("Szerver név:")); //add input panel label
             serverNameField = new TextField(20);
-            serverNameField.setText(ctrl.getGameName());
-            serverNameInputPanel.add(serverNameField);
-            serverNameField.setEnabled(false);
-            serverNameField.addActionListener(new TextAction(name) { // ha megvaltozik a szerver neve, akkor arrol a controller ertesul
+            serverNameField.setText(ctrl.getGameName()); //setup default name
+            serverNameInputPanel.add(serverNameField); //add this panel to subpanel
+            serverNameField.setEnabled(false); //by default this is not editable, because the default mode is single game
+            serverNameField.addActionListener(new TextAction(name) { // let the controller know if the servername is changed
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     ctrl.setGameName(serverNameField.getText());
@@ -201,28 +207,29 @@ public class GameTypeView extends JFrame implements ActionListener {
             });
         }
 
+        //create new spanel for buttons subpanel and serverNameInputPanel
         mainPanel = new JPanel(new BorderLayout());
-        buttonsPanel = new JPanel(new BorderLayout());
-
-        buttonsPanel.add(modePanel, BorderLayout.WEST);
+        buttonsPanel = new JPanel(new BorderLayout()); //set layout manager of the panel
+        buttonsPanel.add(modePanel, BorderLayout.WEST); //place the subpanels in this panel
         buttonsPanel.add(levelPanel, BorderLayout.CENTER);
         buttonsPanel.add(tablePanel, BorderLayout.EAST);
-        mainPanel.add(buttonsPanel, BorderLayout.NORTH);
+        mainPanel.add(buttonsPanel, BorderLayout.NORTH); //place this panel in mainPanel
 
-        //az egész ablakon belül 20 pixel keret
+        mainPanel.add(serverNameInputPanel, BorderLayout.AFTER_LAST_LINE); //place serverNameInputPanel in mainPanel
+        framePanel.add(mainPanel, BorderLayout.CENTER);  //place mainPanel in the center of the window
+        //create an empty border inside of the window
         framePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        {   // start button
+        {   // create start button
             startButton = new JButton("Start");
             startButton.setVerticalTextPosition(AbstractButton.CENTER);
             startButton.setHorizontalTextPosition(AbstractButton.LEADING);
-            startButton.setMnemonic(KeyEvent.VK_D);
             startButton.setActionCommand("start");
             startButton.addActionListener(this);
             startButton.setToolTipText("Let the game begin!");
         }
 
-        {   // load game
+        {   //create load game
             loadGameButton = new JButton("Betöltés");
             loadGameButton.setVerticalTextPosition(AbstractButton.CENTER);
             loadGameButton.setHorizontalTextPosition(AbstractButton.LEADING);
@@ -230,44 +237,36 @@ public class GameTypeView extends JFrame implements ActionListener {
             loadGameButton.setToolTipText("Mentett játék folytatása.");
         }
 
-        mainPanel.add(serverNameInputPanel, BorderLayout.AFTER_LAST_LINE);
-
-        gameButtonsPanel = new JPanel(new BorderLayout(0, 5)); // start button
-
-        gameButtonsPanel.add(loadGameButton, BorderLayout.NORTH);
+        gameButtonsPanel = new JPanel(new BorderLayout(0, 5)); // new panel for the load,start buttons
+        gameButtonsPanel.add(loadGameButton, BorderLayout.NORTH); //place the buttons
         gameButtonsPanel.add(startButton, BorderLayout.SOUTH);
 
-        framePanel.add(mainPanel, BorderLayout.CENTER);
         framePanel.add(gameButtonsPanel, BorderLayout.SOUTH); // adding buttons to the main panel
-
-
-        serverNameInputPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 15, 0));
+        // create empty border to seperate from other objects
+        serverNameInputPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 15, 0)); //
 
         //Create and set up the window.
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         setContentPane(framePanel);
-
         setPreferredSize(new Dimension(400, 390));
-
         //Display the window.
         pack();
         setVisible(true);
-
     }
 
+    /**
+     * Button click handler
+     *
+     * @param e
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
-            case "start":
-                // ez hívódik meg a startgombra kattintáskor
-
-                dispose();  //jelenlegi ablak becsukása
-
-                name = nameField.getText();
-
+            case "start": //user clicked on the start button so let the game begin!
+                dispose();  //close this window
+                name = nameField.getText(); // set the username
+                //get selected table size:
                 TableSize size;
-                // get table size
                 if (tableSizeButton4.isSelected()) {
                     size = TableSize.TINY;
                 } else if (tableSizeButton8.isSelected()) {
@@ -278,11 +277,10 @@ public class GameTypeView extends JFrame implements ActionListener {
                     size = TableSize.BIG;
                 }
 
-                // inditani kell a jatekot a kivalasztott opcioknak megfeleloen
+                // check if single mode is selected
                 if (singlePlayerButton.isSelected()) {
                     // start single game
                     GameLevel level;
-
                     // get game level
                     if (easyButton.isSelected()) {
                         level = GameLevel.EASY;
@@ -291,34 +289,30 @@ public class GameTypeView extends JFrame implements ActionListener {
                     } else {
                         level = GameLevel.HARD;
                     }
-
+                    //start a new single game with appropriate parameters
                     ctrl.startSingleGame(level, size, name);
 
-                } else {
-                    // start multiplayer game      
-                    if (serverButton.isSelected()) {
+                } else { //multiplayer game is selected
 
+                    if (serverButton.isSelected()) { //server mode
                         // start a new server with selected name
                         String serverName = serverNameField.getText();
                         ctrl.startServerGame(size, serverName, name);
-
-                    } else {
-
-                        dispose();
+                    } else { //client mode
+                        dispose(); //close this window and show the servers in other window
                         ctrl.showServers();
-
                     }
                 }
                 break;
 
-            case "Kétszemélyes":
-                // ez hívódik meg ha a kétszemélyes gombra kattintunk
+            case "Kétszemélyes": //user clicked on the Kétszemélyes button
+                //enable/disable buttons corresponding to selected mode
                 hardButton.setEnabled(false);
                 easyButton.setEnabled(false);
                 normalButton.setEnabled(false);
-                serverButton.setEnabled(true);
+                serverButton.setEnabled(true);//
                 clientButton.setEnabled(true);
-                if (clientButton.isSelected()) { //ha ki van jelölve a kliens gomba kkor a táblaméret inaktív
+                if (clientButton.isSelected()) {
                     setSizeBtnsEnabled(false);
                 } else {
                     setSizeBtnsEnabled(true);
@@ -326,45 +320,46 @@ public class GameTypeView extends JFrame implements ActionListener {
                     ctrl.startNetworkCommunicator(ReversiType.SERVER);
                 }
                 break;
-            case "Egyszemélyes":
+            case "Egyszemélyes": //user clicked on the Egyszemélyes button
+                //enable/disable buttons corresponding to selected mode
                 hardButton.setEnabled(true);
                 normalButton.setEnabled(true);
                 easyButton.setEnabled(true);
                 serverButton.setEnabled(false);
                 clientButton.setEnabled(false);
                 setSizeBtnsEnabled(true);
-                ctrl.stopNetworkCommunicator();
+                ctrl.stopNetworkCommunicator(); // NetworkCommunicator is not necessary
                 break;
-            case "Kliens":
-                //TODO... megakadályozzuk Bélát szegény gép kínzásában
-                serverButton.setEnabled(false);
+            case "Kliens"://user clicked on the Kliens button
+                //enable/disable buttons, namefield corresponding to selected mode
                 setSizeBtnsEnabled(false);
                 serverButton.setEnabled(true);
                 serverNameField.setEnabled(false);
                 break;
-            case "Szerver":
+            case "Szerver"://user clicked on the Szerver button
+                //enable/disable buttons, namefield corresponding to selected mode
                 setSizeBtnsEnabled(true);
                 serverNameField.setEnabled(true);
-                ctrl.startNetworkCommunicator(ReversiType.SERVER);
+                ctrl.startNetworkCommunicator(ReversiType.SERVER); // start new server
                 break;
-            case "Betöltés":
-                int returnVal = fc.showOpenDialog(GameTypeView.this);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
+            case "Betöltés"://user clicked on the Betöltés button
+                int returnVal = fc.showOpenDialog(GameTypeView.this); //open the file browser windows
+                if (returnVal == JFileChooser.APPROVE_OPTION) { //user selected ona file to load
+                    File file = fc.getSelectedFile(); //load the selected file
                     System.out.println("Opening: " + file.getName() + ".");
-                    dispose(); // ablak becsukása
-                    //játék betöltése és indítása
+                    dispose(); // close this window
+                    //load and start the selected game
                     ctrl.loadGame(file);
-
-                } else { // Béla mégsem akar betölteni semmit, így visszatérünk az előző ablakhoz
+                } else { // user canceled the operation
                     System.out.println("Open command cancelled by user.");
                 }
                 break;
-
         }
-
     }
 
+    /*
+     * enable/disable buttons corresponding to selected mode
+     */
     void setSizeBtnsEnabled(boolean en) {
 
         tableSizeButton4.setEnabled(en);
