@@ -69,4 +69,32 @@ public class GamePacket implements Serializable {
     public boolean isRedIsNext() {
         return redIsNext;
     }
+    
+    // toString function for debugging, to see what goes via network
+    @Override
+    public String toString() {
+        return "\nRed next: " + redIsNext + "\nTable: " + printField();
+    }
+
+    // print the game table in readable form
+    public String printField() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        int size = 0;
+        try {
+            size = table.length;
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    sb.append(table[j][i]);
+                    sb.append("\t");
+                }
+                sb.append("\n");
+            }
+            // sometimes random NullPtrExceptions occur, maybe concurrent access?
+        } catch (NullPointerException ex) {
+            System.out.println("NullPtrEx in GamePacket.toString: " + ex.getLocalizedMessage());
+        } finally {
+            return sb.toString();
+        }
+    }
 }
