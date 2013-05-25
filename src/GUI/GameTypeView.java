@@ -264,7 +264,7 @@ public class GameTypeView extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
             case "start": //user clicked on the start button so let the game begin!
-                dispose();  //close this window
+//                dispose();  //close this window
                 name = nameField.getText(); // set the username
                 //get selected table size:
                 TableSize size;
@@ -298,9 +298,12 @@ public class GameTypeView extends JFrame implements ActionListener {
                     if (serverButton.isSelected()) { //server mode
                         // start a new server with selected name
                         String serverName = serverNameField.getText();
+                        startButton.setText("Waiting for a client to connect...");
+                        //startButton.setEnabled(false);
+                        print(getGraphics());
                         ctrl.startServerGame(size, serverName, name);
                     } else { //client mode
-                        dispose(); //close this window and show the servers in other window
+ //                       dispose(); //close this window and show the servers in other window
                         ctrl.showServers();
                     }
                 }

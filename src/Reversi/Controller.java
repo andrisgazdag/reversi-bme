@@ -65,6 +65,7 @@ public class Controller {
 
     // single player (vs AI) mode starter
     public void startSingleGame(GameLevel level, TableSize size, String playerName) {
+        gameTypeView.dispose();             // close the game setup window
         gameTypeView = null;                // release the gameTypeView object
         // Create the game object
         if (game != null) {
@@ -80,9 +81,10 @@ public class Controller {
     
     // network mode, server starter
     public void startServerGame(TableSize size, String serverName, String playerName) {
-        gameTypeView = null;                    // release the object
         game = new ServerGame(size, this);      // Create the game object
         game.start();                           // start game thread
+        gameTypeView.dispose();                 // close the game setup window
+        gameTypeView = null;                    // release the object
         gameView = new GamePlayView(size, this);// Create the GUI object
         new Thread(gameView).start();           // start gui thread
     }
@@ -90,6 +92,7 @@ public class Controller {
     // network mode, client starter
     public void startClientGame(String plyerName, String choosenServer) {
         gameTypeView = null;                        // release the object
+        serverView = null;                          // release the object
         game = new ClientGame(choosenServer, this); // Create the game object
         game.start();                               // start game thread
         gameView = new GamePlayView(game.getTableSize(), this); // Create the GUI object
@@ -228,7 +231,8 @@ public class Controller {
 
     // in network client mode, starts the server listing view
     public void showServers() {
-        // and also starts the nC
+        gameTypeView.dispose();                 // close the game setup window
+        // and also starts the nC 
         startNetworkCommunicator(ReversiType.CLIENT);
         serverView = new ServerListView(this);
     }
