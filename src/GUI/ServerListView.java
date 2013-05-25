@@ -21,19 +21,23 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
- * TODO: what does this do???
+ * 
  *
- * @author Alex
+ * @author Gabor Kovacs
  */
 public class ServerListView extends JFrame implements ActionListener, ItemListener {
 
     Controller ctrl = null;
     private static final Logger LOGGER = Logger.getLogger("Reversi");
-    private JPanel framePanel = new JPanel(new BorderLayout());
+    private JPanel framePanel = new JPanel(new BorderLayout()); //mainpanel of the window
+    //buttons:
     protected JButton startButton;
     protected JButton refreshButton;
+    //pop-up menu of choices for servers
     private Choice serverList;
+    //user name, choosen servername
     String name, choosenServer;
+    //panels:
     private JPanel serverNameInputPanel;
     private JPanel ButtonsPanel;
 
@@ -41,46 +45,48 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
         super("Reversi");
         this.ctrl = ctrl;
 
+        //create pop-up menu of choices for servers
         serverList = new Choice();
 
         LOGGER.log(Level.SEVERE, "Getting the server list...");
-        
-        int timeoutCtr = 100; // szumma 2 sec max
+        //at the beginning get the available server list with timout 
+        int timeoutCtr = 100; // 2 sec max
         int timeout = 20; // msec
         
-        String[] availableServers = ctrl.getAvailableServerList();
+        String[] availableServers = ctrl.getAvailableServerList(); // get available server list
         while (timeoutCtr-- > 0 && (availableServers.length == 0 || availableServers[0] == null) ) {
             try {
-                Thread.sleep(timeout);
+                Thread.sleep(timeout); //if the list is empty retry after 20 msec
             } catch (InterruptedException ex) {
                 Logger.getLogger(ServerListView.class.getName()).log(Level.SEVERE, null, ex);
             }
-            availableServers = ctrl.getAvailableServerList();
+            availableServers = ctrl.getAvailableServerList();  // get available server list
         }
         
         LOGGER.log(Level.SEVERE, "Server list recived");
+        
+        //add servers to popup menu
         if (availableServers.length == 0 || availableServers[0] == null) {
-            serverList.add("Nincs elérhető szerver...");
+            serverList.add("Nincs elérhető szerver..."); //there are no available servers
         } else {
             for (String s : availableServers) {
                 LOGGER.log(Level.INFO, "Available server: {0}", s);
                 serverList.add(s);
             }
-            choosenServer = serverList.getSelectedItem();
+            choosenServer = serverList.getSelectedItem(); //set the selected server
         }
-        serverList.addItemListener(this);
+        serverList.addItemListener(this); //add listener to popup menu
 
-        serverNameInputPanel = new JPanel();
-        serverNameInputPanel.setLayout(new GridLayout(2, 1));
-        serverNameInputPanel.add(new Label("Szerverek:"));
-        serverNameInputPanel.add(serverList);
+        serverNameInputPanel = new JPanel(); //create new panel for popup menu
+        serverNameInputPanel.setLayout(new GridLayout(2, 1)); //setup layout
+        serverNameInputPanel.add(new Label("Szerverek:")); //add label to menu
+        serverNameInputPanel.add(serverList); //add server list
 
-        Dimension buttonSize = new Dimension(100, 25);
-        {   // start button
+        Dimension buttonSize = new Dimension(100, 25); //set dimension for buttons
+        {   // create start button
             startButton = new JButton("Start");
             startButton.setVerticalTextPosition(AbstractButton.CENTER);
             startButton.setHorizontalTextPosition(AbstractButton.LEADING);
-            startButton.setMnemonic(KeyEvent.VK_D);
             startButton.setActionCommand("start");
             startButton.addActionListener(this);
             startButton.setToolTipText("Let the game begin!");
@@ -89,31 +95,32 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
 
 
 
-        {   // refresh button
+        {   // create refresh button
             refreshButton = new JButton("Frissítés");
             refreshButton.setVerticalTextPosition(AbstractButton.CENTER);
             refreshButton.setHorizontalTextPosition(AbstractButton.LEADING);
-            refreshButton.setMnemonic(KeyEvent.VK_D);
             refreshButton.setActionCommand("refresh");
             refreshButton.addActionListener(this);
             refreshButton.setToolTipText("Refresh the server list!");
         }
 
-        ButtonsPanel = new JPanel(new BorderLayout());
-        ButtonsPanel.add(refreshButton, BorderLayout.WEST);
+        //create new panel for buttons
+        ButtonsPanel = new JPanel(new BorderLayout()); 
+        ButtonsPanel.add(refreshButton, BorderLayout.WEST); //add buttons to panel
         ButtonsPanel.add(startButton, BorderLayout.EAST);
 
+        //add panels to window
         framePanel.add(serverNameInputPanel, BorderLayout.NORTH);
         framePanel.add(ButtonsPanel, BorderLayout.SOUTH);
 
-        framePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // az egész ablakon belül 20 pixel keret
+        //create an empty border inside of the window
+        framePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); 
         serverNameInputPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+        
         //Create and set up the window.
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         setContentPane(framePanel);
-
-        setPreferredSize(new Dimension(300, 200));
+        setPreferredSize(new Dimension(300, 200)); //set window size
 
         //Display the window.
         pack();
@@ -122,30 +129,32 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) { //buttons handler
 
         switch (e.getActionCommand()) {
-            case "refresh":
-                serverList.removeAll();
+            case "refresh": //refresh button clicked
+                serverList.removeAll();//remove the elements
                 LOGGER.log(Level.FINEST, "Getting the server list...");
+                //get the new list
                 String[] availableServers = ctrl.getAvailableServerList();
                 LOGGER.log(Level.FINEST, "Server list recived");
-                if (availableServers.length == 0 || availableServers[0] == null) {
+                if (availableServers.length == 0 || availableServers[0] == null) { //no servers
                     serverList.add("Nincs elérhető szerver...");
                 } else {
                     for (String s : availableServers) {
                         LOGGER.log(Level.INFO, "Available server: {0}", s);
-                        serverList.add(s);
+                        serverList.add(s); //add new servern to list
                     }
                 }
-                choosenServer = serverList.getSelectedItem(); //ez azért kell, mert különben csak akkor állítódik be a kiválasztott szerver, hogy ha rákattint Béla
+                choosenServer = serverList.getSelectedItem();//set the choosen server
                 break;
-            case "start":
-                if (choosenServer == null) {
-                    JOptionPane.showMessageDialog(this, "Nincs szerver kiválasztva!", "Reversi", JOptionPane.ERROR_MESSAGE);
+            case "start": //start button clicked
+                if (choosenServer == null) { //error handling: no choosen  server
+                    //popup error message dialog
+                    JOptionPane.showMessageDialog(this, "Nincs szerver kiválasztva!", "Reversi", JOptionPane.ERROR_MESSAGE); 
                 } else {
-                    dispose();
-                    ctrl.startClientGame(name, choosenServer);
+                    dispose(); //close this window
+                    ctrl.startClientGame(name, choosenServer); //start the game
                 }
                 break;
         }
@@ -153,9 +162,9 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
     }
 
     @Override
-    public void itemStateChanged(ItemEvent e) {
+    public void itemStateChanged(ItemEvent e) { //popup-menu interaction handler
         if (e.getSource().equals(serverList)) {
-            choosenServer = serverList.getSelectedItem();
+            choosenServer = serverList.getSelectedItem(); //set the choosen server
         }
     }
 }

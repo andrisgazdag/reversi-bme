@@ -268,6 +268,7 @@ public class GamePlayView extends JFrame implements Runnable {
                     File file = fc.getSelectedFile(); //open selected file
                     System.out.println("Opening: " + file.getName() + ".");
                     keepRedrawing=false;
+                    dispose();
                     ctrl.loadGame(file); //load the game
                 } else {
                     System.out.println("Open command cancelled by user.");
