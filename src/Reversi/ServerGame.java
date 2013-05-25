@@ -8,15 +8,21 @@ import static java.lang.Thread.sleep;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// server game in multiplayer (network) mode
 public class ServerGame extends Game {
 
+    // it needs a NetworkCommunicator to communicate with the client
     NetworkCommunicator nc;
 
+    // ctor
     public ServerGame(TableSize tableSize, Controller ctrlr) {
 
+        // initialize the Game base
         super(tableSize, ctrlr);
+        // Get the networkCommunicator
         nc = ctrlr.getNetworkCommunicator();
 
+        // wait until a client connects to us, and the connection is established
         while (!nc.isConnected()) {
             try {
                 Thread.sleep(10);
@@ -24,8 +30,8 @@ public class ServerGame extends Game {
                 System.out.println("Thread sleep exception in the main thread: " + ex.getLocalizedMessage());
             }
         }
+        // send the initial state of the game to the client
         send();
-
     }
 
     @Override
@@ -62,22 +68,22 @@ public class ServerGame extends Game {
             }
         }
     }
-
+    
+    // send the state of the Game to the client
     private void send() {
-
+        // creating and filling packet
         GamePacket gp = new GamePacket(table, redIsNext);
         NetworkPacket np = new NetworkPacket(gp);
-        System.out.println("sent:" + gp);
-
+        // for debugging print what we'v sent
+        System.out.println("Server sent: " + gp);
         nc.send_gp(gp);
-
     }
 
+    // recieve one step of the client
     private void recieve() {
-
         GamePacket gp = nc.recive_gp();
 
-        System.out.println("recieved:" + gp);
+        System.out.println(" Server recieved: " + gp);
         step = gp.getStep();
 
     }
