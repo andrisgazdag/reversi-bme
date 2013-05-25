@@ -44,17 +44,20 @@ public class AI {
                     optimals[2] = optimals[1];
                     optimals[1] = optimals[0];
                     optimals[0] = actPos;
-                } else if (score > max[1]) {
+                } else if (score > max[1] && score < max[0]) {
                     max[2] = max[1];
                     max[1] = score;
                     optimals[2] = optimals[1];
                     optimals[1] = actPos;
-                } else if (score > max[2]) {
+                } else if (score > max[2] && score < max[1]) {
                     max[2] = score;
                     optimals[2] = actPos;
                 }
             }
         }
+        // for debugging print to console how many points AI could get depending on the level
+        System.out.print("\nEasy: " + max[2] + "\nNormal: " + max[1] + "\nHard: " + max[0] + "\n");
+        
         // in case there is less than level valid steps, it returns the worst but valid step
         for (int kk = 0; kk < level.getLevel(); ++kk) {
             if (max[level.getLevel() - 1 - kk] != 0) {

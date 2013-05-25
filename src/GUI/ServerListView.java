@@ -44,7 +44,20 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
         serverList = new Choice();
 
         LOGGER.log(Level.SEVERE, "Getting the server list...");
+        
+        int timeoutCtr = 100; // szumma 2 sec max
+        int timeout = 20; // msec
+        
         String[] availableServers = ctrl.getAvailableServerList();
+        while (timeoutCtr-- > 0 && (availableServers.length == 0 || availableServers[0] == null) ) {
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ServerListView.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            availableServers = ctrl.getAvailableServerList();
+        }
+        
         LOGGER.log(Level.SEVERE, "Server list recived");
         if (availableServers.length == 0 || availableServers[0] == null) {
             serverList.add("Nincs elérhető szerver...");
@@ -53,6 +66,7 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
                 LOGGER.log(Level.INFO, "Available server: {0}", s);
                 serverList.add(s);
             }
+            choosenServer = serverList.getSelectedItem();
         }
         serverList.addItemListener(this);
 
@@ -103,6 +117,7 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
 
         //Display the window.
         pack();
+        setResizable(false); //do not resize the window!
         setVisible(true);
     }
 
