@@ -333,6 +333,7 @@ public class GameTypeView extends JFrame implements ActionListener {
                 serverButton.setEnabled(false);
                 clientButton.setEnabled(false);
                 setSizeBtnsEnabled(true);
+                ctrl.stopNetworkCommunicator();
                 break;
             case "Kliens":
                 //TODO... megakadályozzuk Bélát szegény gép kínzásában

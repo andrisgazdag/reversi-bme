@@ -72,20 +72,26 @@ public class GamePlayView extends JFrame implements Runnable {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // menük:
+        // menük: (csak egyszemélyes módban látszódnak a menté/betöltés gombok
         JMenuBar menuBar = new JMenuBar();
 
-        JMenuItem menuItem = new JMenuItem("Mentés");
-        menuItem.addActionListener(new MenuListener());
-        menuBar.add(menuItem);
+        if (c.getNetworkCommunicator() == null) {
+            JMenuItem menuItem = new JMenuItem("Mentés");
+            menuItem.addActionListener(new MenuListener());
+            menuBar.add(menuItem);
 
-        menuItem = new JMenuItem("Betöltés");
-        menuItem.addActionListener(new MenuListener());
-        menuBar.add(menuItem);
+            menuItem = new JMenuItem("Betöltés");
+            menuItem.addActionListener(new MenuListener());
+            menuBar.add(menuItem);
 
-        menuItem = new JMenuItem("Kilépés");
-        menuItem.addActionListener(new MenuListener());
-        menuBar.add(menuItem);
+            menuItem = new JMenuItem("Kilépés");
+            menuItem.addActionListener(new MenuListener());
+            menuBar.add(menuItem);
+        } else {
+            JMenuItem menuItem = new JMenuItem("Kilépés");
+            menuItem.addActionListener(new MenuListener());
+            menuBar.add(menuItem);
+        }
 
         setJMenuBar(menuBar);
 
