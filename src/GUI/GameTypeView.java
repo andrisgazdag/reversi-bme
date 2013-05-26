@@ -253,7 +253,7 @@ public class GameTypeView extends JFrame implements ActionListener {
         //Create and set up the window.
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setContentPane(framePanel);
-        setPreferredSize(new Dimension(400, 390));  
+        setPreferredSize(new Dimension(350, 370));  
         pack();
         setResizable(false);    //do not resize the window!
         setVisible(true);       //Display the window.
@@ -306,7 +306,7 @@ public class GameTypeView extends JFrame implements ActionListener {
                             setSingleMultiBtnsEnabled(false);
                             final String serverName = serverNameField.getText();
                             startButton.setText("Waiting for a client to connect... Click to cancel!");
-                            print(getGraphics());
+                          //  print(getGraphics());
                             serverWorker = new SwingWorker() {
                                 @Override
                                 protected Object doInBackground() throws Exception {
