@@ -17,22 +17,28 @@ import javax.swing.text.TextAction;
  * @author Alex
  */
 public class GameTypeView extends JFrame implements ActionListener {
-
-    private static final Logger LOGGER = Logger.getLogger("Reversi");
+    
+    private static final String windowTitle = "Reversi";
+    private static final Logger LOGGER = Logger.getLogger(windowTitle);
     private Controller ctrl = null;
+    private boolean serverWaiting = false;
+    SwingWorker serverWorker;
     private JPanel framePanel = new JPanel(new BorderLayout()); //main panel in window
     //strings to be displayed
-    private String singlePlayerString = "Egyszemélyes";
-    private String multiPlayerString = "Kétszemélyes";
-    private String hard = "Nehéz";
-    private String easy = "Könnyű";
-    private String server = "Szerver";
-    private String client = "Kliens";
-    private String normal = "Normál";
-    private String tableSizeString4 = "4x4";
-    private String tableSizeString8 = "8x8";
-    private String tableSizeString10 = "10x10";
-    private String tableSizeString12 = "12x12";
+    private final String singlePlayerString = "Egyszemélyes";
+    private final String multiPlayerString = "Kétszemélyes";
+    private final String hard = "Nehéz";
+    private final String normal = "Normál";
+    private final String easy = "Könnyű";
+    private final String server = "Szerver";
+    private final String client = "Kliens";
+    private final String tableSizeString4 = "4x4";
+    private final String tableSizeString8 = "8x8";
+    private final String tableSizeString10 = "10x10";
+    private final String tableSizeString12 = "12x12";
+    private final String startString = "Start";
+    private final String startCmdString = startString;
+    private final String loadString = "Betöltés";
     //Input text fields
     private TextField nameField;
     private TextField serverNameField;
@@ -59,10 +65,10 @@ public class GameTypeView extends JFrame implements ActionListener {
     private JButton loadGameButton;
     private String name;
     private JFileChooser fc;
-
+    
     public GameTypeView(final Controller ctrl) {
-
-        super("Reversi");
+        
+        super(windowTitle);
         this.ctrl = ctrl;
         //FileChooser to save/load a game
         fc = new JFileChooser();
@@ -118,23 +124,22 @@ public class GameTypeView extends JFrame implements ActionListener {
             ButtonGroup groupModeSingle = new ButtonGroup();
             groupModeSingle.add(singlePlayerButton);
             groupModeSingle.add(multiPlayerButton);
-
+            
             ButtonGroup groupModeMulti = new ButtonGroup();
             groupModeMulti.add(serverButton);
             groupModeMulti.add(clientButton);
-
+            
             ButtonGroup groupLevel = new ButtonGroup();
             groupLevel.add(hardButton);
             groupLevel.add(easyButton);
             groupLevel.add(normalButton);
-
+            
             ButtonGroup groupSize = new ButtonGroup();
             groupSize.add(tableSizeButton4);
             groupSize.add(tableSizeButton8);
             groupSize.add(tableSizeButton10);
             groupSize.add(tableSizeButton12);
         }
-
 
         //Register a listener for the radio buttons.
         {
@@ -160,7 +165,7 @@ public class GameTypeView extends JFrame implements ActionListener {
             modePanel.add(serverButton);
             modePanel.add(clientButton);
         }
-
+        
         levelPanel = new JPanel(); //create a new panel for the levelbuttons
         {
             levelPanel.setLayout(new GridLayout(5, 1)); //setup the layout manager
@@ -180,7 +185,7 @@ public class GameTypeView extends JFrame implements ActionListener {
             tablePanel.add(tableSizeButton8);
             tablePanel.add(tableSizeButton10);
             tablePanel.add(tableSizeButton12);
-
+            
             userNameInputPanel = new JPanel(); //create an input panel for the user name
             nameField = new TextField(20);
             nameField.setText("Béla"); // setup default user name
@@ -219,28 +224,28 @@ public class GameTypeView extends JFrame implements ActionListener {
         framePanel.add(mainPanel, BorderLayout.CENTER);  //place mainPanel in the center of the window
         //create an empty border inside of the window
         framePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
+        
         {   // create start button
-            startButton = new JButton("Start");
+            startButton = new JButton(startString);
             startButton.setVerticalTextPosition(AbstractButton.CENTER);
             startButton.setHorizontalTextPosition(AbstractButton.LEADING);
-            startButton.setActionCommand("start");
+            startButton.setActionCommand(startCmdString);
             startButton.addActionListener(this);
             startButton.setToolTipText("Let the game begin!");
         }
-
+        
         {   //create load game
-            loadGameButton = new JButton("Betöltés");
+            loadGameButton = new JButton(loadString);
             loadGameButton.setVerticalTextPosition(AbstractButton.CENTER);
             loadGameButton.setHorizontalTextPosition(AbstractButton.LEADING);
             loadGameButton.addActionListener(this);
             loadGameButton.setToolTipText("Mentett játék folytatása.");
         }
-
+        
         gameButtonsPanel = new JPanel(new BorderLayout(0, 5)); // new panel for the load,start buttons
         gameButtonsPanel.add(loadGameButton, BorderLayout.NORTH); //place the buttons
         gameButtonsPanel.add(startButton, BorderLayout.SOUTH);
-
+        
         framePanel.add(gameButtonsPanel, BorderLayout.SOUTH); // adding buttons to the main panel
         // create empty border to seperate from other objects
         serverNameInputPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 15, 0)); //
@@ -248,11 +253,10 @@ public class GameTypeView extends JFrame implements ActionListener {
         //Create and set up the window.
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setContentPane(framePanel);
-        setPreferredSize(new Dimension(400, 390));
-        //Display the window.
+        setPreferredSize(new Dimension(400, 390));  
         pack();
-        setResizable(false); //do not resize the window!
-        setVisible(true);
+        setResizable(false);    //do not resize the window!
+        setVisible(true);       //Display the window.
     }
 
     /**
@@ -263,11 +267,11 @@ public class GameTypeView extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
-            case "start": //user clicked on the start button so let the game begin!
+            case startCmdString: //user clicked on the start button so let the game begin!
 //                dispose();  //close this window
                 name = nameField.getText(); // set the username
                 //get selected table size:
-                TableSize size;
+                final TableSize size;
                 if (tableSizeButton4.isSelected()) {
                     size = TableSize.TINY;
                 } else if (tableSizeButton8.isSelected()) {
@@ -292,30 +296,45 @@ public class GameTypeView extends JFrame implements ActionListener {
                     }
                     //start a new single game with appropriate parameters
                     ctrl.startSingleGame(level, size, name);
-
                 } else { //multiplayer game is selected
-
                     if (serverButton.isSelected()) { //server mode
                         // start a new server with selected name
-                        String serverName = serverNameField.getText();
-                        startButton.setText("Waiting for a client to connect...");
-                        //startButton.setEnabled(false);
-                        print(getGraphics());
-                        ctrl.startServerGame(size, serverName, name);
+                        if (!serverWaiting) {
+                            setSizeBtnsEnabled(false);
+                            // setLevelBtnsEnabled(false);
+                            setServerClientBtnsEnabled(false);
+                            setSingleMultiBtnsEnabled(false);
+                            final String serverName = serverNameField.getText();
+                            startButton.setText("Waiting for a client to connect... Click to cancel!");
+                            print(getGraphics());
+                            serverWorker = new SwingWorker() {
+                                @Override
+                                protected Object doInBackground() throws Exception {
+                                    ctrl.startServerGame(size, serverName, name);
+                                    return 0;
+                                }
+                            };
+                            serverWorker.execute();
+                            serverWaiting = true;
+                        } else {
+                            serverWorker.cancel(true);
+                            startButton.setText(startString);
+                            setSingleMultiBtnsEnabled(true);
+                            setServerClientBtnsEnabled(true);
+                            setSizeBtnsEnabled(true);
+                            serverWaiting = false;
+                        }
                     } else { //client mode
- //                       dispose(); //close this window and show the servers in other window
+                        // dispose(); //close this window and show the servers in other window
                         ctrl.showServers();
                     }
                 }
                 break;
 
-            case "Kétszemélyes": //user clicked on the Kétszemélyes button
+            case multiPlayerString: //user clicked on the Kétszemélyes button
                 //enable/disable buttons corresponding to selected mode
-                hardButton.setEnabled(false);
-                easyButton.setEnabled(false);
-                normalButton.setEnabled(false);
-                serverButton.setEnabled(true);//
-                clientButton.setEnabled(true);
+                setLevelBtnsEnabled(false);
+                setServerClientBtnsEnabled(true);
                 if (clientButton.isSelected()) {
                     setSizeBtnsEnabled(false);
                 } else {
@@ -324,29 +343,31 @@ public class GameTypeView extends JFrame implements ActionListener {
                     ctrl.startNetworkCommunicator(ReversiType.SERVER);
                 }
                 break;
-            case "Egyszemélyes": //user clicked on the Egyszemélyes button
+                
+            case singlePlayerString:    //user clicked on the Egyszemélyes button
                 //enable/disable buttons corresponding to selected mode
-                hardButton.setEnabled(true);
-                normalButton.setEnabled(true);
-                easyButton.setEnabled(true);
-                serverButton.setEnabled(false);
-                clientButton.setEnabled(false);
+                setLevelBtnsEnabled(true);
+                setServerClientBtnsEnabled(false);
                 setSizeBtnsEnabled(true);
+                serverNameField.setEnabled(false);
                 ctrl.stopNetworkCommunicator(); // NetworkCommunicator is not necessary
                 break;
-            case "Kliens"://user clicked on the Kliens button
+                
+            case client:        //user clicked on the Kliens button
                 //enable/disable buttons, namefield corresponding to selected mode
                 setSizeBtnsEnabled(false);
-                serverButton.setEnabled(true);
                 serverNameField.setEnabled(false);
                 break;
-            case "Szerver"://user clicked on the Szerver button
+                
+            case server:        //user clicked on the Szerver button
                 //enable/disable buttons, namefield corresponding to selected mode
                 setSizeBtnsEnabled(true);
                 serverNameField.setEnabled(true);
                 ctrl.startNetworkCommunicator(ReversiType.SERVER); // start new server
                 break;
-            case "Betöltés"://user clicked on the Betöltés button
+                
+            case loadString:            //user clicked on the Betöltés button
+                ctrl.stopNetworkCommunicator();
                 int returnVal = fc.showOpenDialog(GameTypeView.this); //open the file browser windows
                 if (returnVal == JFileChooser.APPROVE_OPTION) { //user selected ona file to load
                     File file = fc.getSelectedFile(); //load the selected file
@@ -365,11 +386,25 @@ public class GameTypeView extends JFrame implements ActionListener {
      * enable/disable buttons corresponding to selected mode
      */
     void setSizeBtnsEnabled(boolean en) {
-
         tableSizeButton4.setEnabled(en);
         tableSizeButton8.setEnabled(en);
         tableSizeButton10.setEnabled(en);
         tableSizeButton12.setEnabled(en);
+    }
+    
+    void setLevelBtnsEnabled(boolean en) {
+        hardButton.setEnabled(en);
+        normalButton.setEnabled(en);
+        easyButton.setEnabled(en);
+    }
+ 
+    void setServerClientBtnsEnabled(boolean en) {
+        serverButton.setEnabled(en);
+        clientButton.setEnabled(en);
+    }
 
+    void setSingleMultiBtnsEnabled(boolean en) {
+        singlePlayerButton.setEnabled(en);
+        multiPlayerButton.setEnabled(en);
     }
 }
