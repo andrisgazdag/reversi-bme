@@ -78,6 +78,13 @@ public class Controller {
             iteration(-1, -1);
         }
     }
+    
+    private void cleanUpExistingServerListView() {
+        if (serverView != null) {
+            serverView.dispose();             // close the server select window
+            serverView = null;                // release the serverListView object
+        }
+    }
 
     // single player (vs AI) mode starter
     public void startSingleGame(GameLevel level, TableSize size, String playerName) {
@@ -105,9 +112,9 @@ public class Controller {
     public void startClientGame(String plyerName, String choosenServer) {
         cleanUpExistingGameTypeView();      // clean up existing gameTypeView
         cleanUpExistingGame();              // and game
-        serverView = null;                          // release the object
         game = new ClientGame(choosenServer, this); // Create the game object
         game.start();                               // start game thread
+        cleanUpExistingServerListView();    // clean up server select window
         gameView = new GamePlayView(game.getTableSize(), this); // Create the GUI object
         new Thread(gameView).start();               // start gui thread
     }

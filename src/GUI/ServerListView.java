@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 
 /**
  * 
@@ -35,11 +36,15 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
     protected JButton refreshButton;
     //pop-up menu of choices for servers
     private Choice serverList;
+    private String[] availableServers;
     //user name, choosen servername
     String name, choosenServer;
     //panels:
     private JPanel serverNameInputPanel;
     private JPanel ButtonsPanel;
+    private boolean clientWaiting=false;
+    SwingWorker clientWorker;
+    private final String startString = "Start";
 
     public ServerListView(final Controller ctrl) {
         super("Reversi");
@@ -47,34 +52,7 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
 
         //create pop-up menu of choices for servers
         serverList = new Choice();
-
-        LOGGER.log(Level.SEVERE, "Getting the server list...");
-        //at the beginning get the available server list with timout 
-        int timeoutCtr = 50; // 1 sec max
-        int timeout = 20; // msec
-        
-        String[] availableServers = ctrl.getAvailableServerList(); // get available server list
-        while (timeoutCtr-- > 0 && (availableServers.length == 0 || availableServers[0] == null) ) {
-            try {
-                Thread.sleep(timeout); //if the list is empty retry after 20 msec
-            } catch (InterruptedException ex) {
-                Logger.getLogger(ServerListView.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            availableServers = ctrl.getAvailableServerList();  // get available server list
-        }
-        
-        LOGGER.log(Level.SEVERE, "Server list recived");
-        
-        //add servers to popup menu
-        if (availableServers.length == 0 || availableServers[0] == null) {
-            serverList.add("Nincs elérhető szerver..."); //there are no available servers
-        } else {
-            for (String s : availableServers) {
-                LOGGER.log(Level.INFO, "Available server: {0}", s);
-                serverList.add(s);
-            }
-            choosenServer = serverList.getSelectedItem(); //set the selected server
-        }
+        refreshServerList();
         serverList.addItemListener(this); //add listener to popup menu
 
         serverNameInputPanel = new JPanel(); //create new panel for popup menu
@@ -82,12 +60,12 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
         serverNameInputPanel.add(new Label("Szerverek:")); //add label to menu
         serverNameInputPanel.add(serverList); //add server list
 
-        Dimension buttonSize = new Dimension(100, 25); //set dimension for buttons
+        Dimension buttonSize = new Dimension(350, 25); //set dimension for buttons
         {   // create start button
-            startButton = new JButton("Start");
+            startButton = new JButton(startString);
             startButton.setVerticalTextPosition(AbstractButton.CENTER);
             startButton.setHorizontalTextPosition(AbstractButton.LEADING);
-            startButton.setActionCommand("start");
+            startButton.setActionCommand(startString);
             startButton.addActionListener(this);
             startButton.setToolTipText("Let the game begin!");
             startButton.setPreferredSize(buttonSize);
@@ -103,9 +81,9 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
         }
 
         //create new panel for buttons
-        ButtonsPanel = new JPanel(new BorderLayout()); 
-        ButtonsPanel.add(refreshButton, BorderLayout.WEST); //add buttons to panel
-        ButtonsPanel.add(startButton, BorderLayout.EAST);
+        ButtonsPanel = new JPanel(new BorderLayout(0, 5)); 
+        ButtonsPanel.add(refreshButton, BorderLayout.NORTH); //add buttons to panel
+        ButtonsPanel.add(startButton, BorderLayout.SOUTH);
 
         //add panels to window
         framePanel.add(serverNameInputPanel, BorderLayout.NORTH);
@@ -118,7 +96,7 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
         //Create and set up the window.
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setContentPane(framePanel);
-        setPreferredSize(new Dimension(300, 200)); //set window size
+        setPreferredSize(new Dimension(350, 200)); //set window size
 
         //Display the window.
         pack();
@@ -130,38 +108,78 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
     public void actionPerformed(ActionEvent e) { //buttons handler
 
         switch (e.getActionCommand()) {
+            
             case "refresh": //refresh button clicked
-                serverList.removeAll();//remove the elements
-                LOGGER.log(Level.FINEST, "Getting the server list...");
-                //get the new list
-                String[] availableServers = ctrl.getAvailableServerList();
-                LOGGER.log(Level.FINEST, "Server list recived");
-                if (availableServers.length == 0 || availableServers[0] == null) { //no servers
-                    serverList.add("Nincs elérhető szerver...");
-                } else {
-                    for (String s : availableServers) {
-                        LOGGER.log(Level.INFO, "Available server: {0}", s);
-                        serverList.add(s); //add new servern to list
-                    }
-                }
-                choosenServer = serverList.getSelectedItem();//set the choosen server
+                refreshServerList();
                 break;
-            case "start": //start button clicked
+                
+            case startString: //start button clicked
                 if (choosenServer == null) { //error handling: no choosen  server
                     //popup error message dialog
-                    JOptionPane.showMessageDialog(this, "Nincs szerver kiválasztva!", "Reversi", JOptionPane.ERROR_MESSAGE); 
+                    JOptionPane.showMessageDialog(this, "Nincs szerver kiválasztva!", "Reversi", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    dispose(); //close this window
-                    ctrl.startClientGame(name, choosenServer); //start the game
+                     if (!clientWaiting) {
+                        serverList.setEnabled(false);
+                        refreshButton.setEnabled(false);
+                        startButton.setText("Waiting for server to start... Click to cancel!");
+                        //  print(getGraphics());
+                        clientWorker = new SwingWorker() {
+                            @Override
+                            protected Object doInBackground() throws Exception {
+                                ctrl.startClientGame(name, choosenServer); //start the game
+                                return 0;
+                            }
+                        };
+                        clientWorker.execute();
+                        clientWaiting = true;
+                    } else {
+                        clientWorker.cancel(true);
+                        startButton.setText(startString);
+                        serverList.setEnabled(true);
+                        refreshButton.setEnabled(true);
+                        clientWaiting = false;
+                    }
                 }
                 break;
+                
         }
     }
 
     @Override
     public void itemStateChanged(ItemEvent e) { //popup-menu interaction handler
         if (e.getSource().equals(serverList)) {
-            choosenServer = serverList.getSelectedItem(); //set the choosen server
+            if (serverList.getSelectedItem().equals("Nincs elérhető szerver...")) {
+                choosenServer = null;
+            } else {
+                choosenServer = serverList.getSelectedItem(); //set the choosen server
+            }
+        }
+    }
+
+    private void refreshServerList() {
+        serverList.removeAll();
+        LOGGER.log(Level.FINEST, "Getting the server list...");
+        int timeoutCtr = 50; // 1 sec max = timeoutCtr * timeout
+        int timeout = 20; // msec
+        //get the new list
+        availableServers = ctrl.getAvailableServerList(); // get available server list
+        while (timeoutCtr-- > 0 && (availableServers.length == 0 || availableServers[0] == null)) {
+            try {
+                Thread.sleep(timeout); //if the list is empty retry after 20 msec
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ServerListView.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            availableServers = ctrl.getAvailableServerList();  // get available server list
+        }
+        LOGGER.log(Level.FINEST, "Server list recived");
+        if (availableServers.length == 0 || availableServers[0] == null) { //no servers
+            serverList.add("Nincs elérhető szerver...");
+        } else {
+            for (String s : availableServers) {
+                LOGGER.log(Level.INFO, "Available server: {0}", s);
+                serverList.add(s); //add new servern to list
+            }
+            choosenServer = serverList.getSelectedItem();//set the choosen server
         }
     }
 }
