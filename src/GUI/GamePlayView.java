@@ -248,7 +248,7 @@ public class GamePlayView extends JFrame implements Runnable {
             if (e.getActionCommand().equals("Új játék")) { //start new game
                 ctrl.stopNetworkCommunicator(); //stop NetworkCommunicator
                 dispose(); //close this window
-                ctrl.startReversi(); //start new start window
+                ctrl.startReversi(); //start new start setup window
             }
             if (e.getActionCommand().equals("Mentés")) { //save the game
 

@@ -50,7 +50,7 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
 
         LOGGER.log(Level.SEVERE, "Getting the server list...");
         //at the beginning get the available server list with timout 
-        int timeoutCtr = 100; // 2 sec max
+        int timeoutCtr = 50; // 1 sec max
         int timeout = 20; // msec
         
         String[] availableServers = ctrl.getAvailableServerList(); // get available server list
@@ -92,8 +92,6 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
             startButton.setToolTipText("Let the game begin!");
             startButton.setPreferredSize(buttonSize);
         }
-
-
 
         {   // create refresh button
             refreshButton = new JButton("Frissítés");
@@ -158,7 +156,6 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
                 }
                 break;
         }
-
     }
 
     @Override

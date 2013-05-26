@@ -63,35 +63,48 @@ public class Controller {
         return networkCommunicator.getAvailableGames();     // return server list
     }
 
-    // single player (vs AI) mode starter
-    public void startSingleGame(GameLevel level, TableSize size, String playerName) {
-        gameTypeView.dispose();             // close the game setup window
-        gameTypeView = null;                // release the gameTypeView object
-        // Create the game object
-        if (game != null) {
-            game.runFlag = false;
+    // when starting a new game, checks if there is a game setup window, and closes/releases it
+    // also stops the game thread if it exists
+    private void cleanUpExistingGameTypeView() {
+        if (gameTypeView != null) {             // at load from GPV it is null
+            gameTypeView.dispose();             // close the game setup window
+            gameTypeView = null;                // release the gameTypeView object
+        }
+    }
+
+    private void cleanUpExistingGame() {
+        if (game != null) {                     // at load from GPV or at new game
+            game.runFlag = false;               // stop existing thread
             iteration(-1, -1);
         }
+    }
+
+    // single player (vs AI) mode starter
+    public void startSingleGame(GameLevel level, TableSize size, String playerName) {
+        cleanUpExistingGameTypeView();      // clean up existing gameTypeView
+        cleanUpExistingGame();              // and game
+        // Create the game object
         game = new SinglePlayerGame(size, this, level);
         game.start();                       // start game thread
         // Create the GUI object
         gameView = new GamePlayView(size, this);
         new Thread(gameView).start();       // start gui thread
     }
-    
+
     // network mode, server starter
     public void startServerGame(TableSize size, String serverName, String playerName) {
+        cleanUpExistingGame();              // clean up existing game
         game = new ServerGame(size, this);      // Create the game object
         game.start();                           // start game thread
-        gameTypeView.dispose();                 // close the game setup window
-        gameTypeView = null;                    // release the object
+        cleanUpExistingGameTypeView();      // clean up existing gameTypeView
         gameView = new GamePlayView(size, this);// Create the GUI object
         new Thread(gameView).start();           // start gui thread
     }
 
     // network mode, client starter
     public void startClientGame(String plyerName, String choosenServer) {
-        gameTypeView = null;                        // release the object
+        cleanUpExistingGameTypeView();      // clean up existing gameTypeView
+        cleanUpExistingGame();              // and game
         serverView = null;                          // release the object
         game = new ClientGame(choosenServer, this); // Create the game object
         game.start();                               // start game thread
@@ -110,7 +123,7 @@ public class Controller {
         networkCommunicator = new NetworkCommunicator(type, this);  // create
         networkCommunicator.start();                    // and start a new one
     }
-    
+
     // stops nC
     public void stopNetworkCommunicator() {
         if (networkCommunicator != null) { // only if it exists
