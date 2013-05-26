@@ -305,8 +305,10 @@ public class GameTypeView extends JFrame implements ActionListener {
                             setServerClientBtnsEnabled(false);
                             setSingleMultiBtnsEnabled(false);
                             final String serverName = serverNameField.getText();
-                            startButton.setText("Waiting for a client to connect... Click to cancel!");
+                            //Waiting for a client to connect... 
+                            startButton.setText("Kliensre várakozás...Megszakításhoz klikkelj!");
                           //  print(getGraphics());
+                            // waiting for the client in background thread
                             serverWorker = new SwingWorker() {
                                 @Override
                                 protected Object doInBackground() throws Exception {
@@ -314,18 +316,19 @@ public class GameTypeView extends JFrame implements ActionListener {
                                     return 0;
                                 }
                             };
-                            serverWorker.execute();
+                            serverWorker.execute(); // start the thread
                             serverWaiting = true;
                         } else {
-                            serverWorker.cancel(true);
-                            startButton.setText(startString);
+                            serverWorker.cancel(true); //user canceled the waiting so we have to kill the thread
+                            startButton.setText(startString); //restore the startbuttons string
+                            //enable/disable buttons corresponding to selected mode
                             setSingleMultiBtnsEnabled(true);
                             setServerClientBtnsEnabled(true);
                             setSizeBtnsEnabled(true);
                             serverWaiting = false;
                         }
                     } else { //client mode
-                        // dispose(); //close this window and show the servers in other window
+                        // show the servers in another window
                         ctrl.showServers();
                     }
                 }

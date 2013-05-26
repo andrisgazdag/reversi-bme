@@ -96,7 +96,7 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
         //Create and set up the window.
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setContentPane(framePanel);
-        setPreferredSize(new Dimension(350, 200)); //set window size
+        setPreferredSize(new Dimension(360, 200)); //set window size
 
         //Display the window.
         pack();
@@ -118,23 +118,26 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
                     //popup error message dialog
                     JOptionPane.showMessageDialog(this, "Nincs szerver kiválasztva!", "Reversi", JOptionPane.ERROR_MESSAGE);
                 } else {
-                     if (!clientWaiting) {
+                     if (!clientWaiting) { //Waiting for server to start...
                         serverList.setEnabled(false);
                         refreshButton.setEnabled(false);
-                        startButton.setText("Waiting for server to start... Click to cancel!");
+                        startButton.setText("Várakozás a szerverre...Megszakításhoz klikkelj!"); 
                         //  print(getGraphics());
-                        clientWorker = new SwingWorker() {
+                        // waiting in background thread
+                        clientWorker = new SwingWorker() { 
                             @Override
                             protected Object doInBackground() throws Exception {
                                 ctrl.startClientGame(name, choosenServer); //start the game
                                 return 0;
                             }
                         };
-                        clientWorker.execute();
+                        clientWorker.execute(); //start the thread
                         clientWaiting = true;
-                    } else {
+                    } else { 
+                         //user canceled the waiting so we have to kill the thread
                         clientWorker.cancel(true);
-                        startButton.setText(startString);
+                        startButton.setText(startString);//restore the startbuttons string
+                        //restore initial state
                         serverList.setEnabled(true);
                         refreshButton.setEnabled(true);
                         clientWaiting = false;
@@ -156,6 +159,10 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
         }
     }
 
+    /**
+     * Try to get new list of available servers (with timeout)
+     * 
+     */
     private void refreshServerList() {
         serverList.removeAll();
         LOGGER.log(Level.FINEST, "Getting the server list...");
@@ -169,15 +176,15 @@ public class ServerListView extends JFrame implements ActionListener, ItemListen
             } catch (InterruptedException ex) {
                 Logger.getLogger(ServerListView.class.getName()).log(Level.SEVERE, null, ex);
             }
-            availableServers = ctrl.getAvailableServerList();  // get available server list
+            availableServers = ctrl.getAvailableServerList();  // try again to get available server list
         }
         LOGGER.log(Level.FINEST, "Server list recived");
         if (availableServers.length == 0 || availableServers[0] == null) { //no servers
             serverList.add("Nincs elérhető szerver...");
-        } else {
+        } else { //there is at least one available server
             for (String s : availableServers) {
                 LOGGER.log(Level.INFO, "Available server: {0}", s);
-                serverList.add(s); //add new servern to list
+                serverList.add(s); //add new server to list
             }
             choosenServer = serverList.getSelectedItem();//set the choosen server
         }
