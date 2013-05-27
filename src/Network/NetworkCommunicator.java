@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import static java.lang.Thread.sleep;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -56,6 +57,8 @@ public class NetworkCommunicator extends Thread {
     ServerSocket waitingServerSocket = null;
     // server port number
     int port = 60000;
+    
+  //  private Runnable checker;
 
     /**
      * C'tor of the NetworkCommunicator class
@@ -69,6 +72,8 @@ public class NetworkCommunicator extends Thread {
         this.controller = controller;
         this.communicatorIsNeeded = true;
         this.needToSearchForGames = true;
+        
+        
 
         LOGGER.log(Level.INFO, "New Networkcommunicator is created in mode: {0}", gameType);
     }
@@ -102,7 +107,6 @@ public class NetworkCommunicator extends Thread {
         LOGGER.log(Level.INFO, "Destruction done. Continuing with thred interruption...");
         this.interrupt(); 
     }
-
     /**
      * The main function of the thread.
      */
@@ -153,16 +157,21 @@ public class NetworkCommunicator extends Thread {
      * partner or not.
      */
     public boolean isConnected() {
-        return (connection != null) && (out != null) && (in != null);
+        boolean retval =  (connection != null) && (out != null) && (in != null) && 
+                (connection.isConnected()) && (!connection.isClosed()) && 
+                (connection.isBound()) && (!connection.isInputShutdown()) &&
+                (!connection.isOutputShutdown());
+        System.out.println("isconnected: " + retval);
+        return retval;
     }
     
     /**
-     * waits until another networkcommunicator connets to this nC
+     * waits until another network communicator connects to this nC
      */
     public void waitUntilConnected() {
         while (!isConnected()) {
             try {
-                Thread.sleep(10);
+                Thread.sleep(50);
             } catch (InterruptedException ex) {
                 System.out.println("Thread sleep exception in the NetworkCommunicator: " + ex.getLocalizedMessage());
             }
@@ -190,7 +199,7 @@ public class NetworkCommunicator extends Thread {
     public NetworkPacket recive() {
 
         NetworkPacket packet = null;
-
+     
         try {
             packet = (NetworkPacket) in.readObject();
             LOGGER.log(Level.FINER, "Packet recived: {0}", packet);
@@ -206,20 +215,19 @@ public class NetworkCommunicator extends Thread {
      * @param packet a GamePacket
      */
     public void send_gp(GamePacket packet) {
+            try {
+                // Reinitializing the ObjectOutputStream
+                out = new ObjectOutputStream(connection.getOutputStream());
+                out.flush();
 
-        try {
-            // Reinitializing the ObjectOutputStream
-            out = new ObjectOutputStream(connection.getOutputStream());
-            out.flush();
+                // Communicating with the server
+                out.writeObject(packet);
+                out.flush();
 
-            // Communicating with the server
-            out.writeObject(packet);
-            out.flush();
-
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Socket establishment Exception: {0}", e.getLocalizedMessage());
-        }
-
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Socket establishment Exception: {0}", e.getLocalizedMessage());
+                controller.networkDied();
+            }
     }
 
     /**
@@ -228,16 +236,15 @@ public class NetworkCommunicator extends Thread {
     public GamePacket recive_gp() {
 
         GamePacket packet = null;
-
-        try {
-            in = new ObjectInputStream(connection.getInputStream());
-            packet = (GamePacket) in.readObject();
-            LOGGER.log(Level.FINER, "Packet recived: {0}", packet);
-        } catch (IOException | ClassNotFoundException ex) {
-            LOGGER.log(Level.SEVERE, "Server could not be reserved: {0}", ex);
-        }
+            try {
+                in = new ObjectInputStream(connection.getInputStream());
+                packet = (GamePacket) in.readObject();
+                LOGGER.log(Level.FINER, "Packet recived: {0}", packet);
+            } catch (IOException | ClassNotFoundException ex) {
+                LOGGER.log(Level.SEVERE, "Server could not be reserved: {0}", ex);
+                controller.networkDied();
+            }
         return packet;
-
     }
 
     /**

@@ -291,4 +291,9 @@ public class GamePlayView extends JFrame implements Runnable {
         JOptionPane.showMessageDialog(this, "Vesztettél!", "Reversi", JOptionPane.INFORMATION_MESSAGE);
         setTitle("Reversi - Vesztettél!");
     }
+    
+        public void showNetworkError() { //popup user loosed
+        JOptionPane.showMessageDialog(this, "Hálózati hiba, kezdj új játékot!", "Reversi", JOptionPane.ERROR_MESSAGE);
+        setTitle("Reversi - Hálózati hiba!");
+    }
 }

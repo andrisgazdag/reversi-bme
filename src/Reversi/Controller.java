@@ -294,6 +294,13 @@ public class Controller {
         game.runFlag = false;       // signalising the game thread to stop
         stopNetworkCommunicator();  // stopping nC
     }
+    
+    public void networkDied()
+    {
+        gameView.showNetworkError();
+        game.runFlag=false;
+        stopNetworkCommunicator();
+    }
 
     // logger setup
     private void initLogger() {
